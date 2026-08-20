@@ -4,10 +4,10 @@ import { join, resolve } from "node:path";
 import test from "node:test";
 
 const root = resolve(import.meta.dirname, "..");
-const templates = ["project", "task", "resource", "decision", "weekly-report"];
+const durableTemplates = ["project", "task", "resource", "decision"];
 
-test("Company OS record templates expose consistent metadata", () => {
-  for (const name of templates) {
+test("durable Company OS records expose consistent metadata and value framing", () => {
+  for (const name of durableTemplates) {
     const content = readFileSync(join(root, "templates", `${name}.md`), "utf8");
     assert.match(content, /^---\ntemplate_id: company-os-/);
     assert.match(content, /template_version: "0\.2\.0"/);
@@ -19,6 +19,17 @@ test("Company OS record templates expose consistent metadata", () => {
     assert.match(content, /> \*\*Outcome\*\*/);
     assert.match(content, /> \*\*Why\*\*/);
   }
+});
+
+test("Weekly Report opens with an executable executive-summary template", () => {
+  const report = readFileSync(join(root, "templates", "weekly-report.md"), "utf8");
+  assert.match(report, /template_version: "0\.3\.0"/);
+  assert.match(report, /opens_with:\n  - executive-summary/);
+  assert.doesNotMatch(report, /> \*\*Outcome\*\*/);
+  assert.doesNotMatch(report, /> \*\*Why\*\*/);
+  assert.match(report, /\{\{EXECUTIVE_SUMMARY — Write exactly three sentences:/);
+  assert.match(report, /\{\{Promote to Issue \\| Duplicate \\| Monitor \\| Dismiss\}\}/);
+  assert.match(report, /`evidence_window:` \{\{START_TIMESTAMP\}\}\.\.\{\{END_TIMESTAMP\}\}/);
 });
 
 test("Tasks are the shared Task, Issue, and Meeting table", () => {
@@ -66,4 +77,38 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
   assert.match(daily, /Send nothing unless the/);
   assert.match(weekly, /accepted candidates to Tasks with `Type = Issue`/);
   assert.match(weekly, /No canonical work item was cleared or deleted/);
+});
+
+test("automation files pair fill-in-place output templates with golden examples", () => {
+  for (const filename of ["daily-operating-update.md", "weekly-operating-review.md"]) {
+    const content = readFileSync(join(root, "automations", filename), "utf8");
+    assert.match(content, /automation_version: "0\.3\.0"/);
+    assert.match(content, /## Output template/);
+    assert.match(content, /\{\{[^\n}]+\}\}/);
+    assert.match(content, /## Golden example/);
+    assert.match(content, /### Input and context/);
+    assert.match(content, /### Accepted output/);
+    assert.match(content, /### Why it passes/);
+    assert.match(content, /### Tempting negative/);
+    assert.match(content, /### Transferable invariants/);
+    assert.match(content, /### Non-copyable facts and wording/);
+    assert.match(content, /### Proof receipt/);
+    assert.match(content, /heldout_required: true/);
+    assert.match(content, /Generate fresh (findings|conclusions) and wording from the current company's evidence/);
+  }
+});
+
+test("every Weekly promotion lane carries the disposition enum at point of use", () => {
+  const weekly = readFileSync(join(root, "automations", "weekly-operating-review.md"), "utf8");
+  for (const process of [
+    "issue-promotion",
+    "decision-promotion",
+    "resource-promotion",
+    "skill-promotion",
+  ]) {
+    assert.match(
+      weekly,
+      new RegExp("`" + process + "` \\| \\{\\{Candidate plus Promoted \\\\\\| Duplicate \\\\\\| Monitor \\\\\\| Dismissed\\}\\}"),
+    );
+  }
 });

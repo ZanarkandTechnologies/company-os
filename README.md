@@ -51,8 +51,9 @@ runtime state stay outside the company context file.
 - [Onboarding guide](docs/hermes-company-os-onboarding.md) — product flow,
   ownership, completion, and safety boundaries.
 - [Company record templates](templates/) — metadata-backed Project, Task,
-  Resource, Decision, and Weekly Report pages. Each starts with one indented
-  value card so its Outcome and Why are visible before the detail.
+  Resource, Decision, and Weekly Report pages. Durable operating records start
+  with an Outcome/Why value card; Weekly Reports open with the executive result
+  the reader needs.
 - [Automation index](automations.md) — Daily accumulation and Weekly
   finalization contracts.
 - [Company architecture](ARCHITECTURE.md) — isolated company workspace model.
