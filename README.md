@@ -59,6 +59,9 @@ runtime state stay outside the company context file.
   the reader needs.
 - [Automation index](automations.md) — Daily accumulation and Weekly
   finalization contracts.
+- [Authored filesystem eval template](templates/authored-filesystem-evals/README.md)
+  — local UI and isolated runner for created/modified/deleted file events plus
+  added/removed/present/absent content assertions.
 - [Company architecture](ARCHITECTURE.md) — isolated company workspace model.
 
 ```bash

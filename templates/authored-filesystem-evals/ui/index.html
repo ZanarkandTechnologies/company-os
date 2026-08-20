@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Authored filesystem evals</title>
+  <style>
+    :root { color-scheme: dark; --bg:#11130f; --panel:#181b16; --line:#3a4035; --text:#f0eee5; --muted:#a5aa9b; --signal:#c8ff57; --danger:#ff8d78; font:14px/1.45 Inter, ui-sans-serif, system-ui, sans-serif; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); }
+    button,input,textarea,select { font:inherit; }
+    button { border:1px solid var(--line); padding:.65rem .9rem; color:var(--text); background:transparent; cursor:pointer; }
+    button:hover,button:focus-visible { border-color:var(--signal); outline:none; }
+    button.primary { color:#11130f; background:var(--signal); border-color:var(--signal); font-weight:700; }
+    .shell { display:grid; grid-template-columns:260px minmax(0,1fr); min-height:100vh; }
+    aside { padding:24px; border-right:1px solid var(--line); background:#0d0f0c; }
+    main { width:min(980px,100%); padding:40px clamp(20px,5vw,64px) 80px; }
+    h1 { margin:.2rem 0 2rem; font-size:clamp(2rem,5vw,4.5rem); line-height:.95; letter-spacing:-.05em; }
+    h2,h3,p { margin-top:0; }
+    .eyebrow,label,legend { color:var(--muted); font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .case-list { display:grid; gap:8px; margin-top:18px; }
+    .case-list button { text-align:left; }
+    .section { margin:0 0 22px; padding:22px; border:1px solid var(--line); background:var(--panel); }
+    .section-head,.actions,.row-head { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .field { display:grid; gap:7px; }
+    .field.full { grid-column:1/-1; }
+    input,textarea,select { width:100%; border:1px solid var(--line); padding:.7rem; color:var(--text); background:#0e100d; }
+    textarea { min-height:100px; resize:vertical; }
+    .card { margin-top:12px; padding:16px; border:1px solid var(--line); background:#121510; }
+    .content-row { display:grid; grid-template-columns:130px minmax(0,1fr) auto; gap:8px; margin-top:8px; }
+    .hint,.status { color:var(--muted); }
+    .status.pass { color:var(--signal); } .status.fail { color:var(--danger); }
+    pre { overflow:auto; padding:16px; border:1px solid var(--line); color:#d6dacd; background:#090b08; white-space:pre-wrap; }
+    ul.checks { margin:0; padding:0; list-style:none; }
+    .checks li { padding:7px 0; border-bottom:1px solid var(--line); }
+    @media (max-width:760px) { .shell{grid-template-columns:1fr} aside{border-right:0;border-bottom:1px solid var(--line)} .grid{grid-template-columns:1fr} .field.full{grid-column:auto} }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <p class="eyebrow">Filesystem proof</p>
+      <h2>Saved cases</h2>
+      <button id="new-case" type="button">New case</button>
+      <div class="case-list" id="case-list"></div>
+    </aside>
+    <main>
+      <p class="eyebrow">Hermes Company OS template</p>
+      <h1>Describe the change. Prove the files.</h1>
+      <form id="case-form">
+        <section class="section">
+          <h2>1 / Situation</h2>
+          <div class="grid">
+            <div class="field"><label for="case-id">Test ID</label><input id="case-id" required></div>
+            <div class="field"><label for="case-title">Title</label><input id="case-title" required></div>
+            <div class="field full"><label for="owner-message">Owner message</label><textarea id="owner-message" required></textarea></div>
+          </div>
+        </section>
+        <section class="section">
+          <h2>2 / Disposable profile</h2>
+          <div class="grid">
+            <div class="field"><label for="profile-name">Profile name</label><input id="profile-name"></div>
+            <div class="field"><label for="profile-skills">Skills, comma separated</label><input id="profile-skills"></div>
+            <div class="field full"><label for="profile-soul">Manager brief</label><textarea id="profile-soul"></textarea></div>
+            <div class="field full"><label for="profile-memory">Working memory</label><textarea id="profile-memory"></textarea></div>
+          </div>
+          <p class="hint">A real run receives only the file and skills toolsets inside a fresh workspace.</p>
+        </section>
+        <section class="section">
+          <div class="section-head"><div><h2>3 / Starting files</h2><p class="hint">The complete synthetic world before Hermes acts.</p></div><button id="add-fixture" type="button">Add file</button></div>
+          <div id="fixture-list"></div>
+        </section>
+        <section class="section">
+          <div class="section-head"><div><h2>4 / Expected file events</h2><p class="hint">Created, modified, or deleted—with optional content relations.</p></div><button id="add-assertion" type="button">Add event</button></div>
+          <div id="assertion-list"></div>
+        </section>
+        <div class="actions">
+          <div><button type="submit">Save JSON</button> <button type="button" data-action="prepare">Prepare isolated session</button> <button class="primary" type="button" data-action="run">Run in Hermes</button></div>
+          <p class="status" id="status" aria-live="polite">Ready.</p>
+        </div>
+      </form>
+      <details><summary>Portable JSON</summary><pre id="json-preview"></pre></details>
+      <section class="section" id="results" hidden><h2>Latest result</h2><p class="status" id="result-status"></p><ul class="checks" id="result-checks"></ul></section>
+    </main>
+  </div>
+  <script>
+    const $ = id => document.getElementById(id);
+    const relations = ["added","removed","present","absent"];
+    const emptyCase = () => ({ schema_version:1, id:"new-file-proof", title:"New filesystem proof", owner_message:"", profile:{ name:"Test Manager", soul:"Use only the supplied evidence. State missing evidence plainly.", memory:"", skills:[] }, fixture_files:[], file_assertions:[{ path:"artifacts/output.md", event:"created", content:{ added:[], removed:[], present:[], absent:[] } }] });
+    let cases = [], draft = emptyCase();
+    const copy = value => JSON.parse(JSON.stringify(value));
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]));
+
+    function collect() {
+      draft.id = $("case-id").value; draft.title = $("case-title").value; draft.owner_message = $("owner-message").value;
+      draft.profile = { name:$("profile-name").value, skills:$("profile-skills").value.split(",").map(x=>x.trim()).filter(Boolean), soul:$("profile-soul").value, memory:$("profile-memory").value };
+      $("json-preview").textContent = JSON.stringify(draft,null,2);
+      return draft;
+    }
+
+    function contentRows(assertion,index) {
+      const rows = relations.flatMap(relation => assertion.content[relation].map((text,textIndex) => `<div class="content-row"><select data-content-relation="${relation}" data-assertion="${index}" data-content-index="${textIndex}">${relations.map(item=>`<option value="${item}"${item===relation?" selected":""}>text ${item}</option>`).join("")}</select><input value="${escapeHtml(text)}" data-content-text data-assertion="${index}" data-content-relation="${relation}" data-content-index="${textIndex}"><button type="button" data-remove-content data-assertion="${index}" data-content-relation="${relation}" data-content-index="${textIndex}">Remove</button></div>`));
+      return rows.join("") || '<p class="hint">No content assertions yet.</p>';
+    }
+
+    function render() {
+      $("case-id").value=draft.id; $("case-title").value=draft.title; $("owner-message").value=draft.owner_message;
+      $("profile-name").value=draft.profile.name; $("profile-skills").value=draft.profile.skills.join(", "); $("profile-soul").value=draft.profile.soul; $("profile-memory").value=draft.profile.memory;
+      $("case-list").innerHTML = cases.length ? cases.map(item=>`<button type="button" data-case="${item.id}"><strong>${escapeHtml(item.title)}</strong><br><span class="hint">${item.file_assertions.length} file event${item.file_assertions.length===1?"":"s"}</span></button>`).join("") : '<p class="hint">No saved cases.</p>';
+      $("fixture-list").innerHTML = draft.fixture_files.map((file,index)=>`<div class="card"><div class="row-head"><strong>Starting file ${index+1}</strong><button type="button" data-remove-fixture="${index}">Remove</button></div><div class="field"><label>Path</label><input value="${escapeHtml(file.path)}" data-fixture-path="${index}"></div><div class="field"><label>Content</label><textarea data-fixture-content="${index}">${escapeHtml(file.content)}</textarea></div></div>`).join("") || '<p class="hint">No starting files.</p>';
+      $("assertion-list").innerHTML = draft.file_assertions.map((assertion,index)=>`<div class="card"><div class="row-head"><strong>File event ${index+1}</strong><button type="button" data-remove-assertion="${index}">Remove</button></div><div class="grid"><div class="field"><label>Path</label><input value="${escapeHtml(assertion.path)}" data-assertion-path="${index}"></div><div class="field"><label>Event</label><select data-assertion-event="${index}">${["created","modified","deleted"].map(event=>`<option${event===assertion.event?" selected":""}>${event}</option>`).join("")}</select></div></div><details><summary>Content assertions</summary>${contentRows(assertion,index)}<button type="button" data-add-content="${index}">Add content check</button></details></div>`).join("");
+      collect();
+    }
+
+    function normalizeContent(assertion) { assertion.content ||= {}; for (const relation of relations) assertion.content[relation] ||= []; return assertion.content; }
+    async function api(body) { const response=await fetch("/api/cases",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)}); const data=await response.json(); if(!response.ok) throw new Error(data.error||"Request failed"); return data; }
+    async function load() { const response=await fetch("/api/cases"); const data=await response.json(); cases=data.cases||[]; if(cases[0]) draft=copy(cases[0]); render(); if(cases[0]) loadResult(cases[0].id); }
+    async function loadResult(id) { const response=await fetch(`/api/results/latest?id=${encodeURIComponent(id)}`); const data=await response.json(); const result=data.latest; $("results").hidden=!result; if(!result)return; $("result-status").textContent=`${result.status} · ${result.score?.counts?.pass||0} passed · ${result.score?.counts?.fail||0} failed`; $("result-status").className=`status ${result.score?.pass?"pass":"fail"}`; $("result-checks").innerHTML=(result.score?.checks||[]).map(check=>`<li class="${check.pass?"status pass":"status fail"}">${check.pass?"PASS":"FAIL"} · ${escapeHtml(check.label)}</li>`).join(""); }
+    async function act(action) { try { collect(); $("status").textContent=`${action}…`; const data=action==="save"?await api({action,definition:draft}):await api({action,id:draft.id}); if(data.cases)cases=data.cases; $("status").textContent=action==="save"?`Saved ${draft.id}.json`:`${action} complete: ${data.prepared?.workspace||data.outputRoot}`; render(); await loadResult(draft.id); } catch(error) { $("status").textContent=error.message; $("status").className="status fail"; } }
+
+    $("case-form").addEventListener("submit",event=>{event.preventDefault();act("save")});
+    $("new-case").addEventListener("click",()=>{draft=emptyCase();render()});
+    $("add-fixture").addEventListener("click",()=>{collect();draft.fixture_files.push({path:"sources/input.md",content:""});render()});
+    $("add-assertion").addEventListener("click",()=>{collect();draft.file_assertions.push({path:"artifacts/output.md",event:"created",content:{added:[],removed:[],present:[],absent:[]}});render()});
+    document.addEventListener("click",event=>{const target=event.target.closest("button");if(!target)return;if(target.dataset.case){draft=copy(cases.find(item=>item.id===target.dataset.case));render();loadResult(draft.id)}else if(target.dataset.action)act(target.dataset.action);else if(target.dataset.removeFixture!==undefined){collect();draft.fixture_files.splice(Number(target.dataset.removeFixture),1);render()}else if(target.dataset.removeAssertion!==undefined){collect();draft.file_assertions.splice(Number(target.dataset.removeAssertion),1);render()}else if(target.dataset.addContent!==undefined){collect();normalizeContent(draft.file_assertions[Number(target.dataset.addContent)]).present.push("");render()}else if(target.hasAttribute("data-remove-content")){collect();normalizeContent(draft.file_assertions[Number(target.dataset.assertion)])[target.dataset.contentRelation].splice(Number(target.dataset.contentIndex),1);render()}});
+    document.addEventListener("input",event=>{const t=event.target;if(t.dataset.fixturePath!==undefined)draft.fixture_files[Number(t.dataset.fixturePath)].path=t.value;if(t.dataset.fixtureContent!==undefined)draft.fixture_files[Number(t.dataset.fixtureContent)].content=t.value;if(t.dataset.assertionPath!==undefined)draft.file_assertions[Number(t.dataset.assertionPath)].path=t.value;if(t.dataset.contentText!==undefined)normalizeContent(draft.file_assertions[Number(t.dataset.assertion)])[t.dataset.contentRelation][Number(t.dataset.contentIndex)]=t.value;collect()});
+    document.addEventListener("change",event=>{const t=event.target;if(t.dataset.assertionEvent!==undefined)draft.file_assertions[Number(t.dataset.assertionEvent)].event=t.value;if(t.dataset.contentRelation!==undefined){const assertion=draft.file_assertions[Number(t.dataset.assertion)],content=normalizeContent(assertion),old=t.dataset.contentRelation,[text]=content[old].splice(Number(t.dataset.contentIndex),1);content[t.value].push(text);render()}collect()});
+    load().catch(error=>{$("status").textContent=error.message;$("status").className="status fail"});
+  </script>
+</body>
+</html>
