@@ -10,11 +10,14 @@ test("Company OS record templates expose consistent metadata", () => {
   for (const name of templates) {
     const content = readFileSync(join(root, "templates", `${name}.md`), "utf8");
     assert.match(content, /^---\ntemplate_id: company-os-/);
-    assert.match(content, /template_version: "0\.1\.0"/);
+    assert.match(content, /template_version: "0\.2\.0"/);
     assert.match(content, /kind: company-record-template/);
     assert.match(content, /status: active/);
     assert.match(content, /owner: HermesCorp/);
+    assert.match(content, /opens_with:\n  - outcome\n  - why/);
     assert.match(content, /required_properties:/);
+    assert.match(content, /> \*\*Outcome\*\*/);
+    assert.match(content, /> \*\*Why\*\*/);
   }
 });
 
@@ -38,13 +41,29 @@ test("automation index resolves both independent automation files", () => {
     assert.match(index, new RegExp(`automations/${filename.replace(".", "\\.")}`));
   }
   assert.match(index, /`Task`, `Issue`, and `Meeting`/);
+  assert.match(index, /> \*\*Outcome\*\*/);
+  assert.match(index, /> \*\*Why\*\*/);
 });
 
 test("Daily stages candidates and Weekly owns selective promotion", () => {
   const daily = readFileSync(join(root, "automations/daily-operating-update.md"), "utf8");
   const weekly = readFileSync(join(root, "automations/weekly-operating-review.md"), "utf8");
+  for (const process of [
+    "progress-extraction",
+    "problem-extraction",
+    "sop-extraction",
+    "document-quality",
+    "chase-planning",
+    "weekly-draft-projection",
+  ]) {
+    assert.match(daily, new RegExp("> ### `" + process + "`"));
+  }
+  assert.doesNotMatch(daily, /Progress and chasing/);
+  for (const process of ["issue-promotion", "decision-promotion", "skill-promotion"]) {
+    assert.match(weekly, new RegExp("> ### `" + process + "`"));
+  }
   assert.match(daily, /must not promote Issues, Decisions,\nResources, or Skills/);
   assert.match(daily, /Send nothing unless the/);
-  assert.match(weekly, /promote an accepted problem into Tasks with `Type = Issue`/);
+  assert.match(weekly, /accepted candidates to Tasks with `Type = Issue`/);
   assert.match(weekly, /No canonical work item was cleared or deleted/);
 });

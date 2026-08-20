@@ -1,10 +1,13 @@
 ---
 template_id: company-os-project
-template_version: "0.1.0"
+template_version: "0.2.0"
 kind: company-record-template
 record_type: project
 status: active
 owner: HermesCorp
+opens_with:
+  - outcome
+  - why
 required_properties:
   - name
   - department
@@ -16,13 +19,17 @@ required_properties:
 
 # {{PROJECT_NAME}}
 
-## Objective
-
-<!-- Why this project exists and the measurable outcome it should produce. -->
+> **Outcome**
+>
+> _State the measurable result this project should produce._
+>
+> **Why**
+>
+> _Name the customer or business value, strategic reason, or risk being reduced._
 
 ## Current context
 
-<!-- Keep to five bullets: phase, constraints, dependencies, and assumptions. -->
+<!-- Keep this to five bullets: phase, constraints, dependencies, and assumptions. -->
 
 ## This week
 

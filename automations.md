@@ -1,12 +1,26 @@
 ---
 document_id: company-os-automations
-document_version: "0.1.0"
+document_version: "0.2.0"
 kind: automation-index
 status: draft
 owner: HermesCorp
+opens_with:
+  - outcome
+  - why
 ---
 
 # Company OS automations
+
+> **Outcome**
+>
+> Keep company records useful with one shared evidence pass each day and one
+> weekly review that promotes only future-useful records.
+>
+> **Why**
+>
+> Reduce follow-up work, surface recurring problems, preserve important context,
+> and improve documentation without turning every note or choice into permanent
+> company knowledge.
 
 Company OS uses one incremental Daily automation and one Weekly finalization
 automation. Daily ingests changed evidence once and updates the current weekly
@@ -28,6 +42,23 @@ changed Tasks + embedded Meeting notes + changed documents
 | --- | --- | --- | --- |
 | [Daily operating update](automations/daily-operating-update.md) | Daily | Incremental evidence, candidate extraction, draft updates, stale-work proposals | Promoting Issues, Decisions, Resources, or Skills; sending unapproved messages |
 | [Weekly operating review](automations/weekly-operating-review.md) | Weekly | Plan comparison, candidate review, approved promotion, report finalization | Deleting canonical work items; inventing approvals or decision rationale |
+
+## Process model
+
+An automation owns the schedule, evidence window, process order, and final
+receipt. A process owns one kind of judgment or write inside that automation.
+Processes may share the same evidence bundle without sharing responsibilities.
+
+> **Automation**
+>
+> `schedule + evidence bundle + ordered processes + receipt`
+>
+> **Process**
+>
+> `owned input + one decision + owned output + boundary`
+
+This distinction keeps extraction, promotion, quality review, and external
+follow-up independently testable even when they run from the same Markdown file.
 
 ## Shared rules
 

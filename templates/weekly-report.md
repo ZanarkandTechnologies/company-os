@@ -1,11 +1,14 @@
 ---
 template_id: company-os-weekly-report
-template_version: "0.1.0"
+template_version: "0.2.0"
 kind: company-record-template
 record_type: weekly-report
 status: active
 owner: HermesCorp
 lifecycle: draft-then-immutable
+opens_with:
+  - outcome
+  - why
 required_properties:
   - name
   - project
@@ -16,9 +19,17 @@ required_properties:
 
 # {{PROJECT_NAME}} — Week of {{WEEK_START}}
 
+> **Outcome**
+>
+> _State the result this week was meant to produce._
+>
+> **Why**
+>
+> _Name the target, risk, milestone, customer need, or executive question that made this week matter._
+
 ## Executive summary
 
-<!-- Exactly three sentences: outcome, main problem, and next priority. -->
+<!-- Use exactly three sentences: outcome, main problem, and next priority. -->
 
 ## Plan versus actual
 

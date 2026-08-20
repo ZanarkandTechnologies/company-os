@@ -1,11 +1,14 @@
 ---
 template_id: company-os-resource
-template_version: "0.1.0"
+template_version: "0.2.0"
 kind: company-record-template
 record_type: resource
 status: active
 owner: HermesCorp
 promotion_gate: future-value
+opens_with:
+  - outcome
+  - why
 required_properties:
   - name
   - project
@@ -18,17 +21,23 @@ required_properties:
 
 # {{RESOURCE_NAME}}
 
-> Promote content into Resources only when it will probably be reused, prevents
-> repeated research or mistakes, explains durable context, or supports an
-> approved decision or procedure.
+> **Outcome**
+>
+> _State the future question this resource answers or the work it makes easier._
+>
+> **Why**
+>
+> _Explain why this belongs outside the original Task or Meeting notes._
 
-## Purpose
-
-<!-- What future question this resource answers. -->
+> **Promotion gate**
+>
+> Keep this only when someone will probably reuse it, it prevents repeated
+> research or mistakes, it explains durable context, or it supports an approved
+> Decision or Skill.
 
 ## Summary
 
-<!-- Reusable knowledge without task-local chatter. -->
+<!-- Keep the reusable knowledge. Remove task-local chatter. -->
 
 ## Use when
 

@@ -1,10 +1,13 @@
 ---
 template_id: company-os-task
-template_version: "0.1.0"
+template_version: "0.2.0"
 kind: company-record-template
 record_type: work-item
 status: active
 owner: HermesCorp
+opens_with:
+  - outcome
+  - why
 type_options:
   - Task
   - Issue
@@ -22,13 +25,17 @@ required_properties:
 
 # {{WORK_ITEM_NAME}}
 
-## Outcome or meeting purpose
-
-<!-- Define done for a Task or Issue; define the purpose for a Meeting. -->
+> **Outcome**
+>
+> _For a Task or Issue, define done. For a Meeting, state what the meeting must accomplish._
+>
+> **Why**
+>
+> _Explain why this matters now: customer impact, business value, risk, dependency, or learning._
 
 ## Current status
 
-<!-- Latest meaningful progress, constraint, and next action. Skip for a completed Meeting. -->
+<!-- Record the latest meaningful progress, constraint, and next action. Skip for a completed Meeting. -->
 
 ## Meeting notes and updates
 
@@ -36,7 +43,7 @@ required_properties:
 
 ## Commitments and follow-ups
 
-<!-- Owner, commitment, due date, and related Task or Issue. -->
+<!-- Record the owner, commitment, due date, and related Task or Issue. -->
 
 ## Evidence
 

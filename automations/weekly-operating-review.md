@@ -1,19 +1,36 @@
 ---
 automation_id: company-os-weekly-operating-review
-automation_version: "0.1.0"
+automation_version: "0.2.0"
 kind: company-os-automation
 cadence: weekly
 status: draft
 owner: HermesCorp
 input_window: current-reporting-week
+opens_with:
+  - outcome
+  - why
+processes:
+  - plan-review
+  - issue-promotion
+  - decision-promotion
+  - resource-promotion
+  - skill-promotion
+  - quality-follow-up
+  - report-finalization
+  - next-week-setup
 ---
 
 # Weekly operating review
 
-## Objective
-
-Turn the accumulated weekly draft into an executive snapshot, selectively
-promote future-useful records, and open the next reporting window.
+> **Outcome**
+>
+> Turn the weekly draft into an executive snapshot, promote useful records, and
+> open the next reporting window.
+>
+> **Why**
+>
+> Keep Daily findings from becoming clutter by deciding what deserves to become
+> an Issue, Decision, Resource, or Skill.
 
 ## Reads
 
@@ -21,26 +38,75 @@ promote future-useful records, and open the next reporting window.
 - Previous finalized report and current Project context.
 - Related Tasks, Decisions, Resources, Skills, and People.
 
+## Process lanes
+
+Weekly lanes review Daily candidates by value gate, then either promote them or
+leave them in the report with an explicit disposition.
+
+> ### `plan-review`
+>
+> **Reviews:** planned work, actual Task evidence, and unresolved commitments.
+>
+> **Writes:** the executive summary, Plan versus actual, and proposed next-week commitments.
+
+> ### `issue-promotion`
+>
+> **Reviews:** Problem candidates for recurrence, impact, evidence, and owner relevance.
+>
+> **Writes:** accepted candidates to Tasks with `Type = Issue`; otherwise a disposition.
+
+> ### `decision-promotion`
+>
+> **Reviews:** Decision candidates for precedent value, rationale, and authority.
+>
+> **Writes:** a Decision record or a report-only disposition.
+
+> ### `resource-promotion`
+>
+> **Reviews:** candidate knowledge against the future-value gate.
+>
+> **Writes:** a Resource record or a report-only disposition.
+
+> ### `skill-promotion`
+>
+> **Reviews:** SOP candidates for repeatability evidence and owner approval.
+>
+> **Writes:** a Skill creation request or a report-only disposition.
+
+> ### `quality-follow-up`
+>
+> **Reviews:** documentation-quality proposals against the approved write policy.
+>
+> **Writes:** an approved comment or edit, or a deferred follow-up.
+
+> ### `report-finalization`
+>
+> **Reads:** the reviewed plan and every promotion disposition.
+>
+> **Writes:** one immutable weekly Report with links to evidence and promoted records.
+
+> ### `next-week-setup`
+>
+> **Reads:** the finalized Report and unresolved commitments.
+>
+> **Writes:** the next weekly draft and proposed commitments for owner approval.
+
+```text
+weekly_operating_review(weekly_draft, project_context, promotion_policy)
+  -> finalized_report + promoted_records + next_week_draft + receipt
+state: freezes the current report; opens the next reporting window
+```
+
 ## Flow
 
-1. Reconcile the week's planned work against actual task evidence. Carry
-   unresolved commitments forward by reference; never delete canonical Tasks.
-2. Produce the three-sentence executive summary, what went well, main problems,
-   follow-ups, and proposed next-week commitments.
-3. Review each accumulated candidate:
-   - promote an accepted problem into Tasks with `Type = Issue`;
-   - promote a decision only when it has future precedent and confirmed
-     rationale and authority;
-   - promote content into Resources only when the future-value gate passes;
-   - promote an SOP into Skills only when it is repeatable and owner-reviewed;
-   - leave duplicates, weak evidence, and low-value observations in the report
-     with a disposition.
-4. Review documentation-quality proposals. Apply or comment only under the
-   company's approved write policy.
-5. Freeze the weekly report as immutable and preserve links to every promoted
-   record and source receipt.
-6. Update each Project's short Current context from the finalized report, open
-   the next weekly draft, and stage next-week commitments for owner approval.
+1. Run `plan-review`; carry unresolved commitments by reference and never delete
+   canonical Tasks.
+2. Run the four promotion lanes. Give every candidate a disposition, including
+   duplicates and low-value observations that stay in the Report.
+3. Run `quality-follow-up` under the company's approved write policy.
+4. Run `report-finalization` and preserve links to evidence, dispositions, and
+   promoted records.
+5. Run `next-week-setup` and leave its proposed commitments for owner approval.
 
 ## Write boundary
 

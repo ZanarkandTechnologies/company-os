@@ -1,11 +1,14 @@
 ---
 template_id: company-os-decision
-template_version: "0.1.0"
+template_version: "0.2.0"
 kind: company-record-template
 record_type: decision-precedent
 status: active
 owner: HermesCorp
 promotion_gate: precedent-value
+opens_with:
+  - outcome
+  - why
 required_properties:
   - decision
   - projects
@@ -17,8 +20,18 @@ required_properties:
 
 # {{DECISION}}
 
-> Promote only decisions that are costly to reverse, affect several people,
-> establish precedent, resolve a recurring tradeoff, or explain an important
+> **Outcome**
+>
+> _State the Decision now in force and the behavior it changes._
+>
+> **Why**
+>
+> _Explain why this deserves precedent status instead of staying in Task or Report context._
+
+> **Promotion gate**
+>
+> Keep this only when the Decision is costly to reverse, affects several people,
+> establishes precedent, resolves a recurring tradeoff, or explains an important
 > constraint.
 
 ## Context
