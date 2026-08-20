@@ -64,6 +64,7 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
     "problem-extraction",
     "sop-extraction",
     "document-quality",
+    "record-completeness",
     "chase-planning",
     "weekly-draft-projection",
   ]) {
@@ -73,8 +74,10 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
   for (const process of ["issue-promotion", "decision-promotion", "skill-promotion"]) {
     assert.match(weekly, new RegExp("> ### `" + process + "`"));
   }
-  assert.match(daily, /must not promote Issues, Decisions,\nResources, or Skills/);
+  assert.match(daily, /must not promote Issues, Decisions, Resources, or Skills/);
   assert.match(daily, /Send nothing unless the/);
+  assert.match(daily, /Post a\n   source-local comment only under an approved comment policy/);
+  assert.match(daily, /never asks for facts available elsewhere or repeats an unresolved request/);
   assert.match(weekly, /accepted candidates to Tasks with `Type = Issue`/);
   assert.match(weekly, /No canonical work item was cleared or deleted/);
 });
@@ -82,7 +85,8 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
 test("automation files pair fill-in-place output templates with golden examples", () => {
   for (const filename of ["daily-operating-update.md", "weekly-operating-review.md"]) {
     const content = readFileSync(join(root, "automations", filename), "utf8");
-    assert.match(content, /automation_version: "0\.3\.0"/);
+    const expectedVersion = filename === "daily-operating-update.md" ? "0.4.0" : "0.3.0";
+    assert.match(content, new RegExp(`automation_version: "${expectedVersion.replaceAll(".", "\\.")}"`));
     assert.match(content, /## Output template/);
     assert.match(content, /\{\{[^\n}]+\}\}/);
     assert.match(content, /## Golden example/);
@@ -96,6 +100,19 @@ test("automation files pair fill-in-place output templates with golden examples"
     assert.match(content, /heldout_required: true/);
     assert.match(content, /Generate fresh (findings|conclusions) and wording from the current company's evidence/);
   }
+});
+
+test("Daily completeness follow-up is distinct, specific, and policy-gated", () => {
+  const daily = readFileSync(join(root, "automations", "daily-operating-update.md"), "utf8");
+  const index = readFileSync(join(root, "automations.md"), "utf8");
+  assert.match(daily, /- record-completeness/);
+  assert.match(daily, /> ### `record-completeness`/);
+  assert.match(daily, /Missing fact, why it blocks reporting or promotion, and the one useful question/);
+  assert.match(daily, /Posted internal comment \\| Comment proposal \\| No write/);
+  assert.match(daily, /Which required packet inputs were missing/);
+  assert.match(daily, /reruns\n  do not repeat an unresolved comment/);
+  assert.match(index, /completeness questions/);
+  assert.match(index, /Without an approved source-comment policy, Daily saves a proposal/);
 });
 
 test("every Weekly promotion lane carries the disposition enum at point of use", () => {

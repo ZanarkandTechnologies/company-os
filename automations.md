@@ -1,6 +1,6 @@
 ---
 document_id: company-os-automations
-document_version: "0.2.0"
+document_version: "0.3.0"
 kind: automation-index
 status: draft
 owner: HermesCorp
@@ -30,7 +30,8 @@ records, freezes the report, and opens the next reporting window.
 ```text
 changed Tasks + embedded Meeting notes + changed documents
   -> one deduplicated evidence bundle
-  -> progress, problem, decision, SOP, resource, and quality candidates
+  -> progress, problem, decision, SOP, resource, quality, and completeness lanes
+  -> focused source comments or comment proposals for material missing facts
   -> current weekly report draft
   -> weekly review and selective promotion
   -> immutable weekly report
@@ -40,7 +41,7 @@ changed Tasks + embedded Meeting notes + changed documents
 
 | Automation | Cadence | Owns | Does not own |
 | --- | --- | --- | --- |
-| [Daily operating update](automations/daily-operating-update.md) | Daily | Incremental evidence, candidate extraction, draft updates, stale-work proposals | Promoting Issues, Decisions, Resources, or Skills; sending unapproved messages |
+| [Daily operating update](automations/daily-operating-update.md) | Daily | Incremental evidence, candidate extraction, completeness questions, draft updates, stale-work proposals | Promoting Issues, Decisions, Resources, or Skills; sending unapproved messages |
 | [Weekly operating review](automations/weekly-operating-review.md) | Weekly | Plan comparison, candidate review, approved promotion, report finalization | Deleting canonical work items; inventing approvals or decision rationale |
 
 ## Process model
@@ -72,6 +73,9 @@ follow-up independently testable even when they run from the same Markdown file.
   become Decision records.
 - Candidate sections are upserted by stable source fingerprint; reruns must not
   append duplicates.
+- Missing-information comments must ask one answerable question, explain which
+  report or promotion decision the answer unlocks, and avoid repeating an open
+  request. Without an approved source-comment policy, Daily saves a proposal.
 - Runtime watermarks, logs, credentials, and provider state stay outside these
   tracked specifications.
 - External comments and chase messages require an explicit company policy or
