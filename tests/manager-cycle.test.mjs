@@ -16,10 +16,11 @@ function sandbox(eventFiles = {}) {
   const statePath = resolve(root, "manager-state.json");
   const inboxPath = resolve(root, "inbox");
   const processedPath = resolve(root, "processed");
+  const boardPath = resolve(root, "board");
   mkdirSync(inboxPath);
   writeFileSync(statePath, fixture("manager-state.json"));
   for (const [name, source] of Object.entries(eventFiles)) writeFileSync(resolve(inboxPath, name), fixture(source));
-  return { root, statePath, inboxPath, processedPath };
+  return { root, statePath, inboxPath, processedPath, boardPath };
 }
 
 const preview = sandbox({ "001-meeting.json": "manager-inbox-meeting.json" });

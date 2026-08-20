@@ -53,10 +53,6 @@ the main problem or risk, and the next priority.}}
 
 - {{SOP candidate, repeated workflow evidence, owner, and weekly disposition}}
 
-## Documentation quality
-
-- {{Changed or high-risk document, quality gap, evidence, and proposed improvement}}
-
 ## Follow-ups
 
 - {{Owner, stale commitment, chase status, response, and unresolved dependency}}

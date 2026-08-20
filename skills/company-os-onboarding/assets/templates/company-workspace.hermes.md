@@ -1,10 +1,11 @@
 ---
 template_id: hermes-company-workspace
-template_version: "0.1.0"
+template_version: "0.2.0"
 kind: hermes-project-context
 target_file: .hermes.md
 company_name: "{{COMPANY_NAME}}"
 company_description: "{{COMPANY_DESCRIPTION}}"
+company_timezone: "{{COMPANY_TIMEZONE}}"
 ---
 
 # {{COMPANY_NAME}} Workspace
@@ -24,9 +25,9 @@ as .hermes.md.
 
 | Platform | Use via (skill, CLI, or MCP) | Pages or sources | How it is structured |
 | --- | --- | --- | --- |
-| <!-- Notion --> | <!-- ntn --> | <!-- [Projects](https://...) --> | <!-- Projects contain tasks grouped by status, owner, and due date. --> |
+| <!-- Notion --> | <!-- ntn --> | <!-- [Work data source](https://...) · Templates: Task/Issue/Meeting → [Work Item template](https://...) --> | <!-- Type property: Type. Internal comments: proposal-only or approved. --> |
 
-<!-- ONBOARDING: Duplicate the row when Work spans multiple platforms. -->
+<!-- ONBOARDING: Duplicate the row when Work spans multiple platforms. Keep each source's data-source link, template link, covered types, type property, and comment policy in that row. -->
 
 ## People
 

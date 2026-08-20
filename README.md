@@ -48,6 +48,9 @@ runtime state stay outside the company context file.
   current stack and install the company map.
 - [`notion-webhook-onboarding`](skills/notion-webhook-onboarding/SKILL.md) — add
   Notion comments as an optional channel after core onboarding succeeds.
+- [`daily-documentation-check`](skills/daily-documentation-check/SKILL.md) —
+  check today’s Notion Work records against their configured template and
+  propose or post one focused source comment.
 - [Onboarding guide](docs/hermes-company-os-onboarding.md) — product flow,
   ownership, completion, and safety boundaries.
 - [Company record templates](templates/) — metadata-backed Project, Task,
@@ -66,17 +69,35 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
 npm test
 ```
 
-## Product experiments
+## Template boundary
 
-This repository also contains the earlier Howie company-manager POC, Kamdar
-Notion distribution, SME explainer site, and their evaluation fixtures. They
-are implementation evidence for Company OS, not separate product centers.
+HermesCorp contains reusable Company OS templates, skills, automations, and
+generic contract tests. Company profiles, company-specific eval fixtures, live
+workspaces, generated runs, and deployments belong in their dedicated project
+directories, never in HermesCorp.
+
+This boundary applies even when the material is sanitized, synthetic, ignored
+by Git, or useful as evaluation evidence. Sanitizing company-specific material
+does not make HermesCorp its owner.
+
+| Belongs in HermesCorp | Belongs in the company project |
+| --- | --- |
+| Reusable skills and connector procedures | Installed or deployable Hermes profiles |
+| Blank `.hermes.md` and record templates | Rendered company `.hermes.md` files |
+| Company-agnostic automation contracts | Live workspaces, receipts, runs, and generated state |
+| Minimal generic contract fixtures | Company-specific fixtures, eval suites, and test corpora |
+| Generic setup and validation tools | Customer configuration, deployment files, and private examples |
+
+Do not add top-level `profiles/`, `workspaces/`, `tenants/`, or
+`fixtures/evals/` directories here. For example, Howie evaluation assets belong
+in `HowieAI/company-os-evals`; Kamdar deployment assets belong in the KamdarAI
+project. When an experiment becomes specific to one company, move its profile,
+fixtures, runners, and tests together rather than leaving a copy in HermesCorp.
 
 - [Manager harness](HARNESS.md) — file-first company-manager runtime.
 - [POC guide](POC.md) — controlled activation path.
 - [Manager API](docs/company-manager.md) — deterministic local commands.
-- `profiles/kamdar-ai/` — transferable Hermes profile with the Notion channel.
 - `web/sme/` — public SME operating-model explainer (`npm run site`).
 
-Private credentials, customer workspace state, generated run artifacts, and
-live company data are intentionally excluded from version control.
+Private credentials, company profiles or eval suites, workspace state,
+generated run artifacts, and live company data are excluded from this repo.

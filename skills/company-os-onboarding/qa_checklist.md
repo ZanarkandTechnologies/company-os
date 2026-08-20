@@ -16,8 +16,9 @@ company_os_qa(stack, routes, workspace_context, receipt)
 
 - [ ] The seven onboarding stages were made visible and the owner was asked for the current stack once, before platform-specific questions.
 - [ ] Every configured platform has a named skill, CLI, or MCP route with a successful status check and bounded read.
-- [ ] `.hermes.md` contains the company name, description, and the five company surfaces.
+- [ ] `.hermes.md` contains the company name, description, IANA timezone, and the five company surfaces.
 - [ ] Every populated source row names its platform, interaction route, real source or link, and structural description.
+- [ ] Each automated Work source names its applicable template, covered record types, type property, and comment policy in the same row.
 - [ ] Additional rows are used for additional platforms; no second stack schema or intermediary component skill was created.
 - [ ] Template placeholders, onboarding comments, and unused example rows were removed from the rendered file.
 - [ ] Credentials, tokens, private keys, transient health state, and broad source dumps are absent.

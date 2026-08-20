@@ -12,7 +12,6 @@
     "company": "node scripts/company-manager.mjs",
     "company:demo": "node scripts/company-manager.mjs seed --workspace /tmp/howie-demo --write",
     "eval:company-manager": "node scripts/run-company-manager-evals.mjs",
-    "eval:howie-agent": "node scripts/run-howie-hermes-agent-evals.mjs",
     "dashboard": "node scripts/serve-dashboard.mjs",
     "site": "node scripts/serve-sme-site.mjs",
     "test:site": "node --test tests/sme-site.test.mjs",

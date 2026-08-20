@@ -7,7 +7,7 @@ source: local
 template_uses:
   skill-template: "0.3.2"
   skill-qa-checklist: "0.1.0"
-  hermes-company-workspace: "0.1.0"
+  hermes-company-workspace: "0.2.0"
 eval: evals/evals.json
 qa_checklist: qa_checklist.md
 ---
@@ -35,7 +35,7 @@ separate onboarding receipt. Never put credentials or tokens in either file.
 ## Skill Signature
 
 ```text
-onboard_company(company_name, company_description, current_stack, workspace)
+onboard_company(company_name, company_description, company_timezone, current_stack, workspace)
   -> workspace/.hermes.md + connection_receipt + operating_gaps + next_action
 state: reads(existing .hermes.md, available skills/CLIs/MCPs, bounded provider metadata);
        writes(ticket-local receipt and an owner-reviewed workspace context)
@@ -48,7 +48,8 @@ fails: credential capture; broad account crawl; guessed authority; duplicated co
 ## Todo List
 
 - [ ] 1. Show `Stage 1/7 — Company`: ask for the company name and a short
-      description only when they are not already known.
+      description only when they are not already known. Resolve one IANA
+      company timezone before time-bounded automations are enabled.
 - [ ] 2. Show `Stage 2/7 — Stack`: ask once, "What is your current stack?" Do
       not walk through a catalog of tools or ask what each tool is for yet.
 - [ ] 3. Show `Stage 3/7 — Connections`: for every declared platform, find one
@@ -78,9 +79,11 @@ fails: credential capture; broad account crawl; guessed authority; duplicated co
 
 - Frontmatter follows the repository template convention. Hermes strips it
   before prompt injection; it remains useful for source ownership and versioning.
-- `{{COMPANY_NAME}}` and `{{COMPANY_DESCRIPTION}}` are the only required scalar
-  placeholders. Source rows are filled conversationally rather than parsed into
-  another configuration schema.
+- `{{COMPANY_NAME}}`, `{{COMPANY_DESCRIPTION}}`, and `{{COMPANY_TIMEZONE}}` are
+  the only required scalar placeholders. Source rows are filled conversationally
+  rather than parsed into another configuration schema.
+- In a Work row, keep the data-source link, applicable template link, covered
+  record types, type property, and comment policy beside the route they govern.
 - Duplicate a Markdown table row for additional platforms. Delete unused rows,
   onboarding comments, and empty optional sections before installation.
 - Store stable platform names, route names, source links, structural guidance,
@@ -123,7 +126,7 @@ fails: credential capture; broad account crawl; guessed authority; duplicated co
 ```yaml
 company_os_result:
   workspace_context_path:
-  template_version: "0.1.0"
+  template_version: "0.2.0"
   tools:
     configured: []
     blocked: []

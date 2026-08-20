@@ -30,7 +30,7 @@ class NotionWebhookOnboardingTests(unittest.TestCase):
             onboard.parse_page_id("https://notion.so/no-page-here")
 
     def test_state_is_scoped_to_the_selected_hermes_profile(self):
-        profile = Path("/srv/hermes/profiles/kamdar-ai")
+        profile = Path("/srv/hermes/profiles/example-co")
         self.assertEqual(
             onboard.state_path(profile),
             profile / "state" / "notion-webhook.json",

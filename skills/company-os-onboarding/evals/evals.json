@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": "stack_first_workspace_draft_01",
-      "prompt": "Set up Hermes for Kamdar AI. We use Notion, Gmail, and Google Drive.",
+      "prompt": "Set up Hermes for Example Co. We use Notion, Gmail, and Google Drive.",
       "expected_output": "Starts from the one stack answer, checks available interaction routes, and drafts one five-surface workspace context rather than generating component skills.",
       "files": [],
       "assertions": [
@@ -66,7 +66,7 @@
       "assertions": [
         "Keeps Gmail deferred in the receipt rather than describing it as connected in .hermes.md",
         "Removes unresolved company placeholders and ONBOARDING comments from the rendered file",
-        "Keeps template metadata with a resolved company name and description",
+        "Keeps template metadata with a resolved company name, description, and IANA timezone",
         "Contains no credentials, tokens, private keys, or transient status output",
         "Preserves explicit approval boundaries for consequential writes"
       ],

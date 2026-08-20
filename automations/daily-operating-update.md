@@ -1,6 +1,6 @@
 ---
 automation_id: company-os-daily-operating-update
-automation_version: "0.6.0"
+automation_version: "0.7.0"
 kind: company-os-automation
 cadence: daily
 status: draft
@@ -46,6 +46,11 @@ processes:
 Each lane reads the same deduplicated evidence bundle. Extraction lanes update
 the weekly draft, the documentation check comments on its source record, and
 chase planning produces proposals only.
+
+Run `documentation-template-check` through the peer
+`daily-documentation-check` skill. `.hermes.md` owns its timezone, source,
+template routing, and comment policy; the skill owns bounded Notion reads and
+deduplicated source comments.
 
 > ### `progress-extraction`
 >
@@ -106,27 +111,30 @@ chase planning produces proposals only.
 ```text
 daily_operating_update(window, sources, current_weekly_report)
   -> weekly_report_delta + candidate_sets + documentation_comments + chase_proposals + receipt
-state: source watermarks advance only after successful reads; candidates upsert by source fingerprint
+state: the company-local day defines one UTC window; candidates upsert by source fingerprint
 ```
 
 ## Flow
 
-1. Resolve the last successful watermark and collect one bounded evidence
-   bundle with stable source locators.
+1. Resolve `company_timezone` from `.hermes.md`, calculate the current local
+   day's half-open UTC window, and collect one bounded evidence bundle with
+   stable source locators.
 2. Deduplicate unchanged or previously processed evidence.
 3. Run the five extraction lanes against that bundle.
 4. For each record created or edited today, run `documentation-template-check`:
    resolve its Notion template, compare required properties and sections, and
    post one source-local comment containing the missing items. If comments are
    not approved, save the exact comment as a proposal. If no template is
-   configured, record a source gap instead of inventing requirements.
+   configured, record `configuration_gap: unmapped_template` instead of
+   inventing requirements. Use `source_gap` only when configured evidence
+   cannot be read.
 5. Run `chase-planning` from the progress results. Send nothing unless the
    company has approved the channel, timing, recipients, and frequency policy.
 6. Run `weekly-draft-projection` and upsert extraction candidates by source
    fingerprint. Do not project documentation comments into the weekly draft.
 7. Write a receipt containing the evidence window, templates checked, source
-   gaps, candidate counts, documentation comments, proposed chases, and next
-   watermark.
+   configuration gaps, candidate counts, documentation comments, proposed
+   chases, and partial-query status.
 
 ## Write boundary
 
@@ -156,11 +164,13 @@ nothing; use `Source gap` when evidence was unavailable.
 ### Receipt
 
 - `window:` {{START_TIMESTAMP}}..{{END_TIMESTAMP}}
+- `company_timezone:` {{IANA_TIMEZONE}}
 - `sources_checked:` {{Stable source names or locators}}
 - `source_gaps:` {{Missing or stale sources, or none}}
+- `configuration_gaps:` {{Unmapped record templates or policies, or none}}
 - `documentation_template_checks:` {{Records checked, template used, and result}}
 - `documentation_comments:` {{Posted comments and proposals, or none}}
-- `next_watermark:` {{Advance only for successful connector reads}}
+- `partial:` {{True when any bounded query reports more records, otherwise false}}
 
 ## Golden example
 
@@ -239,8 +249,8 @@ review_excludes: Northstar fixture facts and wording
 
 - Every retained finding links to source evidence.
 - Rerunning the same window produces no duplicate candidates.
-- Failed connectors remain visible source gaps and do not advance their
-  watermark.
+- Failed connectors remain visible source gaps and cannot be reported as
+  successful coverage of the local-day window.
 - Documentation checks name the record and template used, list only missing
   requirements, and do not repeat an unresolved comment.
 - The current weekly report identifies the last successful Daily receipt.

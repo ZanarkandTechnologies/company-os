@@ -11,6 +11,7 @@ __pycache__/
 analysis/
 
 # Private operator configuration and credentials
+/profiles/
 profiles/*/contacts.json
 profiles/*/.env
 profiles/*/state/

@@ -84,7 +84,7 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
 test("automation files pair fill-in-place output templates with golden examples", () => {
   for (const filename of ["daily-operating-update.md", "weekly-operating-review.md"]) {
     const content = readFileSync(join(root, "automations", filename), "utf8");
-    const expectedVersion = filename === "daily-operating-update.md" ? "0.6.0" : "0.5.0";
+    const expectedVersion = filename === "daily-operating-update.md" ? "0.7.0" : "0.5.0";
     assert.match(content, new RegExp(`automation_version: "${expectedVersion.replaceAll(".", "\\.")}"`));
     assert.match(content, /## Output template/);
     assert.match(content, /\{\{[^\n}]+\}\}/);
@@ -112,6 +112,10 @@ test("Daily checks records edited today against Notion templates and comments at
   assert.match(daily, /Record type, template used, and missing required information/);
   assert.match(daily, /For documentation, could you define done/);
   assert.match(daily, /Do not project documentation comments into the weekly draft/);
+  assert.match(daily, /`daily-documentation-check` skill/);
+  assert.match(daily, /company_timezone/);
+  assert.match(daily, /configuration_gap: unmapped_template/);
+  assert.doesNotMatch(daily, /watermark/);
   assert.match(index, /not\n  projected into the weekly Report or processed by Weekly/);
 });
 
@@ -133,4 +137,5 @@ test("every Weekly promotion lane carries the disposition enum at point of use",
 test("Weekly does not process Daily documentation comments", () => {
   const weekly = readFileSync(join(root, "automations", "weekly-operating-review.md"), "utf8");
   assert.doesNotMatch(weekly, /documentation-resolution|documentation-template-check|documentation comments/);
+  assert.doesNotMatch(readFileSync(join(root, "templates", "weekly-report.md"), "utf8"), /## Documentation quality/);
 });
