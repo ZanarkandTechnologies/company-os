@@ -1,0 +1,50 @@
+---
+document_id: company-os-automations
+document_version: "0.1.0"
+kind: automation-index
+status: draft
+owner: HermesCorp
+---
+
+# Company OS automations
+
+Company OS uses one incremental Daily automation and one Weekly finalization
+automation. Daily ingests changed evidence once and updates the current weekly
+draft. Weekly reviews those accumulated candidates, promotes approved durable
+records, freezes the report, and opens the next reporting window.
+
+```text
+changed Tasks + embedded Meeting notes + changed documents
+  -> one deduplicated evidence bundle
+  -> progress, problem, decision, SOP, resource, and quality candidates
+  -> current weekly report draft
+  -> weekly review and selective promotion
+  -> immutable weekly report
+```
+
+## Automation files
+
+| Automation | Cadence | Owns | Does not own |
+| --- | --- | --- | --- |
+| [Daily operating update](automations/daily-operating-update.md) | Daily | Incremental evidence, candidate extraction, draft updates, stale-work proposals | Promoting Issues, Decisions, Resources, or Skills; sending unapproved messages |
+| [Weekly operating review](automations/weekly-operating-review.md) | Weekly | Plan comparison, candidate review, approved promotion, report finalization | Deleting canonical work items; inventing approvals or decision rationale |
+
+## Shared rules
+
+- Tasks are the single work-item database with `Task`, `Issue`, and `Meeting`
+  types.
+- Problems remain report candidates during the week. Weekly review may promote
+  an accepted problem into a Task row with `Type = Issue`.
+- Meeting notes remain in their Task row unless they pass the Resource
+  future-value gate.
+- Small choices remain task or report context. Only future-useful precedents
+  become Decision records.
+- Candidate sections are upserted by stable source fingerprint; reruns must not
+  append duplicates.
+- Runtime watermarks, logs, credentials, and provider state stay outside these
+  tracked specifications.
+- External comments and chase messages require an explicit company policy or
+  owner approval.
+
+These files define desired behavior only. A deployment chooses the exact local
+schedule and connector routes during Company OS onboarding.

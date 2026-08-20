@@ -50,6 +50,10 @@ runtime state stay outside the company context file.
   Notion comments as an optional channel after core onboarding succeeds.
 - [Onboarding guide](docs/hermes-company-os-onboarding.md) — product flow,
   ownership, completion, and safety boundaries.
+- [Company record templates](templates/) — metadata-backed Project, Task,
+  Resource, Decision, and Weekly Report pages.
+- [Automation index](automations.md) — Daily accumulation and Weekly
+  finalization contracts.
 - [Company architecture](ARCHITECTURE.md) — isolated company workspace model.
 
 ```bash
