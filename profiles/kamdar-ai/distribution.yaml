@@ -1,0 +1,60 @@
+name: kamdar-ai
+version: 0.2.0
+description: "Transferable Kamdar AI profile with a Hermes-native Notion webhook receiver"
+hermes_requires: ">=0.20.0"
+author: "Zanarkand Technologies"
+license: "Proprietary"
+env_requires:
+  - name: OPENROUTER_API_KEY
+    description: "Model-provider credential for the default OpenRouter configuration"
+    required: true
+  - name: NOTION_TOKEN
+    description: "Internal Notion integration token for the connected workspace"
+    required: true
+  - name: NGROK_AUTHTOKEN
+    description: "ngrok agent credential used only by the webhook onboarding skill"
+    required: false
+  - name: NOTION_WEBHOOK_PUBLIC_URL
+    description: "Permanent HTTPS endpoint ending in /notion/webhook"
+    required: true
+  - name: NOTION_ROOT_PAGE_ID
+    description: "Root page whose shared connection scope defines the PKMS catalog"
+    required: true
+  - name: NOTION_ALLOWED_DATA_SOURCES
+    description: "Comma-separated data-source IDs discovered during PKMS onboarding"
+    required: true
+  - name: NOTION_COMMENT_TRIGGER
+    description: "Prefix that activates a ticket-comment question"
+    required: false
+    default: "@vishanai"
+  - name: NOTION_ALLOWED_WORKSPACES
+    description: "Comma-separated Notion workspace IDs allowed after the first verified event"
+    required: false
+  - name: NOTION_ALLOW_ALL_WORKSPACES
+    description: "Emergency compatibility switch; keep false for normal onboarding"
+    required: false
+    default: "false"
+  - name: NOTION_ENABLE_WRITES
+    description: "Explicit write gate for page-property updates"
+    required: false
+    default: "false"
+  - name: NOTION_API_VERSION
+    description: "Notion API version used by the page adapter"
+    required: false
+    default: "2026-03-11"
+  - name: NOTION_CONTEXT_MAX_BLOCKS
+    description: "Maximum ticket blocks retrieved for one comment question"
+    required: false
+    default: "100"
+  - name: NOTION_CONTEXT_MAX_COMMENTS
+    description: "Maximum open ticket comments retrieved for one question"
+    required: false
+    default: "200"
+distribution_owned:
+  - distribution.yaml
+  - config.yaml
+  - SOUL.md
+  - README.md
+  - plugins
+  - deploy
+  - skills

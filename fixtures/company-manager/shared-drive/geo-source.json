@@ -1,0 +1,20 @@
+{
+  "id": "aurora-geo-source-2026-08-08",
+  "input_id": "geo-source-file",
+  "name": "Geo source workbook.xlsx",
+  "scope": "howie-ai/shared",
+  "shared_with": ["howie-ai"],
+  "storage_kind": "binary_local_edit",
+  "local_edit_format": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "native_workspace_format": null,
+  "drive_url": "drive://aurora-lithium/mining/geo-source-workbook",
+  "project": "Aurora Lithium Project",
+  "location": "Pilbara, Western Australia",
+  "commodity": "Lithium",
+  "resource_estimate_tonnes": 12800000,
+  "average_grade_percent": 1.42,
+  "drill_holes_completed": 64,
+  "data_as_of": "2026-08-08",
+  "cash_balance_usd": 4200000,
+  "funding_target_usd": 12000000
+}

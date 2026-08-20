@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "directory_kind": "synthetic_acceptance_roster",
+  "company": "Aurora Lithium (fictional)",
+  "fake_data_only": true,
+  "employees": [
+    {
+      "id": "avery-geology",
+      "display_name": "Avery Chen",
+      "timezone": "Australia/Perth",
+      "telegram_target": "1000000001",
+      "inbound_allowed": true,
+      "outbound_allowed": true,
+      "test_opt_in": true,
+      "route_enabled": true,
+      "global_cooldown_minutes": 90,
+      "requirement_cooldown_minutes": 90,
+      "allowed_mock_drive_scopes": ["howie-ai/shared"]
+    },
+    {
+      "id": "mina-finance",
+      "display_name": "Mina Patel",
+      "timezone": "Asia/Singapore",
+      "telegram_target": "1000000002",
+      "inbound_allowed": true,
+      "outbound_allowed": true,
+      "test_opt_in": true,
+      "route_enabled": true,
+      "global_cooldown_minutes": 90,
+      "requirement_cooldown_minutes": 90,
+      "allowed_mock_drive_scopes": ["howie-ai/shared"]
+    },
+    {
+      "id": "rohan-operations",
+      "display_name": "Rohan Davis",
+      "timezone": "Asia/Kuala_Lumpur",
+      "telegram_target": "1000000003",
+      "inbound_allowed": true,
+      "outbound_allowed": true,
+      "test_opt_in": true,
+      "route_enabled": true,
+      "global_cooldown_minutes": 90,
+      "requirement_cooldown_minutes": 90,
+      "allowed_mock_drive_scopes": ["howie-ai/shared"]
+    }
+  ]
+}

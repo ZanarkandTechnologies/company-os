@@ -1,0 +1,27 @@
+{
+  "id": "meeting-2026-08-10-operations",
+  "at": "2026-08-10T09:30:00.000Z",
+  "source": "howie-meeting-summary",
+  "commitments": [
+    {
+      "id": "compliance-register-request",
+      "title": "Refresh the compliance action register",
+      "owner": "unresolved",
+      "startAt": null,
+      "deadline": null,
+      "requiredArtifact": null,
+      "taskLink": {
+        "id": "compliance-register",
+        "url": "https://tasks.example.test/compliance-register"
+      },
+      "nextReminderAt": null,
+      "escalation": {
+        "owner": "howie",
+        "escalateAt": null,
+        "status": "not_required",
+        "outboxActionId": null
+      },
+      "expectedMeetingNote": null
+    }
+  ]
+}

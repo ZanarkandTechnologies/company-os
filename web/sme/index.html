@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#090a08">
+    <meta name="description" content="Hermes gives SMEs durable systems for applications, facts, decisions, and approved procedures—without relying on agent memory.">
+    <title>Hermes SME — The business stays accountable</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="/shared/hermes-brandkit.css">
+    <link rel="stylesheet" href="/sme/site.css">
+    <script type="module" src="/sme/app.js"></script>
+  </head>
+  <body>
+    <a class="h-skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="Hermes SME home">
+        <span class="wordmark-mark" aria-hidden="true">H</span>
+        <span>Hermes / SME</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary" data-section-nav>
+        <a href="#systems">Systems</a>
+        <a href="#routes">Routes</a>
+        <a href="#principle">Principle</a>
+      </nav>
+      <a class="header-action" href="#start">Map a lane <span aria-hidden="true">↘</span></a>
+    </header>
+
+    <main id="main">
+      <section class="hero h-container" id="top" aria-labelledby="hero-title">
+        <p class="h-kicker hero-kicker"><span class="signal-square" aria-hidden="true"></span> Operating infrastructure for SMEs</p>
+        <h1 id="hero-title">The business lives in its systems.<br><span>The agents come and go.</span></h1>
+        <div class="hero-bottom">
+          <p>Hermes connects the applications people already use with a queryable company wiki, an auditable decision ledger, and skills compiled from approved procedures.</p>
+          <a class="h-text-link" href="#systems">View the architecture <span aria-hidden="true">↓</span></a>
+        </div>
+        <ul class="hero-guarantees" aria-label="Operating guarantees">
+          <li><span>01</span><strong>Apps stay editable</strong><small>Operational state remains in the source application.</small></li>
+          <li><span>02</span><strong>Facts stay queryable</strong><small>Knowledge carries sources, freshness, and ownership.</small></li>
+          <li><span>03</span><strong>Decisions stay attributable</strong><small>Approval and responsibility remain visible.</small></li>
+        </ul>
+      </section>
+
+      <section class="systems h-section" id="systems" aria-labelledby="systems-title">
+        <div class="section-intro h-container">
+          <p class="h-kicker">01 / Durable systems</p>
+          <h2 id="systems-title">Three systems.<br><span>One accountable operating layer.</span></h2>
+          <p class="section-summary">An agent can read, propose, and execute within a bounded route. It never becomes the unowned place where the company remembers what happened.</p>
+        </div>
+
+        <div class="system-columns">
+          <article class="system-column">
+            <div class="system-head">
+              <span class="h-index">01 / Operational</span>
+              <span class="h-status">System owned</span>
+            </div>
+            <h3>Connected applications</h3>
+            <p>People keep updating the tools they already use. Agents help through reviewed integrations; the application remains authoritative.</p>
+            <dl>
+              <div class="h-data-row"><dt>Owns</dt><dd>Transactions, records, and operational state</dd></div>
+              <div class="h-data-row"><dt>Updated by</dt><dd>Humans or bounded integration actions</dd></div>
+              <div class="h-data-row"><dt>Does not own</dt><dd>Company-wide facts or decision rationale</dd></div>
+            </dl>
+          </article>
+
+          <article class="system-column system-column--signal">
+            <div class="system-head">
+              <span class="h-index">02 / Knowledge</span>
+              <span class="h-status h-status--signal">Queryable</span>
+            </div>
+            <h3>Company wiki</h3>
+            <p>A separate knowledge workflow checks and dreams sourced facts into an LLM-ready wiki that people and agents query when needed.</p>
+            <dl>
+              <div class="h-data-row"><dt>Owns</dt><dd>Facts, definitions, sources, and freshness</dd></div>
+              <div class="h-data-row"><dt>Updated by</dt><dd>Knowledge ingestion and review</dd></div>
+              <div class="h-data-row"><dt>Does not own</dt><dd>Approval authority or process execution</dd></div>
+            </dl>
+          </article>
+
+          <article class="system-column system-column--orange">
+            <div class="system-head">
+              <span class="h-index">03 / Governance</span>
+              <span class="h-status h-status--orange">Approval bound</span>
+            </div>
+            <h3>Decision ledger</h3>
+            <p>Decisions stay separate so context, options, rationale, scope, approval, responsibility, dates, and supersession remain auditable.</p>
+            <dl>
+              <div class="h-data-row"><dt>Owns</dt><dd>Decisions, accountability, and review state</dd></div>
+              <div class="h-data-row"><dt>Updated by</dt><dd>Named decision owners and approvers</dd></div>
+              <div class="h-data-row"><dt>Does not own</dt><dd>Raw facts or application transactions</dd></div>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section class="routes h-section" id="routes" aria-labelledby="routes-title">
+        <div class="section-intro section-intro--compact h-container">
+          <p class="h-kicker">02 / Change router</p>
+          <h2 id="routes-title">Put every change<br><span>where it can be owned.</span></h2>
+        </div>
+
+        <div class="router h-container" data-system-router data-active-route="fact">
+          <div class="route-tabs" role="tablist" aria-label="Company change type">
+            <button id="route-tab-fact" type="button" role="tab" aria-selected="true" aria-controls="route-result" data-route="fact">01 / Fact</button>
+            <button id="route-tab-decision" type="button" role="tab" aria-selected="false" aria-controls="route-result" data-route="decision" tabindex="-1">02 / Decision</button>
+            <button id="route-tab-procedure" type="button" role="tab" aria-selected="false" aria-controls="route-result" data-route="procedure" tabindex="-1">03 / Procedure</button>
+            <button id="route-tab-app" type="button" role="tab" aria-selected="false" aria-controls="route-result" data-route="app" tabindex="-1">04 / App change</button>
+          </div>
+
+          <div class="route-result" id="route-result" role="tabpanel" aria-labelledby="route-tab-fact" aria-live="polite">
+            <div class="route-result-top">
+              <span class="route-status route-status--signal" data-route-status>Durable route</span>
+              <span class="h-meta">Change / owner resolution</span>
+            </div>
+            <p class="route-destination" data-route-destination>Company wiki</p>
+            <dl class="route-details">
+              <div class="h-data-row"><dt>Record</dt><dd data-route-record>Sourced fact + freshness</dd></div>
+              <div class="h-data-row"><dt>Owner</dt><dd data-route-owner>Knowledge steward</dd></div>
+              <div class="h-data-row"><dt>Outcome</dt><dd data-route-outcome>Queryable by people and agents at task time.</dd></div>
+            </dl>
+            <p class="route-note" data-route-note>Facts are checked, refreshed, and superseded in the wiki. They do not become private agent memory.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="compiler h-section" id="compiler" aria-labelledby="compiler-title">
+        <div class="compiler-copy h-container">
+          <p class="h-kicker">03 / Procedure compiler</p>
+          <h2 id="compiler-title">Process and procedure<br><span>become portable skill.</span></h2>
+          <p>A skill is a compiled operating procedure—not remembered instinct. It points back to the decision that authorized it and carries explicit inputs, outputs, guardrails, approvals, and evaluations.</p>
+        </div>
+        <ol class="compiler-track" aria-label="Procedure-to-skill flow">
+          <li><span>01</span><strong>Approved decision</strong><small>Scope, rationale, approver, owner</small></li>
+          <li><span>02</span><strong>Owned procedure</strong><small>Steps, exceptions, evidence, review</small></li>
+          <li><span>03</span><strong>Dream into skill</strong><small>Versioned contract and guardrails</small></li>
+          <li><span>04</span><strong>Evaluate</strong><small>Representative cases and failure gates</small></li>
+        </ol>
+      </section>
+
+      <section class="decision h-section" id="decision" aria-labelledby="decision-title">
+        <div class="decision-heading">
+          <p class="h-kicker">04 / Decision record</p>
+          <h2 id="decision-title">Responsibility<br>survives the chat.</h2>
+        </div>
+        <article class="decision-record" aria-label="Example approved decision">
+          <div class="decision-record-head">
+            <span class="h-index">DEC-024 / Active</span>
+            <span class="h-status h-status--orange">Approved</span>
+          </div>
+          <h3>Tenant outreach requires operator review before first contact.</h3>
+          <p>The research agent may prepare a ranked shortlist and contact tasks. A named operator remains responsible for approving or rejecting the first-touch plan.</p>
+          <dl>
+            <div class="h-data-row"><dt>Approved by</dt><dd>Commercial Director</dd></div>
+            <div class="h-data-row"><dt>Responsible</dt><dd>Leasing Operations Lead</dd></div>
+            <div class="h-data-row"><dt>Decided</dt><dd><time datetime="2026-08-17">17 Aug 2026</time></dd></div>
+            <div class="h-data-row"><dt>Review</dt><dd>After 30 qualified-property runs</dd></div>
+            <div class="h-data-row"><dt>Compiles to</dt><dd>tenant-outreach / version 3</dd></div>
+            <div class="h-data-row"><dt>Supersedes</dt><dd>DEC-018 / manual shortlist only</dd></div>
+          </dl>
+        </article>
+      </section>
+
+      <section class="principle h-section" id="principle" aria-labelledby="principle-title">
+        <div class="principle-main h-container">
+          <p class="h-kicker">05 / Core principle</p>
+          <h2 id="principle-title">No agent memory<br><span>required.</span></h2>
+          <p>The runtime can be replaced tomorrow. The company still knows what is true, who decided, who is responsible, which procedure is active, and what changed in the applications.</p>
+        </div>
+        <ul class="principle-rules">
+          <li><span>01</span><strong>Agents are replaceable</strong><small>Context is retrieved for the task.</small></li>
+          <li><span>02</span><strong>Systems are durable</strong><small>State has a named owner and update path.</small></li>
+          <li><span>03</span><strong>Approvals are explicit</strong><small>Chat tone never substitutes for authority.</small></li>
+          <li><span>04</span><strong>Skills are portable</strong><small>Procedure versions outlive any one model.</small></li>
+        </ul>
+      </section>
+
+      <section class="final-action" id="start" aria-labelledby="start-title">
+        <p class="h-kicker">Start with one operating lane</p>
+        <h2 id="start-title">Choose one change.<br><span>Give it an owner.</span></h2>
+        <a class="final-link" href="#routes">Use the change router <span aria-hidden="true">↑</span></a>
+        <div class="final-meta h-meta">
+          <span>Hermes / SME operating infrastructure</span>
+          <span>© <span data-current-year>2026</span></span>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

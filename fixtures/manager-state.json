@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "kind": "howie-manager-state",
+  "updatedAt": "2026-08-10T09:00:00.000Z",
+  "commitments": [
+    {
+      "id": "finance-summary-request",
+      "title": "Prepare the fundraising data-room index",
+      "owner": "test-employee",
+      "startAt": "2026-08-10T09:00:00.000Z",
+      "deadline": "2026-08-12T09:00:00.000Z",
+      "requiredArtifact": {
+        "id": "finance-summary",
+        "name": "Latest finance summary",
+        "url": null
+      },
+      "taskLink": {
+        "id": "fundraising-data-room",
+        "url": "https://tasks.example.test/fundraising-data-room"
+      },
+      "status": "open",
+      "nextReminderAt": "2026-08-10T10:00:00.000Z",
+      "attemptCount": 0,
+      "escalation": {
+        "owner": "howie",
+        "escalateAt": "2026-08-12T10:00:00.000Z",
+        "status": "pending",
+        "outboxActionId": null
+      },
+      "expectedMeetingNote": {
+        "deadline": "2026-08-10T12:00:00.000Z",
+        "receivedAt": null
+      },
+      "artifactEvidence": null,
+      "resolvedAt": null
+    }
+  ],
+  "outbox": [],
+  "events": [
+    {
+      "id": "commitment:finance-summary-request:recorded",
+      "type": "commitment_recorded",
+      "at": "2026-08-10T09:00:00.000Z",
+      "source": "meeting-summary",
+      "commitmentId": "finance-summary-request"
+    }
+  ]
+}

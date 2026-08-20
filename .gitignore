@@ -1,0 +1,49 @@
+node_modules/
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Local framework and R&D execution state
+.agents/
+.farplane/
+analysis/
+
+# Private operator configuration and credentials
+profiles/*/contacts.json
+profiles/*/.env
+profiles/*/state/
+profiles/*/sessions/
+profiles/*/memories/
+**/.hermes.md
+
+# Ticket proof can contain large captures, traces, and private runtime output.
+# Keep the durable ticket contract and progress files, not generated artifacts.
+tickets/*/artifacts/
+
+# Customer and live-test workspaces are local runtime state. Reusable fixtures
+# belong in fixtures/ and profile templates instead.
+workspaces/
+
+# Generated company operating state and delivery audit trail
+workspaces/*/ops/manager-state.json
+workspaces/*/ops/action-log.jsonl
+workspaces/*/ops/inbox/*.json
+workspaces/*/ops/processed/*.json
+workspaces/*/weekly/delivery-log.jsonl
+
+# Generated filesystem Kanban task state; its README is the tracked contract.
+workspaces/*/ops/board/tasks/
+workspaces/*/ops/board/archive/
+workspaces/*/ops/board/STALE.md
+
+# Canonical file-first manager runtime. README files may describe the shape,
+# but ticket contents, employee policy, Drive mock, and reports stay local.
+workspaces/*/tickets/TASK-*/
+workspaces/*/tickets/archive/
+workspaces/*/people/employees.private.json
+workspaces/*/drive-mock/
+workspaces/*/reports/
+workspaces/*/eval-runs/
+workspaces/*/agent-runs/

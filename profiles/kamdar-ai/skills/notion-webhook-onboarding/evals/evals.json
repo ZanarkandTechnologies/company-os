@@ -1,0 +1,57 @@
+{
+  "skill_name": "notion-webhook-onboarding",
+  "evals": [
+    {
+      "id": "existing_hermes_ngrok_only_01",
+      "prompt": "Core Company OS onboarding is done and Hermes is running on this VPS. Connect my Notion comments as @kamdarai; the root is https://notion.so/Tasks-725195b678ee475099946dfaedf086c0.",
+      "expected_output": "Begins with the bundled preflight and keeps the route ngrok-only without proposing Hermes installation or a reverse proxy.",
+      "files": [],
+      "assertions": [
+        "Assumes Hermes is already installed",
+        "Uses ngrok as the only public ingress",
+        "Does not inspect or change Caddy, Nginx, Traefik, DNS, or VPS users",
+        "Does not ask for technical input beyond the supplied root and chosen mention",
+        "Makes preflight the next action before configuration"
+      ]
+    },
+    {
+      "id": "browser_login_handoff_01",
+      "prompt": "Preflight says NGROK_AUTHTOKEN is missing. The open-login receipt says browser_opened=false and links https://dashboard.ngrok.com/get-started/your-authtoken. My root is https://notion.so/Tasks-725195b678ee475099946dfaedf086c0. Continue setup.",
+      "expected_output": "Routes authentication through the browser opener, provides a clickable fallback on a headless host, and never asks for credentials in chat.",
+      "files": [],
+      "assertions": [
+        "Names open-login as the ngrok or Notion authentication route",
+        "Falls back to the returned clickable URL when no GUI browser is available",
+        "Names secure-set as the credential-entry route",
+        "Does not request a token in chat",
+        "Continues from the structured phase receipt after authentication"
+      ]
+    },
+    {
+      "id": "replies_always_enabled_01",
+      "prompt": "Do I need to enable comment replies before I give you the Notion root page?",
+      "expected_output": "Explains that replies are intrinsic to this connector and does not present a reply-enable choice.",
+      "files": [],
+      "assertions": [
+        "Does not ask whether replies should be enabled",
+        "Treats Notion comment replies as always enabled",
+        "Keeps page-property writes separate and disabled by default",
+        "Does not add a NOTION_ENABLE_COMMENT_REPLIES decision gate",
+        "Continues onboarding without waiting for this preference"
+      ]
+    },
+    {
+      "id": "live_reply_completion_01",
+      "prompt": "The Notion subscription is verified. Are we done?",
+      "expected_output": "Rejects premature completion, routes next through table discovery and one trigger comment, and requires workspace lockdown plus a persisted reply receipt.",
+      "files": [],
+      "assertions": [
+        "Names data-source discovery as the immediate post-verification phase",
+        "Requests exactly one harmless test comment using the configured mention",
+        "Names finalize as the workspace-lock and reply-proof phase",
+        "Requires reply_observed=true before readiness",
+        "Does not equate tunnel or process health with end-to-end success"
+      ]
+    }
+  ]
+}

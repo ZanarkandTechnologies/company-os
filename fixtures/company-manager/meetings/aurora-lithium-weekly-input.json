@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "kind": "pre_extracted_weekly_meeting",
+  "synthetic": true,
+  "meeting": {
+    "id": "meeting-2026-08-17-aurora-lithium-weekly",
+    "at": "2026-08-17T23:00:00.000Z",
+    "title": "Aurora Lithium weekly operating review (fictional)",
+    "source": {
+      "kind": "synthetic_owner_meeting_input",
+      "artifact_label": "aurora-lithium-weekly-notes"
+    },
+    "tasks": [
+      {
+        "ticket_id": "TASK-2001",
+        "title": "Prepare Aurora Basin geology review",
+        "description": "Draft the fictional Aurora Basin geology review from already-approved meeting facts.",
+        "workstream": "Geology",
+        "owner_id": "avery-geology",
+        "reviewer_id": "rohan-operations",
+        "start_at": "2026-08-18T00:00:00.000Z",
+        "due_at": "2026-08-19T09:00:00.000Z",
+        "blocking_inputs": [],
+        "requirements": [],
+        "mock_skill_dependencies": [
+          {
+            "id": "mock-aurora-geo-review",
+            "template": "mock-geo-report.template.md",
+            "input_ids": [],
+            "outputs": [
+              {
+                "id": "aurora-geo-review",
+                "description": "Approved fictional Aurora Basin geology review."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "ticket_id": "TASK-2002",
+        "title": "Refresh Aurora cash forecast",
+        "description": "Prepare a fictional 13-week cash forecast after Finance confirms the scenario assumption.",
+        "workstream": "Finance",
+        "owner_id": "mina-finance",
+        "reviewer_id": "rohan-operations",
+        "start_at": "2026-08-18T00:00:00.000Z",
+        "due_at": "2026-08-20T09:00:00.000Z",
+        "blocking_inputs": [
+          {
+            "id": "finance-scenario",
+            "kind": "human_input",
+            "description": "Mina must confirm the fictional pricing scenario for the cash forecast."
+          }
+        ],
+        "requirements": [
+          {
+            "id": "finance-scenario",
+            "type": "human_input",
+            "description": "Mina must confirm the fictional pricing scenario for the cash forecast.",
+            "state": "unresolved",
+            "human": {
+              "employee_id": "mina-finance",
+              "channel": "telegram_delivery",
+              "question": "Which pricing case should the first cash forecast use?",
+              "brief": {
+                "title": "cash planning decision",
+                "context": "I’m building this week’s 13-week cash forecast. It will show whether the current operating plan preserves runway or whether we need to adjust spending or prepare a financing decision.",
+                "decision": "Which pricing case should the first forecast use?",
+                "recommendation": "Use Base as the working case unless you see a clear reason to plan defensively now. It gives us a credible operating view without assuming upside.",
+                "options": ["Base", "Downside", "Upside", "another case"],
+                "reply": "Reply `Base`, `Downside`, `Upside`, or your own case with one sentence of context.",
+                "outcome": "I’ll build the forecast, flag the runway and funding decision points, and bring it back for review."
+              }
+            },
+            "follow_up": {
+              "employee_id": "mina-finance",
+              "attempts": 0,
+              "last_at": null,
+              "next_at": "2026-08-18T00:00:00.000Z",
+              "cooldown_minutes": 90,
+              "delivery_id": null,
+              "status": "pending",
+              "escalation": null
+            }
+          }
+        ],
+        "mock_skill_dependencies": [
+          {
+            "id": "mock-aurora-cash-forecast",
+            "template": "mock-excel-model.template.md",
+            "input_ids": ["finance-scenario"],
+            "outputs": [
+              {
+                "id": "aurora-cash-forecast",
+                "description": "Approved fictional Aurora 13-week cash forecast."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "ticket_id": "TASK-2003",
+        "title": "Confirm Aurora operating risks",
+        "description": "Prepare the fictional operating-risk brief after Operations confirms the priority risk.",
+        "workstream": "Operations",
+        "owner_id": "rohan-operations",
+        "reviewer_id": "avery-geology",
+        "start_at": "2026-08-18T00:00:00.000Z",
+        "due_at": "2026-08-20T12:00:00.000Z",
+        "blocking_inputs": [
+          {
+            "id": "operating-risk-priority",
+            "kind": "human_input",
+            "description": "Rohan must confirm the fictional operating risk to prioritise."
+          }
+        ],
+        "requirements": [
+          {
+            "id": "operating-risk-priority",
+            "type": "human_input",
+            "description": "Rohan must confirm the fictional operating risk to prioritise.",
+            "state": "unresolved",
+            "human": {
+              "employee_id": "rohan-operations",
+              "channel": "telegram_delivery",
+              "question": "Which operating risk should the weekly brief prioritise?",
+              "brief": {
+                "title": "operating priority",
+                "context": "I’m preparing next week’s operating brief. We need one risk to focus the team on—the one most likely to disrupt the delivery plan or cash position if it is not addressed early.",
+                "decision": "Which risk should be the team’s priority this week?",
+                "recommendation": "Prioritise permitting and approvals unless you see a more immediate constraint. A delay there can hold the schedule while the rest of the plan keeps moving.",
+                "options": ["Permitting / approvals", "Equipment availability", "Grade / recovery", "Water / logistics", "another risk"],
+                "reply": "Reply with the risk and one sentence on why it is the priority.",
+                "outcome": "I’ll prepare the brief with the owner, early-warning signs, and the first mitigation actions for review."
+              }
+            },
+            "follow_up": {
+              "employee_id": "rohan-operations",
+              "attempts": 0,
+              "last_at": null,
+              "next_at": "2026-08-18T00:00:00.000Z",
+              "cooldown_minutes": 90,
+              "delivery_id": null,
+              "status": "pending",
+              "escalation": null
+            }
+          }
+        ],
+        "mock_skill_dependencies": [
+          {
+            "id": "mock-aurora-operations-brief",
+            "template": "mock-weekly-report.template.md",
+            "input_ids": ["operating-risk-priority"],
+            "outputs": [
+              {
+                "id": "aurora-operating-risk-brief",
+                "description": "Approved fictional Aurora operating-risk brief."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "ticket_id": "TASK-2004",
+        "title": "Assemble Aurora weekly operating pack",
+        "description": "Assemble the fictional operating pack after the geology review and cash forecast are approved.",
+        "workstream": "Executive Operations",
+        "owner_id": "rohan-operations",
+        "reviewer_id": "rohan-operations",
+        "start_at": "2026-08-20T12:00:00.000Z",
+        "due_at": "2026-08-22T09:00:00.000Z",
+        "blocking_inputs": [],
+        "requirements": [
+          {
+            "id": "aurora-geo-review-input",
+            "type": "skill_output",
+            "description": "Use the approved fictional Aurora geology review.",
+            "state": "unresolved",
+            "upstream": {
+              "ticket_id": "TASK-2001",
+              "skill_id": "mock-aurora-geo-review",
+              "output_id": "aurora-geo-review"
+            }
+          },
+          {
+            "id": "aurora-cash-forecast-input",
+            "type": "skill_output",
+            "description": "Use the approved fictional Aurora cash forecast.",
+            "state": "unresolved",
+            "upstream": {
+              "ticket_id": "TASK-2002",
+              "skill_id": "mock-aurora-cash-forecast",
+              "output_id": "aurora-cash-forecast"
+            }
+          }
+        ],
+        "mock_skill_dependencies": [
+          {
+            "id": "mock-aurora-weekly-pack",
+            "template": "mock-weekly-report.template.md",
+            "input_ids": ["aurora-geo-review-input", "aurora-cash-forecast-input"],
+            "outputs": [
+              {
+                "id": "aurora-weekly-operating-pack",
+                "description": "Approved fictional Aurora weekly operating pack."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

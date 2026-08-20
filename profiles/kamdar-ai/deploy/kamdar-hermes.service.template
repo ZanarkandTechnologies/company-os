@@ -1,0 +1,22 @@
+[Unit]
+Description=Kamdar AI Hermes gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__RUN_USER__
+Group=__RUN_USER__
+Environment=HOME=__RUN_HOME__
+Environment=PATH=__RUN_HOME__/.local/bin:__RUN_HOME__/.hermes/bin:/usr/local/bin:/usr/bin:/bin
+WorkingDirectory=__PROFILE_HOME__
+ExecStart=__DOPPLER_BIN__ run --scope __PROFILE_HOME__ -- __HERMES_BIN__ -p __PROFILE_NAME__ gateway run
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillSignal=SIGINT
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

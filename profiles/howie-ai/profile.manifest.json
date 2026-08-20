@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "profile": {
+    "name": "howie-ai",
+    "description": "A bounded company-operations manager that turns commitments into accountable, evidence-backed work."
+  },
+  "sync": {
+    "command": "node scripts/sync-howie-ai-profile.mjs --target <profile-home> --workspace-root <ops-workspace> --check",
+    "applyCommand": "node scripts/sync-howie-ai-profile.mjs --target <profile-home> --workspace-root <ops-workspace> --apply",
+    "sourceOwned": [
+      {
+        "source": "SOUL.md",
+        "target": "SOUL.md",
+        "kind": "file"
+      },
+      {
+        "source": "config.template.yaml",
+        "target": "config.yaml",
+        "kind": "template"
+      },
+      {
+        "source": "skills",
+        "target": "skills",
+        "kind": "directory"
+      },
+      {
+        "source": "plugins",
+        "target": "plugins",
+        "kind": "directory"
+      }
+    ],
+    "workspaceContext": {
+      "source": "workspace-context.hermes.md",
+      "target": ".hermes.md",
+      "kind": "file"
+    },
+    "runtimeExcluded": [
+      ".env",
+      "auth.json",
+      "contacts.json",
+      "credentials/**",
+      "mcp-tokens/**",
+      "oauth/**",
+      "pairing/**",
+      "drive/fixture-manifest.private.json",
+      "people/employees.private.json",
+      "private-roster.json",
+      "memories/**",
+      "sessions/**",
+      "logs/**",
+      "cron/**",
+      "state.db*",
+      "gateway*"
+    ]
+  },
+  "privateRuntime": {
+    "environmentExample": "private-runtime.example.env",
+    "employeeDirectory": {
+      "path": "people/employees.private.json",
+      "example": "private-roster.example.json",
+      "sourceSync": "excluded",
+      "repositoryRuntimeData": "ignored"
+    },
+    "driveFixture": {
+      "manifestPath": "drive/fixture-manifest.private.json",
+      "manifestEnvironmentVariable": "HOWIE_DRIVE_FIXTURE_MANIFEST",
+      "approvedRootIdEnvironmentVariable": "HOWIE_DRIVE_FIXTURE_ROOT_ID",
+      "sourceSync": "excluded",
+      "repositoryRuntimeData": "ignored"
+    }
+  },
+  "nativeSkillPackages": [
+    {
+      "name": "company-ops-manager",
+      "template": null
+    },
+    {
+      "name": "meeting-intake",
+      "template": null
+    },
+    {
+      "name": "drive-company-files",
+      "template": null
+    },
+    {
+      "name": "company-directory",
+      "template": null
+    },
+    {
+      "name": "geo-report",
+      "template": "templates/geo-report.md"
+    },
+    {
+      "name": "fundraising-deck",
+      "template": "templates/fundraising-deck.md"
+    },
+    {
+      "name": "financial-model",
+      "template": "templates/financial-model.md"
+    },
+    {
+      "name": "compliance-report",
+      "template": "templates/compliance-report.md"
+    },
+    {
+      "name": "weekly-operating-report",
+      "template": "templates/weekly-operating-report.md"
+    },
+    {
+      "name": "cash-flow-forecast",
+      "template": "templates/cash-flow-forecast.md"
+    },
+    {
+      "name": "budget-variance-report",
+      "template": "templates/budget-variance-report.md"
+    },
+    {
+      "name": "customer-research",
+      "template": "templates/customer-research-brief.md"
+    },
+    {
+      "name": "outreach-campaign",
+      "template": "templates/outreach-campaign.md"
+    },
+    {
+      "name": "deal-memo",
+      "template": "templates/deal-memo.md"
+    },
+    {
+      "name": "commercial-proposal",
+      "template": "templates/commercial-proposal.md"
+    },
+    {
+      "name": "ads-campaign",
+      "template": "templates/ads-campaign-brief.md"
+    },
+    {
+      "name": "contractor-procurement-pack",
+      "template": "templates/contractor-procurement-pack.md"
+    },
+    {
+      "name": "operating-risk-brief",
+      "template": "templates/operating-risk-brief.md"
+    },
+    {
+      "name": "exploration-program",
+      "template": "templates/exploration-program.md"
+    },
+    {
+      "name": "production-performance-report",
+      "template": "templates/production-performance-report.md"
+    }
+  ],
+  "activation": {
+    "defaultState": "not activated",
+    "manualGates": [
+      "Create the Hermes profile and provide provider credentials outside this repository.",
+      "Create a private employee directory from private-roster.example.json outside this repository.",
+      "Set the private runtime values named by private-runtime.example.env, including one operator-owned Telegram user/chat allowlist and the pre-registered Drive OAuth client.",
+      "Review the rendered config and test with Howie plus one opted-in test employee.",
+      "Only then may an operator pair Telegram, complete Drive login, or start a gateway.",
+      "For Notion, set the private integration token and public HTTPS URL, start the gateway, paste the captured verification token into Notion, and keep writes disabled until reviewed."
+    ]
+  }
+}

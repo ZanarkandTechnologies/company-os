@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "example_only": true,
+  "runtime_path": "people/employees.private.json",
+  "instructions": "Copy this schema to the ignored private runtime path outside the repository. Replace the example values with the authorized company roster. Source sync never reads, copies, or writes employee-directory data.",
+  "employees": [
+    {
+      "id": "employee-example-only",
+      "display_name": "Example Employee",
+      "role": "Operations Lead",
+      "accountable_for": "operating review requests",
+      "timezone": "Asia/Kuala_Lumpur",
+      "telegram_target": "1000000001",
+      "inbound_allowed": true,
+      "outbound_allowed": true,
+      "test_opt_in": true,
+      "route_enabled": true,
+      "global_cooldown_minutes": 1440,
+      "requirement_cooldown_minutes": 1440,
+      "allowed_mock_drive_scopes": [
+        "howie-ai/company-records"
+      ]
+    }
+  ]
+}
