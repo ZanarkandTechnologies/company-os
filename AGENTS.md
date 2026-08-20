@@ -18,7 +18,7 @@ workspace templates.
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
-  -s .agents/skills/hermes-company-os/tests -p 'test_*.py' -v
-python3 -m json.tool .agents/skills/hermes-company-os/evals/evals.json >/dev/null
-python3 -m json.tool .agents/skills/hermes-company-os/evals/deferred.json >/dev/null
+  -s skills/company-onboard/tests -p 'test_*.py' -v
+python3 -m json.tool skills/company-onboard/evals/evals.json >/dev/null
+python3 -m json.tool skills/company-onboard/evals/deferred.json >/dev/null
 ```

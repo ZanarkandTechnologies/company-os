@@ -1,7 +1,7 @@
 ---
 title: Google Drive doctor workflow
 status: active
-owner: hermes-company-os
+owner: company-onboard
 kind: skill-method-reference
 ---
 

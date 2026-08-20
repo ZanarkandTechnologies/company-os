@@ -4,7 +4,7 @@ status: active
 owner: HermesCorp
 created_at: 2026-08-19
 updated_at: 2026-08-20
-template_ref: .agents/skills/hermes-company-os/assets/templates/company-workspace.hermes.md
+template_ref: skills/company-onboard/assets/templates/company-workspace.hermes.md
 ---
 
 # Hermes Company OS onboarding guide
@@ -65,7 +65,7 @@ flowchart LR
    operation plus one bounded read for each platform.
 3. Infer likely surface mappings and ask only about missing business meaning:
    authoritative sources, useful links, structure, exclusions, and authority.
-4. Copy the [workspace template](../.agents/skills/hermes-company-os/assets/templates/company-workspace.hermes.md),
+4. Copy the [workspace template](../skills/company-onboard/assets/templates/company-workspace.hermes.md),
    replace its company fields, add source rows, and remove onboarding comments.
 5. Review the complete file with the owner, then install it as `.hermes.md` in
    the dedicated company workspace.

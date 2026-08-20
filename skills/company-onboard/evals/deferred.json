@@ -1,5 +1,5 @@
 {
-  "skill_name": "hermes-company-os",
+  "skill_name": "company-onboard",
   "status": "deferred",
   "reason": "Representative connector health requires isolated provider fixtures or owner-authorized live accounts.",
   "rerun_gate": "Run the four canonical cases with isolated filesystem writes and mocked or owner-authorized platform routes before promoting live onboarding readiness.",

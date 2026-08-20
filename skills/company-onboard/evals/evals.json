@@ -1,5 +1,5 @@
 {
-  "skill_name": "hermes-company-os",
+  "skill_name": "company-onboard",
   "evals": [
     {
       "id": "stack_first_workspace_draft_01",
@@ -16,7 +16,7 @@
       "metadata": {
         "farplane": {
           "title": "One stack answer produces one workspace draft",
-          "tags": ["hermes-company-os", "workspace-context", "stack-first"]
+          "tags": ["company-onboard", "workspace-context", "stack-first"]
         }
       }
     },
@@ -35,7 +35,7 @@
       "metadata": {
         "farplane": {
           "title": "Company surfaces support multiple platform rows",
-          "tags": ["hermes-company-os", "multi-platform", "work"]
+          "tags": ["company-onboard", "multi-platform", "work"]
         }
       }
     },
@@ -54,7 +54,7 @@
       "metadata": {
         "farplane": {
           "title": "Connection failure remains outside workspace context",
-          "tags": ["hermes-company-os", "connection-health", "receipt"]
+          "tags": ["company-onboard", "connection-health", "receipt"]
         }
       }
     },
@@ -73,7 +73,7 @@
       "metadata": {
         "farplane": {
           "title": "Rendered workspace is clean and safe to inject",
-          "tags": ["hermes-company-os", "template-hygiene", "security"]
+          "tags": ["company-onboard", "template-hygiene", "security"]
         }
       }
     }

@@ -1,5 +1,5 @@
 ---
-name: hermes-company-os
+name: company-onboard
 description: "Onboard an SME by mapping its existing tools into one Hermes company workspace context and verifying each selected connection."
 tier: 2
 group: operations
@@ -90,7 +90,7 @@ fails: credential capture; broad account crawl; guessed authority; duplicated co
 
 ## Proof
 
-- Run `python3 -m unittest discover -s .agents/skills/hermes-company-os/tests`.
+- Run `python3 -m unittest discover -s skills/company-onboard/tests`.
 - Validate both eval JSON files with `python3 -m json.tool`.
 - For a customer installation, verify a fresh Hermes session loads the rendered
   file and completes one representative lookup per configured platform.
@@ -101,7 +101,7 @@ fails: credential capture; broad account crawl; guessed authority; duplicated co
   copy and fill during onboarding; install the rendered result as `.hermes.md`.
 - [Google Drive connector notes](references/google-drive.md) — read only when
   Drive is selected and bounded discovery is needed.
-- [Operator guide](../../../docs/hermes-company-os-onboarding.md) — current
+- [Operator guide](../../docs/hermes-company-os-onboarding.md) — current
   end-to-end setup and ownership contract.
 
 ## Output

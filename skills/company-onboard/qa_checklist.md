@@ -2,7 +2,7 @@
 template_id: skill-qa-checklist
 template_version: "0.1.1"
 title: Hermes Company OS QA Checklist
-owner: hermes-company-os
+owner: company-onboard
 status: active
 kind: qa-checklist
 ---
