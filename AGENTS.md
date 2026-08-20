@@ -1,0 +1,24 @@
+# Company OS Agent Contract
+
+This repository is the source of truth for reusable Company OS skills and
+workspace templates.
+
+## Rules
+
+- Keep provider credentials and transient connection health out of `.hermes.md`.
+- Provider skills, CLIs, and MCPs own authentication and API mechanics.
+- Keep company operating context as a concise index of routes, links,
+  structures, and authority boundaries; do not copy source-system content.
+- Do not reintroduce intermediary Work, People, Knowledge, Communications, or
+  Decisions configuration skills. Add a skill only for a repeatable procedure.
+- Update the owning skill, template, tests, evals, and guide together when the
+  onboarding contract changes.
+
+## Verification
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
+  -s .agents/skills/hermes-company-os/tests -p 'test_*.py' -v
+python3 -m json.tool .agents/skills/hermes-company-os/evals/evals.json >/dev/null
+python3 -m json.tool .agents/skills/hermes-company-os/evals/deferred.json >/dev/null
+```
