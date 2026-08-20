@@ -1,11 +1,11 @@
 ---
 automation_id: company-os-daily-operating-update
-automation_version: "0.5.0"
+automation_version: "0.6.0"
 kind: company-os-automation
 cadence: daily
 status: draft
 owner: HermesCorp
-input_window: since-last-successful-receipt
+input_window: current-local-day
 opens_with:
   - outcome
   - why
@@ -15,7 +15,7 @@ processes:
   - decision-extraction
   - sop-extraction
   - resource-extraction
-  - documentation-follow-up
+  - documentation-template-check
   - chase-planning
   - weekly-draft-projection
 ---
@@ -34,16 +34,18 @@ processes:
 
 ## Reads
 
-- Tasks changed since the last successful receipt, including `Meeting` rows
-  and their embedded notes.
-- Documents changed in the same window.
+- Tasks, including `Meeting` rows and embedded notes, created or edited during
+  the current local day.
+- Documents and company records created or edited during the current local day.
+- The matching Notion template for each record type.
 - Current Projects, weekly report drafts, Decisions, Resources, Skills, and
   People needed for context and deduplication.
 
 ## Process lanes
 
-Each lane reads the same deduplicated evidence bundle and writes only its owned
-section in the current weekly report draft.
+Each lane reads the same deduplicated evidence bundle. Extraction lanes update
+the weekly draft, the documentation check comments on its source record, and
+chase planning produces proposals only.
 
 > ### `progress-extraction`
 >
@@ -75,16 +77,17 @@ section in the current weekly report draft.
 >
 > **Writes:** Resource candidates that pass the future-value gate.
 
-> ### `documentation-follow-up`
+> ### `documentation-template-check`
 >
-> **Looks for:** changed Tasks, Meeting notes, and documents whose missing,
-> stale, or unclear ownership, result, rationale, evidence, next action, source
-> detail, or structure makes the record unreliable for reporting or future use.
+> **Looks for:** Tasks, Meeting notes, and documents created or edited today.
+> It resolves the applicable Notion template by record type and checks the
+> required properties and section expectations against the edited record.
 >
-> **Writes:** the material gap and one specific, answerable question. It posts
-> that question on the source record when the company has approved internal
-> comments for that surface; otherwise it saves a comment proposal. It never
-> asks for facts available elsewhere or repeats an unresolved request.
+> **Writes:** one source comment listing only the information still missing for
+> documentation. It comments when the company has approved internal comments
+> for that surface; otherwise it saves the exact comment as a proposal. It does
+> not edit the record, create a weekly candidate, ask for information available
+> elsewhere, or repeat an unresolved comment.
 
 > ### `chase-planning`
 >
@@ -95,13 +98,14 @@ section in the current weekly report draft.
 
 > ### `weekly-draft-projection`
 >
-> **Reads:** the candidate sets produced by the other lanes.
+> **Reads:** the candidate sets produced by the five extraction lanes. It does
+> not ingest documentation-check comments.
 >
 > **Writes:** one deduplicated delta to the matching current weekly Report.
 
 ```text
 daily_operating_update(window, sources, current_weekly_report)
-  -> weekly_report_delta + candidate_sets + documentation_followups + chase_proposals + receipt
+  -> weekly_report_delta + candidate_sets + documentation_comments + chase_proposals + receipt
 state: source watermarks advance only after successful reads; candidates upsert by source fingerprint
 ```
 
@@ -110,15 +114,18 @@ state: source watermarks advance only after successful reads; candidates upsert 
 1. Resolve the last successful watermark and collect one bounded evidence
    bundle with stable source locators.
 2. Deduplicate unchanged or previously processed evidence.
-3. Run the five extraction lanes and `documentation-follow-up` against that
-   bundle. Ask only when the missing information materially changes the report
-   or the record's future use. Post a source-local comment only under an
-   approved comment policy; otherwise save a proposal.
-4. Run `chase-planning` from the progress results. Send nothing unless the
+3. Run the five extraction lanes against that bundle.
+4. For each record created or edited today, run `documentation-template-check`:
+   resolve its Notion template, compare required properties and sections, and
+   post one source-local comment containing the missing items. If comments are
+   not approved, save the exact comment as a proposal. If no template is
+   configured, record a source gap instead of inventing requirements.
+5. Run `chase-planning` from the progress results. Send nothing unless the
    company has approved the channel, timing, recipients, and frequency policy.
-5. Run `weekly-draft-projection` and upsert by source fingerprint.
-6. Write a receipt containing the evidence window, sources checked, source
-   gaps, candidate counts, documentation follow-ups, proposed chases, and next
+6. Run `weekly-draft-projection` and upsert extraction candidates by source
+   fingerprint. Do not project documentation comments into the weekly draft.
+7. Write a receipt containing the evidence window, templates checked, source
+   gaps, candidate counts, documentation comments, proposed chases, and next
    watermark.
 
 ## Write boundary
@@ -142,7 +149,7 @@ nothing; use `Source gap` when evidence was unavailable.
 | `decision-extraction` | {{Future-precedent candidate plus missing rationale or authority, or No finding}} | {{Stable source links}} | {{Weekly Decision candidate or No write}} |
 | `sop-extraction` | {{Repeated workflow candidate plus repeatability evidence, or No finding}} | {{Stable source links}} | {{Weekly SOP candidate or No write}} |
 | `resource-extraction` | {{Future-useful knowledge candidate, or No finding}} | {{Stable source links}} | {{Weekly Resource candidate or No write}} |
-| `documentation-follow-up` | {{Material completeness or quality gap, why it matters, and one useful question, or Complete}} | {{Changed source and prior-request links}} | {{Posted internal comment \| Comment proposal \| No write}} |
+| `documentation-template-check` | {{Record type, template used, and missing required information, or Complete}} | {{Edited source, template, and prior-comment links}} | {{Posted source comment \| Comment proposal \| No write}} |
 | `chase-planning` | {{Recipient, stale commitment, useful question, timing, or No chase}} | {{Progress finding links}} | {{Draft proposal only or No write}} |
 | `weekly-draft-projection` | {{Candidate counts and dedupe result}} | {{Candidate and prior receipt links}} | {{One upserted weekly Report delta}} |
 
@@ -151,7 +158,8 @@ nothing; use `Source gap` when evidence was unavailable.
 - `window:` {{START_TIMESTAMP}}..{{END_TIMESTAMP}}
 - `sources_checked:` {{Stable source names or locators}}
 - `source_gaps:` {{Missing or stale sources, or none}}
-- `documentation_followups:` {{Posted comments and proposals, or none}}
+- `documentation_template_checks:` {{Records checked, template used, and result}}
+- `documentation_comments:` {{Posted comments and proposals, or none}}
 - `next_watermark:` {{Advance only for successful connector reads}}
 
 ## Golden example
@@ -159,11 +167,12 @@ nothing; use `Source gap` when evidence was unavailable.
 ### Input and context
 
 - Project: Northstar customer onboarding.
-- Changed evidence: Task `NS-42` has been blocked for three days. Its Meeting
-  notes say Legal received an incomplete vendor packet for the third time, Ava
-  owns the follow-up, and the team again used the same four-step handoff.
-- Changed document: `Vendor handoff checklist`, which has no owner, review date,
-  or required-input list.
+- Changed evidence: Ava's Task `NS-42` was edited today. It says Legal received
+  an incomplete vendor packet for the third time and the team repeated the same
+  four-step handoff, but its Outcome does not define done, Current status has no
+  next action or date, and Evidence does not link the packet.
+- Template: the Notion Task template requires those entries in Outcome, Current
+  status, and Evidence.
 
 ### Accepted output
 
@@ -173,10 +182,10 @@ nothing; use `Source gap` when evidence was unavailable.
 | `problem-extraction` | Incomplete vendor packets have blocked Legal three times. | `meeting://NS-42/2026-08-20` | Add one recurring-problem candidate. |
 | `decision-extraction` | No finding; no choice with rationale and authority was recorded. | Same Meeting notes | No write. |
 | `sop-extraction` | The four-step handoff is a candidate, but its repeatability still needs owner review. | Same Meeting notes | Add one SOP candidate. |
-| `resource-extraction` | The checklist has future reuse value for every vendor handoff. | `doc://vendor-handoff-checklist` | Add one Resource candidate. |
-| `documentation-follow-up` | The checklist lacks an owner, review date, and required-input list; the Task never says which inputs were missing. Without those facts, the blocker cannot be prevented or documented accurately. Ask Ava: “Which packet inputs were missing, who owns the checklist, and where should the complete list live?” | `task://NS-42`, `doc://vendor-handoff-checklist`, prior requests: none | Post one Task comment because internal Task comments are approved; do not edit the notes or checklist. |
+| `resource-extraction` | No finding; the edited Task contains no standalone knowledge with future reuse value. | `task://NS-42` | No write. |
+| `documentation-template-check` | Task template gaps: Outcome does not define done; Current status lacks the next action and date; Evidence does not link the packet. | `task://NS-42`, `template://task`, prior comments: none | Post: “For documentation, could you define done, add the next action and date, and link the vendor packet?” Do not edit the Task. |
 | `chase-planning` | Draft a question to Ava asking when the complete packet will reach Legal. | `task://NS-42` | Save a chase proposal; do not send. |
-| `weekly-draft-projection` | Four candidates and one progress delta; no matching fingerprints existed. | Current candidate set and prior receipt | Upsert one deduplicated weekly Report delta. |
+| `weekly-draft-projection` | Two candidates and one progress delta; no matching fingerprints existed. | Current candidate set and prior receipt | Upsert one deduplicated weekly Report delta. |
 
 ### Why it passes
 
@@ -184,24 +193,25 @@ nothing; use `Source gap` when evidence was unavailable.
 - Candidates remain in the weekly draft; no Issue, Resource, Decision, or Skill
   is promoted. The only posted message is the policy-approved source comment;
   the stale-work chase remains a proposal.
+- The documentation comment is based on the Task template and remains on the
+  Task; Weekly does not process it.
 - The result distinguishes `No finding` from unavailable evidence.
 
 ### Tempting negative
 
-Create an Issue, publish the checklist as a Resource, turn the handoff into a
-Skill, post “please add more detail” on every source, and send the chase.
+Create an Issue, publish a Resource, post “please add more detail” without
+checking a template, add the documentation gap to Weekly, and send the chase.
 
 Why it fails: Daily stages evidence for Weekly review and has no authority to
-promote records, edit source documents, repeat vague information requests, or
-send a chase.
+promote records, invent template requirements, edit source documents, route
+documentation comments into Weekly, or send a chase.
 
 ### Transferable invariants
 
 - Reuse one bounded evidence pass, but return a result for every process lane.
 - Link every retained finding to its source and upsert by source fingerprint.
-- Treat completeness and quality as one documentation judgment. Ask only when
-  the answer changes a report or the record's future use, and distinguish that
-  request from chasing stale work.
+- Check only records created or edited today, use the matching configured
+  template, and keep the resulting comment on the source record.
 
 ### Non-copyable facts and wording
 
@@ -219,7 +229,7 @@ qa_refs:
   - every process lane returns a result
   - Daily promotes nothing and makes no ungated write
 accepted_because:
-  - one evidence bundle produces source-linked, deduplicated lane outputs and one specific documentation follow-up
+  - the Task is checked against its configured template and receives one specific source comment
 heldout_required: true
 review_input: candidate + transferable_invariants + current_company_context
 review_excludes: Northstar fixture facts and wording
@@ -231,6 +241,6 @@ review_excludes: Northstar fixture facts and wording
 - Rerunning the same window produces no duplicate candidates.
 - Failed connectors remain visible source gaps and do not advance their
   watermark.
-- Documentation follow-ups name the gap and its consequence, and reruns
-  do not repeat an unresolved comment.
+- Documentation checks name the record and template used, list only missing
+  requirements, and do not repeat an unresolved comment.
 - The current weekly report identifies the last successful Daily receipt.

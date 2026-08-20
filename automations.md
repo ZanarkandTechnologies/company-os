@@ -1,6 +1,6 @@
 ---
 document_id: company-os-automations
-document_version: "0.4.0"
+document_version: "0.5.0"
 kind: automation-index
 status: draft
 owner: HermesCorp
@@ -30,8 +30,9 @@ records, freezes the report, and opens the next reporting window.
 ```text
 changed Tasks + embedded Meeting notes + changed documents
   -> one deduplicated evidence bundle
-  -> progress, problem, decision, SOP, resource, and documentation lanes
-  -> focused source comments or proposals for material documentation gaps
+  -> progress, problem, decision, SOP, and resource candidates
+  -> same-day records checked against their matching Notion templates
+  -> source comments asking only for missing documentation
   -> current weekly report draft
   -> weekly review and selective promotion
   -> immutable weekly report
@@ -41,7 +42,7 @@ changed Tasks + embedded Meeting notes + changed documents
 
 | Automation | Cadence | Owns | Does not own |
 | --- | --- | --- | --- |
-| [Daily operating update](automations/daily-operating-update.md) | Daily | Incremental evidence, candidate extraction, documentation follow-ups, draft updates, stale-work proposals | Promoting Issues, Decisions, Resources, or Skills; sending unapproved messages |
+| [Daily operating update](automations/daily-operating-update.md) | Daily | Incremental evidence, candidate extraction, same-day template checks, source comments, draft updates, stale-work proposals | Promoting Issues, Decisions, Resources, or Skills; sending unapproved messages |
 | [Weekly operating review](automations/weekly-operating-review.md) | Weekly | Plan comparison, candidate review, approved promotion, report finalization | Deleting canonical work items; inventing approvals or decision rationale |
 
 ## Process model
@@ -73,10 +74,10 @@ follow-up independently testable even when they run from the same Markdown file.
   become Decision records.
 - Candidate sections are upserted by stable source fingerprint; reruns must not
   append duplicates.
-- Documentation follow-ups cover completeness and quality in one pass. Each
-  comment must ask one answerable question, explain why the gap matters, and
-  avoid repeating an open request. Without an approved source-comment policy,
-  Daily saves a proposal.
+- Daily checks records created or edited that day against the matching Notion
+  template. A source comment lists only missing required information and is not
+  projected into the weekly Report or processed by Weekly. Without an approved
+  source-comment policy, Daily saves the exact comment as a proposal.
 - Runtime watermarks, logs, credentials, and provider state stay outside these
   tracked specifications.
 - External comments and chase messages require an explicit company policy or

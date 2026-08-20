@@ -63,7 +63,7 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
     "progress-extraction",
     "problem-extraction",
     "sop-extraction",
-    "documentation-follow-up",
+    "documentation-template-check",
     "chase-planning",
     "weekly-draft-projection",
   ]) {
@@ -75,8 +75,8 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
   }
   assert.match(daily, /must not promote Issues, Decisions, Resources, or Skills/);
   assert.match(daily, /Send nothing unless the/);
-  assert.match(daily, /Post a source-local comment only under an\n   approved comment policy/);
-  assert.match(daily, /never\s+> asks for facts available elsewhere or repeats an unresolved request/);
+  assert.match(daily, /post one source-local comment containing the missing items/);
+  assert.match(daily, /does\n> not edit the record, create a weekly candidate/);
   assert.match(weekly, /accepted candidates to Tasks with `Type = Issue`/);
   assert.match(weekly, /No canonical work item was cleared or deleted/);
 });
@@ -84,7 +84,7 @@ test("Daily stages candidates and Weekly owns selective promotion", () => {
 test("automation files pair fill-in-place output templates with golden examples", () => {
   for (const filename of ["daily-operating-update.md", "weekly-operating-review.md"]) {
     const content = readFileSync(join(root, "automations", filename), "utf8");
-    const expectedVersion = filename === "daily-operating-update.md" ? "0.5.0" : "0.4.0";
+    const expectedVersion = filename === "daily-operating-update.md" ? "0.6.0" : "0.5.0";
     assert.match(content, new RegExp(`automation_version: "${expectedVersion.replaceAll(".", "\\.")}"`));
     assert.match(content, /## Output template/);
     assert.match(content, /\{\{[^\n}]+\}\}/);
@@ -101,18 +101,18 @@ test("automation files pair fill-in-place output templates with golden examples"
   }
 });
 
-test("Daily uses one policy-gated lane for documentation completeness and quality", () => {
+test("Daily checks records edited today against Notion templates and comments at source", () => {
   const daily = readFileSync(join(root, "automations", "daily-operating-update.md"), "utf8");
   const index = readFileSync(join(root, "automations.md"), "utf8");
-  assert.match(daily, /- documentation-follow-up/);
-  assert.match(daily, /> ### `documentation-follow-up`/);
-  assert.doesNotMatch(daily, /document-quality|record-completeness/);
-  assert.match(daily, /Material completeness or quality gap, why it matters, and one useful question/);
-  assert.match(daily, /Posted internal comment \\| Comment proposal \\| No write/);
-  assert.match(daily, /Which packet inputs were missing, who owns the checklist/);
-  assert.match(daily, /reruns\n  do not repeat an unresolved comment/);
-  assert.match(index, /Documentation follow-ups cover completeness and quality in one pass/);
-  assert.match(index, /Without an approved source-comment policy,\s+Daily saves a proposal/);
+  assert.match(daily, /- documentation-template-check/);
+  assert.match(daily, /> ### `documentation-template-check`/);
+  assert.match(daily, /input_window: current-local-day/);
+  assert.match(daily, /created or edited during\n  the current local day/);
+  assert.match(daily, /resolves the applicable Notion template by record type/);
+  assert.match(daily, /Record type, template used, and missing required information/);
+  assert.match(daily, /For documentation, could you define done/);
+  assert.match(daily, /Do not project documentation comments into the weekly draft/);
+  assert.match(index, /not\n  projected into the weekly Report or processed by Weekly/);
 });
 
 test("every Weekly promotion lane carries the disposition enum at point of use", () => {
@@ -130,10 +130,7 @@ test("every Weekly promotion lane carries the disposition enum at point of use",
   }
 });
 
-test("Weekly resolves the same documentation pipeline without a quality-only alias", () => {
+test("Weekly does not process Daily documentation comments", () => {
   const weekly = readFileSync(join(root, "automations", "weekly-operating-review.md"), "utf8");
-  assert.match(weekly, /- documentation-resolution/);
-  assert.match(weekly, /> ### `documentation-resolution`/);
-  assert.match(weekly, /Daily documentation follow-ups, employee replies/);
-  assert.doesNotMatch(weekly, /quality-follow-up|Document-quality proposal/);
+  assert.doesNotMatch(weekly, /documentation-resolution|documentation-template-check|documentation comments/);
 });
