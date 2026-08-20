@@ -57,5 +57,9 @@ python3 -m json.tool skills/company-os-onboarding/evals/evals.json >/dev/null
 python3 -m json.tool skills/notion-webhook-onboarding/evals/evals.json >/dev/null
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
   -s skills/daily-documentation-check/tests -p 'test_*.py' -v
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
+  -s skills/setup-company-workspace/tests -p 'test_*.py' -v
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
+  -s tests -p 'test_create_company_project.py' -v
 npm test
 ```

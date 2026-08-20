@@ -51,6 +51,9 @@ runtime state stay outside the company context file.
 - [`daily-documentation-check`](skills/daily-documentation-check/SKILL.md) —
   check today’s Notion Work records against their configured template and
   propose or post one focused source comment.
+- [`setup-company-workspace`](skills/setup-company-workspace/SKILL.md) — preview
+  and install a reviewed company project into its separate Hermes workspace
+  and profile without a tracked profile overlay.
 - [Onboarding guide](docs/hermes-company-os-onboarding.md) — product flow,
   ownership, completion, and safety boundaries.
 - [Company record templates](templates/) — metadata-backed Project, Task,
@@ -62,6 +65,9 @@ runtime state stay outside the company context file.
 - [Authored filesystem eval template](templates/authored-filesystem-evals/README.md)
   — local UI and isolated runner for created/modified/deleted file events plus
   added/removed/present/absent content assertions.
+- [Company project scaffold](templates/company-project/README.md) — lean source
+  repository with a root workspace context, automations, skills, evals,
+  scripts, tests, and an explicit source-to-runtime setup path.
 - [Company architecture](ARCHITECTURE.md) — isolated company workspace model.
 
 ```bash
@@ -70,6 +76,17 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover \
   -s skills/notion-webhook-onboarding/tests -p 'test_*.py' -v
 npm test
+```
+
+Create a new company source project without a profile, plugin, or live
+workspace overlay:
+
+```bash
+python3 scripts/create_company_project.py \
+  --target ../ExampleAI \
+  --company-name "Example Company" \
+  --company-description "What the company does." \
+  --company-timezone Asia/Kuala_Lumpur
 ```
 
 ## Template boundary

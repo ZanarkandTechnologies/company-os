@@ -7,7 +7,7 @@ source: local
 template_uses:
   skill-template: "0.3.2"
   skill-qa-checklist: "0.1.0"
-  hermes-company-workspace: "0.2.0"
+  hermes-company-workspace: "0.3.0"
 eval: evals/evals.json
 qa_checklist: qa_checklist.md
 ---
@@ -126,7 +126,7 @@ fails: credential capture; broad account crawl; guessed authority; duplicated co
 ```yaml
 company_os_result:
   workspace_context_path:
-  template_version: "0.2.0"
+  template_version: "0.3.0"
   tools:
     configured: []
     blocked: []

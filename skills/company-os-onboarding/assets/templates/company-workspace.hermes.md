@@ -1,11 +1,12 @@
 ---
 template_id: hermes-company-workspace
-template_version: "0.2.0"
+template_version: "0.3.0"
 kind: hermes-project-context
 target_file: .hermes.md
 company_name: "{{COMPANY_NAME}}"
 company_description: "{{COMPANY_DESCRIPTION}}"
 company_timezone: "{{COMPANY_TIMEZONE}}"
+status: proposed-owner-review
 ---
 
 # {{COMPANY_NAME}} Workspace

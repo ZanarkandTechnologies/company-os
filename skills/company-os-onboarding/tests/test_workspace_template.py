@@ -21,7 +21,8 @@ class CompanyWorkspaceTemplateTests(unittest.TestCase):
 
     def test_metadata_names_template_and_runtime_target(self) -> None:
         self.assertIn("template_id: hermes-company-workspace", self.content)
-        self.assertIn('template_version: "0.2.0"', self.content)
+        self.assertIn('template_version: "0.3.0"', self.content)
+        self.assertIn("status: proposed-owner-review", self.content)
         self.assertIn("kind: hermes-project-context", self.content)
         self.assertIn("target_file: .hermes.md", self.content)
 
