@@ -1,6 +1,6 @@
 ---
 automation_id: company-os-weekly-operating-review
-automation_version: "0.3.0"
+automation_version: "0.4.0"
 kind: company-os-automation
 cadence: weekly
 status: draft
@@ -15,7 +15,7 @@ processes:
   - decision-promotion
   - resource-promotion
   - skill-promotion
-  - quality-follow-up
+  - documentation-resolution
   - report-finalization
   - next-week-setup
 ---
@@ -73,11 +73,13 @@ leave them in the report with an explicit disposition.
 >
 > **Writes:** a Skill creation request or a report-only disposition.
 
-> ### `quality-follow-up`
+> ### `documentation-resolution`
 >
-> **Reviews:** documentation-quality proposals against the approved write policy.
+> **Reviews:** Daily documentation follow-ups, employee replies, and the approved
+> write policy.
 >
-> **Writes:** an approved comment or edit, or a deferred follow-up.
+> **Writes:** a resolved, deferred, or dismissed disposition; when policy allows,
+> it may apply the agreed correction or post the next focused comment.
 
 > ### `report-finalization`
 >
@@ -103,7 +105,8 @@ state: freezes the current report; opens the next reporting window
    canonical Tasks.
 2. Run the four promotion lanes. Give every candidate a disposition, including
    duplicates and low-value observations that stay in the Report.
-3. Run `quality-follow-up` under the company's approved write policy.
+3. Run `documentation-resolution` on Daily follow-ups and replies under the
+   company's approved write policy.
 4. Run `report-finalization` and preserve links to evidence, dispositions, and
    promoted records.
 5. Run `next-week-setup` and leave its proposed commitments for owner approval.
@@ -126,7 +129,7 @@ it creates no durable record.
 | `decision-promotion` | {{Candidate plus Promoted \| Duplicate \| Monitor \| Dismissed}} | {{Precedent, rationale, and authority evidence}} | {{Decision record, or report-only disposition}} |
 | `resource-promotion` | {{Candidate plus Promoted \| Duplicate \| Monitor \| Dismissed}} | {{Future-use evidence and source}} | {{Resource record, or report-only disposition}} |
 | `skill-promotion` | {{Candidate plus Promoted \| Duplicate \| Monitor \| Dismissed}} | {{Repeatability evidence and owner approval}} | {{Skill creation request, or report-only disposition}} |
-| `quality-follow-up` | {{Approved \| Deferred \| Dismissed proposal}} | {{Document gap and write-policy evidence}} | {{Approved comment or edit, or report-only follow-up}} |
+| `documentation-resolution` | {{Resolved \| Deferred \| Dismissed follow-up}} | {{Documentation gap, employee reply, and write-policy evidence}} | {{Approved correction or comment, or report-only disposition}} |
 | `report-finalization` | {{Finalization result}} | {{Reviewed draft and all dispositions}} | {{One immutable weekly Report}} |
 | `next-week-setup` | {{Carried commitments and proposed priorities}} | {{Final report and canonical Task links}} | {{Next weekly draft; no Task deletion}} |
 
@@ -159,7 +162,7 @@ it creates no durable record.
 | `decision-promotion` | `Dismissed`: no future-useful choice with rationale and authority exists. | Weekly Decision candidate section | Keep the disposition in the Report only. |
 | `resource-promotion` | `Promoted`: the checklist will be reused for future vendor handoffs. | Checklist plus owner confirmation | Create one Resource linked to `NS-42`. |
 | `skill-promotion` | `Monitor`: the four-step handoff is repeated, but the owner has not approved it as procedure. | Meeting notes and owner gap | Keep the candidate in the Report. |
-| `quality-follow-up` | `Deferred`: proposed checklist fields are useful, but edits are not approved. | Document-quality proposal and write policy | Record a follow-up; do not edit the document. |
+| `documentation-resolution` | `Deferred`: Ava confirmed the missing fields, but checklist edits are not approved. | Daily documentation follow-up, Ava's reply, and write policy | Record the disposition; do not edit the document. |
 | `report-finalization` | All candidates have dispositions and every conclusion links to evidence. | Reviewed weekly draft | Freeze one immutable Weekly Report. |
 | `next-week-setup` | Carry `NS-42` and link new Issue `NS-57`; propose, but do not auto-approve, the packet-completion commitment. | Final Report and canonical Tasks | Open the next weekly draft. |
 

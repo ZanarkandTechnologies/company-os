@@ -1,6 +1,6 @@
 ---
 automation_id: company-os-daily-operating-update
-automation_version: "0.4.0"
+automation_version: "0.5.0"
 kind: company-os-automation
 cadence: daily
 status: draft
@@ -15,8 +15,7 @@ processes:
   - decision-extraction
   - sop-extraction
   - resource-extraction
-  - document-quality
-  - record-completeness
+  - documentation-follow-up
   - chase-planning
   - weekly-draft-projection
 ---
@@ -76,22 +75,16 @@ section in the current weekly report draft.
 >
 > **Writes:** Resource candidates that pass the future-value gate.
 
-> ### `document-quality`
+> ### `documentation-follow-up`
 >
-> **Looks for:** changed or high-risk documents with stale facts, missing ownership,
-> weak structure, or unclear evidence.
+> **Looks for:** changed Tasks, Meeting notes, and documents whose missing,
+> stale, or unclear ownership, result, rationale, evidence, next action, source
+> detail, or structure makes the record unreliable for reporting or future use.
 >
-> **Writes:** proposed improvements. It does not comment or edit without policy.
-
-> ### `record-completeness`
->
-> **Looks for:** changed Tasks, Meeting notes, and documents whose missing
-> owner, result, rationale, evidence, next action, or source detail prevents an
-> accurate report or a useful promotion decision.
->
-> **Writes:** one specific question on the source record when the company has
-> approved internal comments for that surface; otherwise a comment proposal.
-> It never asks for facts available elsewhere or repeats an unresolved request.
+> **Writes:** the material gap and one specific, answerable question. It posts
+> that question on the source record when the company has approved internal
+> comments for that surface; otherwise it saves a comment proposal. It never
+> asks for facts available elsewhere or repeats an unresolved request.
 
 > ### `chase-planning`
 >
@@ -108,7 +101,7 @@ section in the current weekly report draft.
 
 ```text
 daily_operating_update(window, sources, current_weekly_report)
-  -> weekly_report_delta + candidate_sets + information_requests + chase_proposals + receipt
+  -> weekly_report_delta + candidate_sets + documentation_followups + chase_proposals + receipt
 state: source watermarks advance only after successful reads; candidates upsert by source fingerprint
 ```
 
@@ -117,16 +110,15 @@ state: source watermarks advance only after successful reads; candidates upsert 
 1. Resolve the last successful watermark and collect one bounded evidence
    bundle with stable source locators.
 2. Deduplicate unchanged or previously processed evidence.
-3. Run the six extraction and quality lanes against that bundle.
-4. Run `record-completeness` against the bundle and lane gaps. Ask only for
-   missing facts that would change the report or a promotion decision. Post a
-   source-local comment only under an approved comment policy; otherwise save
-   a proposal.
-5. Run `chase-planning` from the progress results. Send nothing unless the
+3. Run the five extraction lanes and `documentation-follow-up` against that
+   bundle. Ask only when the missing information materially changes the report
+   or the record's future use. Post a source-local comment only under an
+   approved comment policy; otherwise save a proposal.
+4. Run `chase-planning` from the progress results. Send nothing unless the
    company has approved the channel, timing, recipients, and frequency policy.
-6. Run `weekly-draft-projection` and upsert by source fingerprint.
-7. Write a receipt containing the evidence window, sources checked, source
-   gaps, candidate counts, information requests, proposed chases, and next
+5. Run `weekly-draft-projection` and upsert by source fingerprint.
+6. Write a receipt containing the evidence window, sources checked, source
+   gaps, candidate counts, documentation follow-ups, proposed chases, and next
    watermark.
 
 ## Write boundary
@@ -150,8 +142,7 @@ nothing; use `Source gap` when evidence was unavailable.
 | `decision-extraction` | {{Future-precedent candidate plus missing rationale or authority, or No finding}} | {{Stable source links}} | {{Weekly Decision candidate or No write}} |
 | `sop-extraction` | {{Repeated workflow candidate plus repeatability evidence, or No finding}} | {{Stable source links}} | {{Weekly SOP candidate or No write}} |
 | `resource-extraction` | {{Future-useful knowledge candidate, or No finding}} | {{Stable source links}} | {{Weekly Resource candidate or No write}} |
-| `document-quality` | {{Changed or high-risk document gap, or No finding}} | {{Stable source links}} | {{Proposed improvement or No write}} |
-| `record-completeness` | {{Missing fact, why it blocks reporting or promotion, and the one useful question, or Complete}} | {{Changed source and prior-request links}} | {{Posted internal comment \| Comment proposal \| No write}} |
+| `documentation-follow-up` | {{Material completeness or quality gap, why it matters, and one useful question, or Complete}} | {{Changed source and prior-request links}} | {{Posted internal comment \| Comment proposal \| No write}} |
 | `chase-planning` | {{Recipient, stale commitment, useful question, timing, or No chase}} | {{Progress finding links}} | {{Draft proposal only or No write}} |
 | `weekly-draft-projection` | {{Candidate counts and dedupe result}} | {{Candidate and prior receipt links}} | {{One upserted weekly Report delta}} |
 
@@ -160,7 +151,7 @@ nothing; use `Source gap` when evidence was unavailable.
 - `window:` {{START_TIMESTAMP}}..{{END_TIMESTAMP}}
 - `sources_checked:` {{Stable source names or locators}}
 - `source_gaps:` {{Missing or stale sources, or none}}
-- `information_requests:` {{Posted comments and proposals, or none}}
+- `documentation_followups:` {{Posted comments and proposals, or none}}
 - `next_watermark:` {{Advance only for successful connector reads}}
 
 ## Golden example
@@ -183,8 +174,7 @@ nothing; use `Source gap` when evidence was unavailable.
 | `decision-extraction` | No finding; no choice with rationale and authority was recorded. | Same Meeting notes | No write. |
 | `sop-extraction` | The four-step handoff is a candidate, but its repeatability still needs owner review. | Same Meeting notes | Add one SOP candidate. |
 | `resource-extraction` | The checklist has future reuse value for every vendor handoff. | `doc://vendor-handoff-checklist` | Add one Resource candidate. |
-| `document-quality` | The checklist lacks an owner, review date, and required inputs. | Same document | Propose those three additions; do not edit. |
-| `record-completeness` | The evidence never names which packet inputs were missing, so the blocker cannot be prevented or documented accurately. Ask Ava: “Which required packet inputs were missing, and where should the complete list live?” | `task://NS-42`, prior requests: none | Post one Task comment because internal Task comments are approved; do not edit the notes or checklist. |
+| `documentation-follow-up` | The checklist lacks an owner, review date, and required-input list; the Task never says which inputs were missing. Without those facts, the blocker cannot be prevented or documented accurately. Ask Ava: “Which packet inputs were missing, who owns the checklist, and where should the complete list live?” | `task://NS-42`, `doc://vendor-handoff-checklist`, prior requests: none | Post one Task comment because internal Task comments are approved; do not edit the notes or checklist. |
 | `chase-planning` | Draft a question to Ava asking when the complete packet will reach Legal. | `task://NS-42` | Save a chase proposal; do not send. |
 | `weekly-draft-projection` | Four candidates and one progress delta; no matching fingerprints existed. | Current candidate set and prior receipt | Upsert one deduplicated weekly Report delta. |
 
@@ -209,8 +199,9 @@ send a chase.
 
 - Reuse one bounded evidence pass, but return a result for every process lane.
 - Link every retained finding to its source and upsert by source fingerprint.
-- Ask for missing information only when the answer changes a report or
-  promotion decision; distinguish that request from chasing stale work.
+- Treat completeness and quality as one documentation judgment. Ask only when
+  the answer changes a report or the record's future use, and distinguish that
+  request from chasing stale work.
 
 ### Non-copyable facts and wording
 
@@ -228,7 +219,7 @@ qa_refs:
   - every process lane returns a result
   - Daily promotes nothing and makes no ungated write
 accepted_because:
-  - one evidence bundle produces source-linked, deduplicated lane outputs and one specific information request
+  - one evidence bundle produces source-linked, deduplicated lane outputs and one specific documentation follow-up
 heldout_required: true
 review_input: candidate + transferable_invariants + current_company_context
 review_excludes: Northstar fixture facts and wording
@@ -240,6 +231,6 @@ review_excludes: Northstar fixture facts and wording
 - Rerunning the same window produces no duplicate candidates.
 - Failed connectors remain visible source gaps and do not advance their
   watermark.
-- Information requests name the missing fact and its consequence, and reruns
+- Documentation follow-ups name the gap and its consequence, and reruns
   do not repeat an unresolved comment.
 - The current weekly report identifies the last successful Daily receipt.
