@@ -1,4 +1,0 @@
-interface:
-  display_name: "Daily Documentation Check"
-  short_description: "Check today’s Notion records against company templates."
-  default_prompt: "Use $daily-documentation-check to review today’s edited Notion work records and propose or post focused documentation comments."
