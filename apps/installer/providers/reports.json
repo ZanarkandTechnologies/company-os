@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "id": "reports",
+  "label": "Reports",
+  "providers": [
+    {
+      "id": "notion",
+      "label": "Notion",
+      "mcp": {"source": "hermes_catalog", "name": "notion"},
+      "test": {
+        "risk": "read_only",
+        "requires_confirmation": false,
+        "prompt": "Use only the configured Notion MCP tools. Fetch the configured Reports source at {{source}}, report its identity, URL, visible structure, and one concise factual observation proving report content was read. Make no changes.",
+        "expected_output": "The configured Reports source is fetched and one source-grounded observation is returned without a write.",
+        "assertions": [
+          "The configured Reports source is fetched successfully.",
+          "The response reports its identity, URL, and visible structure.",
+          "One factual observation is grounded in fetched report content.",
+          "The trace contains no write operation."
+        ]
+      },
+      "readiness": {
+        "importance": "optional",
+        "allowed_read_tools": ["mcp__notion__notion_search", "mcp__notion__notion_fetch"],
+        "prompt": "Use only read-only Notion MCP tools. Fetch the configured Reports source at {{source}} and inspect whether at least one readable report with meaningful content exists. Report counts and content presence only; do not quote content or make changes.",
+        "required_fields": [],
+        "required_relations": [],
+        "optional_fields": []
+      }
+    }
+  ]
+}

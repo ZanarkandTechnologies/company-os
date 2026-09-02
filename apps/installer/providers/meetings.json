@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "meetings",
+  "label": "Meetings",
+  "providers": [
+    {
+      "id": "notion",
+      "label": "Notion",
+      "mcp": {"source": "hermes_catalog", "name": "notion"},
+      "test": {
+        "risk": "read_only",
+        "requires_confirmation": false,
+        "prompt": "Use only the configured Notion MCP tools. Resolve and fetch the configured Meetings source at {{source}}. Report the containing record identity, URL when available, visible meeting structure, and whether at least one meeting or an honestly empty source was read. Make no changes.",
+        "expected_output": "The configured Meetings source is resolved and read without changing it.",
+        "assertions": [
+          "The configured Meetings source or its containing record is fetched successfully.",
+          "The response reports its identity and URL when the provider exposes one.",
+          "The response describes the visible meeting structure and honestly reports populated or empty state.",
+          "The trace contains no write operation."
+        ]
+      },
+      "readiness": {
+        "importance": "alias",
+        "alias_of": "tasks",
+        "required_fields": [],
+        "required_relations": [],
+        "optional_fields": ["body_markdown"]
+      }
+    }
+  ]
+}

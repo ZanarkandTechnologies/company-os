@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "people",
+  "label": "People",
+  "providers": [
+    {
+      "id": "notion",
+      "label": "Notion",
+      "mcp": {"source": "hermes_catalog", "name": "notion"},
+      "test": {
+        "risk": "read_only",
+        "requires_confirmation": false,
+        "prompt": "Use the configured Notion MCP tools to fetch the configured People source at {{source}}. Report its identity, URL, visible properties, and whether at least one person or an honestly empty source was read. Make no changes.",
+        "expected_output": "The configured Notion People source is fetched and described without a write.",
+        "assertions": [
+          "The response identifies the fetched People source and URL.",
+          "Visible properties and at least one person or an honestly empty result are reported.",
+          "No provider mutation is attempted."
+        ]
+      },
+      "readiness": {
+        "importance": "optional",
+        "allowed_read_tools": ["mcp__notion__notion_search", "mcp__notion__notion_fetch"],
+        "prompt": "Use only read-only Notion MCP tools. Fetch the configured People source at {{source}} and inspect its schema plus a bounded sample of at most 10 records. Report structure and counts only; do not quote personal data or make changes.",
+        "required_fields": ["id", "name"],
+        "required_relations": [],
+        "optional_fields": ["department"]
+      }
+    }
+  ]
+}

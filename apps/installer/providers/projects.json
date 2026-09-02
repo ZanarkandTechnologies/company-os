@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "id": "projects",
+  "label": "Projects",
+  "providers": [
+    {
+      "id": "notion",
+      "label": "Notion",
+      "mcp": {"source": "hermes_catalog", "name": "notion"},
+      "test": {
+        "risk": "reversible",
+        "requires_confirmation": true,
+        "prompt": "Use the configured Notion MCP tools. First fetch the configured Projects source at {{source}}. Then create one private page titled '[Company OS connection test {{run_id}}] Projects', fetch that new page, archive it after the read-back succeeds, and report the source identity, created page ID and URL, exact fetched title, and cleanup result. Do not change any existing workspace content.",
+        "expected_output": "The configured Projects source is readable and one isolated private page is created, fetched with the exact title, and archived.",
+        "assertions": [
+          "The configured Projects source is fetched successfully.",
+          "The response reports one created Notion page ID and URL.",
+          "The created page is fetched after creation and its title exactly matches the requested title.",
+          "The test page is archived and no existing workspace content is changed."
+        ]
+      },
+      "readiness": {
+        "importance": "core",
+        "allowed_read_tools": ["mcp__notion__notion_search", "mcp__notion__notion_fetch"],
+        "prompt": "Use only read-only Notion MCP tools. Fetch the configured Projects source at {{source}} and inspect its schema plus a bounded sample of at most 10 records. Report structure and counts only; do not quote record content or make changes.",
+        "required_fields": ["id", "name", "status"],
+        "required_relations": [],
+        "optional_fields": ["department"]
+      }
+    },
+    {
+      "id": "linear",
+      "label": "Linear",
+      "mcp": {"source": "hermes_catalog", "name": "linear"},
+      "test": {
+        "risk": "reversible",
+        "requires_confirmation": true,
+        "prompt": "Use the configured Linear MCP tools. Fetch the configured Projects source or test team at {{source}}, create exactly one issue titled '[Company OS connection test {{run_id}}] Projects', fetch the issue after creation, mark it cancelled or otherwise non-active after the read-back succeeds, and report its ID, URL, title, team, read-back result, and cleanup result. Do not change any existing issue.",
+        "expected_output": "The configured Linear source is readable and one isolated issue is created, fetched with matching identity, and left non-active.",
+        "assertions": [
+          "The configured Linear source or team is fetched successfully.",
+          "The response reports one created issue ID and URL.",
+          "The issue is fetched after creation and its title and team match.",
+          "The test issue is left non-active and no existing issue is changed."
+        ]
+      },
+      "readiness": {
+        "importance": "core",
+        "allowed_read_tools": ["mcp__linear__get_issue", "mcp__linear__list_issues", "mcp__linear__search_issues", "mcp__linear__get_project", "mcp__linear__list_projects", "mcp__linear__list_issue_statuses", "mcp__linear__list_teams", "mcp__linear__list_users"],
+        "prompt": "Use only read-only Linear MCP tools. Fetch the configured Projects source or team at {{source}} and inspect its schema plus a bounded sample of at most 10 projects. Report structure and counts only; do not quote record content or make changes.",
+        "required_fields": ["id", "name", "status"],
+        "required_relations": [],
+        "optional_fields": ["department"]
+      }
+    }
+  ]
+}

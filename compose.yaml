@@ -1,0 +1,20 @@
+name: company-os-hermes
+
+services:
+  ngrok:
+    image: ngrok/ngrok:latest@sha256:14d80d083e5b53145f416bbbd36238336c9de4016c43fd950eb2eb845670583b
+    user: "10000:10000"
+    profiles: [webhook]
+    restart: unless-stopped
+    volumes:
+      - ${COMPANY_OS_PROFILE_HOME}/secrets/ngrok.yml:/etc/ngrok.yml:ro
+    command:
+      - start
+      - --all
+      - --config
+      - /etc/ngrok.yml
+    networks: [runtime]
+
+networks:
+  runtime:
+    internal: false

@@ -1,0 +1,63 @@
+name: company-os
+version: 1.8.0
+description: "Company OS workspace, installer providers, automations, onboarding, and connectors"
+hermes_requires: ">=0.20.4"
+author: "Zanarkand Technologies"
+
+# Secrets and model configuration are client-owned. These integrations are
+# optional until their dedicated onboarding flow is invoked.
+env_requires:
+  - name: NOTION_TOKEN
+    description: "Notion integration token for Company OS data access"
+    required: false
+
+# This is the client installation boundary. The repository remains a complete
+# development/evaluation harness, while Hermes copies only these runtime files.
+distribution_owned:
+  - distribution.yaml
+  - setup.py
+  - setup.cmd
+  - setup.sh
+  - compose.yaml
+  - apps/__init__.py
+  - apps/doctor/__init__.py
+  - apps/installer/__init__.py
+  - apps/installer/schemas
+  - apps/installer/runtime.py
+  - apps/installer/feature_setup.py
+  - apps/installer/cli
+  - apps/installer/workspace.py
+  - apps/installer/profile.py
+  - apps/installer/provider_catalog.py
+  - apps/installer/composio_session.py
+  - apps/installer/model_output.py
+  - apps/installer/connection_evals.py
+  - apps/installer/readiness_evals.py
+  - apps/installer/prompts
+  - apps/doctor/run.py
+  - apps/doctor/evaluation.py
+  - apps/installer/dashboard.py
+  - apps/installer/schemas/workspace.py
+  - apps/installer/providers
+  - skills/pm-daily/SKILL.md
+  - skills/pm-daily/templates
+  - skills/pm-daily/evals
+  - skills/pm-weekly/SKILL.md
+  - skills/pm-weekly/templates
+  - skills/pm-weekly/evals
+  - apps/eval_viewer/__init__.py
+  - apps/eval_viewer/build.py
+  - apps/eval_viewer/model.py
+  - workspace.hermes.template.md
+  - automations
+  - apps/installer/design.md
+  - templates
+  - plugins/platforms/notion/__init__.py
+  - plugins/platforms/notion/adapter.py
+  - plugins/platforms/notion/api.py
+  - plugins/platforms/notion/cli.py
+  - plugins/platforms/notion/onboarding.py
+  - plugins/platforms/notion/plugin.yaml
+  - plugins/platforms/notion/protocol.py
+  - plugins/multica/__init__.py
+  - plugins/multica/plugin.yaml

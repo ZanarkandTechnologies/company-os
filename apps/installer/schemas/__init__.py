@@ -1,0 +1,1 @@
+"""Installer-owned workspace contracts."""

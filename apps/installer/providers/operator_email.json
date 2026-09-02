@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "operator_email",
+  "label": "Operator email",
+  "providers": [
+    {
+      "id": "gmail",
+      "label": "Gmail (Composio)",
+      "mcp": {
+        "source": "composio_session",
+        "name": "composio-google",
+        "toolkit": "gmail",
+        "tools": [
+          "GMAIL_GET_PROFILE",
+          "GMAIL_FETCH_EMAILS",
+          "GMAIL_SEND_EMAIL"
+        ]
+      },
+      "test": {
+        "risk": "read_only",
+        "requires_confirmation": false,
+        "prompt": "Use only the configured Composio Gmail profile tool. Read the authenticated Gmail profile and report its address. Do not fetch messages, send email, or modify anything.",
+        "expected_output": "The authenticated Gmail profile is returned without reading or sending email.",
+        "assertions": [
+          "The authenticated Gmail profile is fetched successfully.",
+          "The response reports the authenticated address.",
+          "No message content is fetched.",
+          "No email is sent or modified."
+        ]
+      },
+      "readiness": {
+        "importance": "capability",
+        "proof": "connection_receipt",
+        "required_fields": [],
+        "required_relations": [],
+        "optional_fields": []
+      }
+    }
+  ]
+}

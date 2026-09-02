@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "id": "storage",
+  "label": "External artifact storage",
+  "providers": [
+    {
+      "id": "google_drive",
+      "label": "Google Drive (Composio)",
+      "mcp": {
+        "source": "composio_session",
+        "name": "composio-google",
+        "toolkit": "googledrive",
+        "tools": [
+          "GOOGLEDRIVE_FIND_FILE",
+          "GOOGLEDRIVE_UPLOAD_FILE",
+          "GOOGLEDRIVE_DOWNLOAD_FILE",
+          "GOOGLEDRIVE_DELETE_FILE"
+        ]
+      },
+      "test": {
+        "risk": "reversible",
+        "requires_confirmation": true,
+        "prompt": "Use only the configured Google Drive tools. Confirm the configured folder {{source}} is readable. Upload one setup-test text file containing {{run_id}}, read it back, then delete only that test file. Report the created file ID, read-back result, and deletion result.",
+        "expected_output": "The configured Drive folder is readable and one reversible upload/read/delete test succeeds.",
+        "assertions": [
+          "The exact configured Drive folder is opened.",
+          "One setup-test file containing the run ID is uploaded.",
+          "The same file is read back successfully.",
+          "Only the created setup-test file is deleted."
+        ]
+      },
+      "readiness": {
+        "importance": "capability",
+        "proof": "connection_receipt",
+        "required_fields": [],
+        "required_relations": [],
+        "optional_fields": []
+      }
+    }
+  ]
+}

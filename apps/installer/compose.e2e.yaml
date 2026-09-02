@@ -1,0 +1,8 @@
+services:
+  dashboard:
+    ports: !override
+      - "127.0.0.1:${COMPANY_OS_E2E_PORT:?COMPANY_OS_E2E_PORT is required}:9119"
+
+volumes:
+  company_os_hermes_data:
+    name: ${COMPANY_OS_E2E_VOLUME:?COMPANY_OS_E2E_VOLUME is required}
