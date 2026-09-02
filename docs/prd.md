@@ -1,157 +1,282 @@
 ---
-title: "Howie Dependency-Aware Company Plan"
-status: active
-owner: HermesCorp
-updated_at: 2026-08-10T09:48:00Z
+title: Seamless Company OS deployment, operating memory, and tuning
+status: implemented_with_external_followups
+owner: Company OS
+created_at: 2026-08-28
+updated_at: 2026-09-01
+source_feedback: first external computer deployment
 ---
 
-# PRD: Dependency-aware company plan
+# PRD: Seamless Company OS deployment, operating memory, and tuning
 
-## Problem / Context
+## Product decision
 
-The manager POC shows every ticket’s own human input and skill template, but
-cannot answer the operational question that matters: **which skill output is
-needed next, which ticket does it unblock, and who should Howie ask?** The
-current dashboard also treats its scenario buttons as product controls rather
-than distinguishing a production human-request entrypoint from development
-simulation.
+The first external installation exposed two connected problems:
 
-## First-Principles Basis
+1. “One click” still meant platform-specific commands, separate workspace and
+   automation setup, custom Notion tooling, and manual verification.
+2. Daily and Weekly automations had no clear private memory layer between live
+   Work and the reports or records they publish.
 
-- **Objective:** let Howie turn a meeting or PRD into accountable, dependency-aware work without inventing a second task system.
-- **User or system need:** Howie needs to see readiness, blockers, downstream impact and the one human input that will unblock the most work.
-- **Root cause:** task-local `blocking_inputs` and `mock_skill_dependencies` are untyped lists; no canonical producer/consumer edge exists.
-- **Key assumptions:** a finite directed acyclic graph of ticket outputs and human inputs is sufficient for the POC; Telegram can be represented safely before a real adapter exists.
-- **Constraints:** filesystem tickets remain canonical; no real Telegram send, Google Drive access, OAuth, cron, or employee ACL mutation.
-- **First viable slice:** typed human and skill-output requirements, declared skill outputs, deterministic readiness projection, and Timeline/Table/Dependencies views over the same tickets.
-- **Proof / falsification:** a frozen meeting creates a chain where publishing/reviewing one artifact automatically resolves a named downstream skill-output requirement; tests and browser evidence show the graph and a mock human reply.
-- **Tradeoff accepted:** model only explicit DAG dependencies and one request type (`human_input` via `telegram_preview`); defer a generic workflow engine, editable graph, and live delivery.
-- **Non-goals:** multi-user authorization, production Telegram credentials, arbitrary PRD parsing, or automatic execution of all skills.
+The product must therefore provide:
 
-## Audience
+- one resumable install, reconcile, and verify command;
+- profile-local secrets, auth, schedules, and runtime state;
+- Markdown report templates as the human tuning surface;
+- one private Project Memory file per active Project and week;
+- Weekly projections from those notes into reports, Employee Memory, and SOPs;
+- a typed `ready | partial | blocked` receipt with one exact next action.
 
-- **Primary:** Howie, reviewing a company plan after a meeting or PRD.
-- **Secondary:** Kenji, who receives a bounded Telegram request, answers it, and reviews the resulting artifact.
+“One click” may still pause for credentials, browser OAuth, Notion sharing,
+deploy approval, or spend approval. It must not bypass external consent.
 
-## JTBD
+## Users and jobs
 
-When a meeting or PRD produces several dependent deliverables, I want to see
-what is blocked by a person versus another skill output, so I can ask one
-useful question and keep the company moving.
+| User | Job |
+| --- | --- |
+| Client operator | Install, authorize, verify, update, and recover the Company OS without learning Hermes internals. |
+| Manager | See assigned, active, stale, blocked, completed, and documentation-pending Work from source evidence. |
+| Maintainer | Change a PM skill or Markdown artifact template and verify its owned eval cases. |
 
-## SLC Slice (Next Release)
+## Release scope
 
-1. A ticket declares `requirements` (human input or another ticket’s approved
-   skill output) and `skill_outputs`.
-2. The manager validates a DAG, derives `blocked_by`, `unblocks`, and the next
-   eligible human request from ticket folders.
-3. The frozen scenario chains geo report → fundraising deck / Excel model →
-   weekly report.
-4. One dashboard state has three views of the same projection: Timeline,
-   Table, and Dependencies. No view owns separate state.
-5. Human requests are **Telegram previews** in ticket progress; development
-   controls may simulate Kenji’s input/reply, but no transport sends.
+The next release supports one macOS/Linux path, one proven Windows path, and a
+persistent Docker topology. One deterministic entry point owns install,
+reconcile, update, health, and eval phases. Chat may wrap that command but is
+not required to run it.
 
-## Prototype / PoC Gates
+MCP is the default provider access route. Notion comments remain a separate
+inbound-event boundary: an ngrok agent exposes the connector at the stable HTTPS
+development domain assigned to the customer's account. Setup stores an
+owner-only agent configuration in the Hermes profile, requires no host ngrok
+installation, and rejects temporary Quick Tunnel URLs.
 
-- **Highest-risk assumption:** explicit producer/consumer fields remain more
-  useful and inspectable than a generic graph-memory layer.
-- **Prototype artifact:** deterministic dependency fixture plus browser flow.
-- **Pass signal:** the dependency view names a concrete producer/output and a
-  mock reply or approved output changes the dependent ticket’s readiness.
-- **Ticket before full production build:** yes.
+## System boundaries
 
-## Metric Candidates
+This diagram answers: **who owns configuration, credentials, runtime state, and
+provider access?**
 
-- **Primary candidate:** pass/fail frozen-scenario evaluation of dependency
-  resolution and human-request eligibility.
-- **Direction:** pass/fail.
-- **Verification idea:** unit tests assert cycle rejection, no premature
-  skill execution, one Telegram-preview request, and downstream unblocking.
-- **Guard idea:** tests assert no Telegram/Drive/OAuth/cron side effect exists.
-- **Human quality provider:** independent reviewer judgment of the views; no
-  honest numeric usability threshold has been supplied.
+```mermaid
+flowchart LR
+  maintainer[Maintainer] -->|versioned desired state| repo[Company OS source]
+  operator[Client operator] -->|credentials + consent| profile[(Hermes profile)]
+  repo -->|install / reconcile| setup[Setup entry point]
+  setup -->|declared config only| profile
+  profile --> runtime[Hermes runtime]
+  runtime -->|read / write| mcp[Official Notion MCP]
+  notion[Notion events] --> ingress[ngrok agent endpoint]
+  ingress --> connector[Webhook connector]
+  connector --> runtime
+  runtime --> workspace[(Private workspace state)]
+  setup -->|redacted result| receipt[ready / partial / blocked]
+```
 
-## Non-Goals
+| Owner | Owns | Must not own |
+| --- | --- | --- |
+| Company OS source | Distribution, workspace/templates, automation contracts, reconciliation policy, health checks, skill-owned eval cases | Client credentials, sessions, generated reports, private memory |
+| Hermes profile | Secrets, OAuth, MCP configuration, scheduler, plugins, local databases | Repo-authored desired state |
+| Runtime workspace | Generated reports, Project Memory, Employee Memory, proposals, receipts | Source templates treated as co-equal edited copies |
+| Operator | Credentials, OAuth consent, Notion sharing, deploy topology, external-write approval | Hidden manual repair steps |
+| Notion/Drive | Destination permissions and document visibility | Private intermediate management state unless explicitly published |
 
-- Live Telegram notifications or inbound webhook handling.
-- Google Drive file search, permissions or writes.
-- Dragging dates, editing graph edges, or creating a general workflow editor.
-- Automatic skill execution without declared required inputs and review rules.
+Unknown client files must survive install and update. Distribution updates may
+change only the declared allowlist. `hermes profile export` remains a snapshot
+or backup, not the update channel.
 
-## User Stories
+## Operating memory
 
-### US-001: Diagnose a blocked deliverable
+This diagram answers: **how does live Work become short-term memory, reports,
+and persistent entity memory?**
 
-As Howie, I want a ticket to state the exact upstream ticket, output and skill
-that it needs, so that I know whether to wait, request an input, or escalate.
+```mermaid
+flowchart TD
+  sources[Projects + Work + Meetings + artifact links]
+  daily[Daily bounded reconciliation]
+  cache[(Local short-term memory<br/>Project Memory)]
+  freeze[Frozen weekly evidence]
+  project[Official Project report]
+  employee[(Local long-term<br/>Employee Memory)]
+  sop[(Local long-term<br/>SOP Memory)]
+  rollups[Area + Company rollups]
+  mirror[Optional configured<br/>provider copies]
+  outbound[Approved comments / messages]
 
-**Acceptance Criteria:**
+  sources --> daily --> cache
+  cache -->|Weekly freeze| freeze
+  freeze --> project --> rollups --> mirror
+  freeze -->|delivery observations| employee
+  freeze -->|workflow samples| sop
+  cache -. configured short-term sync .-> mirror
+  employee -. configured long-term sync .-> mirror
+  sop -. configured long-term sync .-> mirror
+  daily --> outbound
+```
 
-- [ ] A dependency view identifies `TASK-1002` as blocked by `TASK-1001`’s
-  approved `geo-report` output rather than showing an opaque blocker.
-- [ ] A cycle or unknown producer/output is rejected before any state write.
-- [ ] The dashboard exposes the same dependency data in Timeline, Table and
-  Dependencies views.
+Project Memory are private working memory, not a public report or employee
+scorecard. Daily appends source-linked snapshots and findings under fixed
+Markdown sections. The first implementation keeps one notes file per Project
+and week—not separate Daily employee or workflow files.
 
-### US-002: Request the next human input
+The local runtime workspace is canonical for both memory lifecycles and Final
+reports. An optional artifact/provider/destination binding creates a one-way
+copy only after local read-back. No binding means local-only; incomplete pairs
+are invalid; provider edits never flow back. Memory destinations require an
+operator-approved private location. Work comments remain explicit actions on
+the exact source record rather than memory publication.
 
-As Kenji, I want Howie to create a concise Telegram-ready question only when
-my answer can make work eligible, so that I am not spammed with generic chases.
+### Daily reconciliation
 
-**Acceptance Criteria:**
+The product requires one bounded daily snapshot to become grounded Project
+Memory updates and message drafts. Exact selection, reconciliation, staleness,
+and documentation rules belong to
+[`PM Daily`](../skills/pm-daily/SKILL.md), where they can be evaluated with the
+files they affect.
 
-- [ ] A due human requirement produces a ticket-local `telegram_preview`
-  request record, never an actual send.
-- [ ] The development-only simulation records Kenji’s reply against that
-  requirement and recomputes readiness.
-- [ ] No generic dashboard action claims to contact a real person.
+### Weekly lifecycle and recovery
 
-## Functional Requirements
+The product requires one frozen weekly Project set to become reports, qualified
+long-term memory updates, next-week memory, and an executive draft. Exact
+coverage, promotion, recovery, and carry-forward rules belong to
+[`PM Weekly`](../skills/pm-weekly/SKILL.md).
 
-- **FR-1:** Requirements have stable IDs, a type, resolution state, and either
-  a human-request contract or an upstream ticket/output reference.
-- **FR-2:** Every mock skill declares stable input IDs and output IDs.
-- **FR-3:** Readiness is derived from declared requirements; a ticket remains
-  blocked until all required inputs are resolved.
-- **FR-4:** Human requests name the intended channel and are persisted only as
-  preview/intent records until a separately approved transport adapter exists.
-- **FR-5:** Views are read-only projections over canonical ticket folders.
+### Skill-to-file contract
 
-## Constraints
+Markdown templates own artifact shape and examples. PM Daily and PM Weekly own
+file transformations. Automations own schedule, context acquisition, skill
+invocation, review, and authorized provider application. There is no generated
+schema or second prose specification between them.
 
-- **Security/privacy:** no personal Telegram target, token, Drive credential or
-  employee contact data in source fixtures or browser state.
-- **Platform:** Node standard library and the existing dependency-free local UI.
-- **Budget/time:** one operator-authorized continuous improvement window; do
-  not infer a token, spend or live-service budget.
+## User stories
 
-## Autonomy Readiness
+| ID | User story | Acceptance |
+| --- | --- | --- |
+| US-001 | Install from one entry point. | Clean supported host/profile works and resumes; a blocked step gives one exact action; unchanged rerun creates no duplicates. |
+| US-002 | Update from repo-owned configuration. | Installed source/version is visible; only distribution-owned state changes; profile secrets, auth, memory, sessions, and generated state survive. |
+| US-003 | Use Notion without a local adapter stack. | Interactive mode uses official hosted MCP and bounded tools; receipts separate MCP health from webhook health; headless/event routes are explicit. |
+| US-004 | Tune behavior through output templates. | One representative template and its skill-owned file eval fail clearly when behavior drifts. |
+| US-005 | Verify the whole installation. | Static health, installed skill packages, live probes, and operated eval evidence remain distinct; skipped probes never pass; receipts contain no secrets or private records. |
+| US-006 | Learn and recover without tribal knowledge. | A new operator follows the tested path without reading source or legacy pages; docs QA runs every documented command and receipt. |
+| US-007 | Track weekly delivery without employee self-scoring. | PM Daily produces grounded Project Memory and drafts according to its owned skill evals; missing evidence is not converted into effort or performance claims. |
+| US-008 | Consolidate weekly evidence into persistent entity memory. | PM Weekly produces reports, qualified memory updates, and carry-forward files according to its owned skill evals. |
 
-- **Human inputs/assets needed:** Telegram chat identity and consent before a
-  real adapter; PRD/meeting source and artifact-review rules per workstream.
-- **Credentials / external services:** none in this POC; real Telegram and
-  Google Workspace adapters require separate approval and isolation design.
-- **Tooling gaps:** no production parser, delivery receipt, or real inbound
-  message gateway.
-- **Human gates:** plan/PRD acceptance before live adapter; human review before
-  artifact completion; explicit approval before any send, publish or spend.
-- **Agent decision boundaries:** may derive and preview the next request; may
-  not send it, alter permissions, or claim an input is satisfied without a
-  bounded reply/artifact record.
+## Functional requirements
 
-## Risks / Unknowns
+### Setup and deployment
 
-- Real PRDs may contain ambiguous or cyclic dependencies; the POC must reject
-  rather than guess.
-- Telegram delivery and identity binding are intentionally unproven.
-- Some artifacts require iterative human judgment that a simple satisfied flag
-  cannot capture; model them as explicit review requirements rather than hide
-  them in prompts.
+- **FR-1:** Prove the native, Windows, and Docker topology matrix before locking
+  the installer.
+- **FR-2:** Provide one cross-platform, non-chat entry point for install,
+  reconcile, update, health, and eval.
+- **FR-3:** Keep secrets and OAuth material in Hermes-owned profile state. Repo
+  files may declare names, endpoints, tool allowlists, and desired state.
+- **FR-4:** Reuse Hermes profile install/update, MCP, cron, plugin, config, and
+  doctor capabilities where they meet this contract.
+- **FR-5:** Make each phase idempotent and produce a redacted resumable receipt
+  with observed state and `next_action`.
+- **FR-6:** Default Notion read/write to official hosted MCP. Treat webhook
+  ingress and unattended access as separate capabilities.
+- **FR-7:** Give each versioned artifact template a realistic example and
+  skill-owned file/content assertions.
+- **FR-8:** Install both PM skills and their frozen eval cases with the
+  distribution; installation health proves presence, not behavior.
+- **FR-9:** Organize setup docs around installation, authorization, operation,
+  update, verification, and recovery.
 
-## Backpressure / Evidence to Ship
+### Operating memory
 
-- Unit/integration tests for graph validation, upstream-output resolution and
-  Telegram-preview request/reply.
-- Browser capture of all three views and the unblocked transition.
-- Independent implementation + visual review and a narrated POC demo.
+- **FR-10:** Maintain one private current-week Project Memory file per selected
+  Project from bounded Daily reads.
+- **FR-11:** PM Daily owns the exact grounded file transformation and proof
+  contract in `skills/pm-daily/`.
+- **FR-12:** PM Weekly owns complete-set reporting, memory consolidation,
+  carry-forward, and proof in `skills/pm-weekly/`.
+- **FR-13:** Store only factual, source-linked Employee Memory observations. Do
+  not infer personality, unsourced effort, or automatic performance ratings.
+- **FR-14:** Update SOP timing only through a versioned, auditable sample policy
+  with approval and rollback evidence.
+- **FR-15:** Carry unresolved Work and questions into the next week's notes. Remove
+  closed Work only after retaining its accepted outcome evidence.
+- **FR-16:** Always write short-term memory, long-term memory, and Final reports
+  locally. Add a one-way provider copy only for a complete configured
+  artifact/provider/destination binding and only after local read-back.
+- **FR-17:** Default to empty artifact-sync and communications configuration.
+  Send documentation and stale-work questions to each exact linked Work item;
+  use a direct employee channel only when it is explicitly configured.
+
+## Success and proof
+
+| Claim | Required proof |
+| --- | --- |
+| Supported topology | Fresh install and idempotent rerun on one Windows path and one persistent Docker path, with no undocumented repair. |
+| Honest health | `ready | partial | blocked` receipt; skipped or unauthorized probes cannot appear healthy. |
+| Safe update | Tests prove secrets stay profile-local, unknown files survive, and only allowlisted desired state changes. |
+| Template tuning | Skill eval covers the template, golden file, and expected content assertions. |
+| Operating memory | Daily/Weekly evals prove stable-ID reconciliation, documentation branches, frozen projection input, carry-forward, and failed-promotion recovery. |
+| Provider access | One official Notion MCP OAuth/read probe; webhook health tested separately. |
+
+Record cold-install and warm static-verify durations. Do not set a performance
+target until the topology PoC produces a representative baseline.
+
+## Constraints and human gates
+
+- Never put token values in receipts, logs, docs, git, or chat.
+- Static reconcile must avoid network calls unless live verification is chosen.
+- The supported contract cannot require a POSIX-only shell. Windows may use
+  WSL2 or Docker if the PoC proves and documents that route.
+- Reuse Hermes primitives before adding product-specific code.
+- The setup command may inspect and reconcile declared source-owned state and
+  run bounded tests. It may not grant Notion access, complete OAuth consent,
+  enable production writes, expose a public endpoint, spend money, or delete
+  user-owned state.
+- Plan, real-machine QA, deploy/publish, spend, and destructive migration each
+  require their named human approval.
+
+## Non-goals
+
+- Modify or ship Hermes itself from this repository.
+- Support every Windows shell or make OAuth zero-click.
+- Replace Notion webhooks with MCP.
+- Use hosted Notion MCP as a headless bearer-token service.
+- Enable production writes or external publication by default.
+- Build a general-purpose installer framework.
+- Rewrite every record template or skill eval in the first slice.
+
+## Risks and open proof
+
+- Hosted Notion MCP requires user OAuth and does not by itself serve an
+  unattended headless container.
+- MCP provides read/write tools, not Notion's inbound webhook event stream.
+- Hermes chat permissions may block shell/CLI access; setup cannot depend on
+  weakening that boundary.
+- Distribution update preserves `config.yaml` by default. The desired-state
+  contract must distinguish repo-owned and local settings.
+- Free-form Markdown still requires grounded file/content evals before release.
+- Clean Windows and Docker runners, a deterministic live MCP probe, packaged
+  eval fixtures, and a secret-safe receipt validator are still required.
+
+## Implementation status
+
+The local operating-memory slice is implemented. Daily reconciles bounded Work
+into source-linked Project Memory, including completed outcome/artifact rows and
+documentation questions. Weekly freezes the complete all-Project set, then
+produces report, Employee Memory, SOP sample, promotion, and carry-forward
+projections. Employee observations merge by Person and Work; workflow samples
+merge by explicit workflow key without automatically changing an approved
+baseline. The native Weekly automation stores these outputs locally and treats configured Notion or
+Drive destinations as optional one-way copies, never as canonical memory.
+
+The remaining gates are external: bind authenticated client destinations and
+operate separately authorized Notion, Drive, messaging, Windows, and persistent
+Docker proof. The next Daily run is the accepted re-review path for unanswered
+documentation questions; event-driven re-review is not required for this
+release. Installer documentation and TASK-0016 through TASK-0021 own setup and deployment
+proof.
+
+## Grounding
+
+- **User evidence:** first external-computer deployment feedback in this task.
+- **Local evidence:** `distribution.yaml`, TASK-0015, setup modules, skills,
+  templates, evals, and installed Hermes CLI/help/docs.
+- **Provider evidence:** official Notion hosted MCP documentation describes
+  OAuth-based read/write access; official webhook documentation requires a
+  separate public HTTPS endpoint for `comment.created` delivery.
