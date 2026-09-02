@@ -1,0 +1,7 @@
+{
+  "week": "2026-W35",
+  "active_projects": [
+    {"id": "PROJ-CMT", "department": "Operations", "memory_file": "project--cmt.md"},
+    {"id": "PROJ-ECOM", "department": "Operations", "memory_file": "project--ecom.md"}
+  ]
+}

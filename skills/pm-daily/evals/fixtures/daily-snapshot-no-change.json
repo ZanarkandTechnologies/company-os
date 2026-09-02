@@ -1,0 +1,24 @@
+{
+  "date": "2026-08-25",
+  "projects": [
+    {"id": "PROJ-CMT", "name": "CMT Pipeline", "status": "Active", "source_revision": "project-cmt-r7"}
+  ],
+  "people": [
+    {"id": "PERSON-NUR", "name": "Nur Izzati", "source_revision": "person-nur-r4"}
+  ],
+  "work": [
+    {
+      "id": "TASK-105",
+      "source_provider": "notion",
+      "provider_record_id": "55555555-5555-4555-8555-555555555555",
+      "source_reference": "https://example.invalid/TASK-105",
+      "project_id": "PROJ-CMT",
+      "owner_id": "PERSON-NUR",
+      "status": "In progress",
+      "updated_at": "2026-08-25T15:00:00+08:00",
+      "summary": "Sample check is proceeding on schedule.",
+      "source_url": "https://example.invalid/TASK-105",
+      "source_revision": "task-105-r6"
+    }
+  ]
+}

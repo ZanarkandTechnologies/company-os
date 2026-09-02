@@ -1,0 +1,91 @@
+{
+  "skill_name": "pm-weekly",
+  "evals": [
+    {
+      "id": "weekly_operating_reports",
+      "prompt": "Close the week and produce the complete operating report set from the frozen Project Memory files.",
+      "expected_output": "Final Project reports roll into complete Department reports and one Company report without hiding missing measurements or blocked children.",
+      "files": [
+        "evals/fixtures/weekly-inventory.json",
+        "evals/fixtures/project--cmt.md",
+        "evals/fixtures/project--ecom.md"
+      ],
+      "assertions": [
+        "Every expected Project has one final report with the required template headings",
+        "Each Department report cites every immediate Project report",
+        "The Company report cites every immediate Department report",
+        "Open measurement gaps remain explicit instead of being estimated"
+      ],
+      "metadata": {
+        "title": "Weekly operating reports",
+        "notes": "Shows the complete Project-to-Department-to-Company reporting chain produced from one frozen week.",
+        "tags": ["skill", "showcase"]
+      }
+    },
+    {
+      "id": "knowledge_promotion",
+      "prompt": "Consolidate this week's reusable operating knowledge into long-term memory where the evidence supports it.",
+      "expected_output": "Accepted outcomes group by Person ID and comparable workflow samples group by workflow_key without replacing an approved baseline from one fast observation.",
+      "files": [
+        "evals/fixtures/project--cmt.md",
+        "evals/fixtures/project--ecom.md",
+        "evals/fixtures/sop--listing-handoff-before.md",
+        "evals/fixtures/person--nur-before.md"
+      ],
+      "assertions": [
+        "The repeated receiver-accepted listing workflow updates SOP interval evidence",
+        "The existing approved SOP baseline is preserved",
+        "The one-off collar workflow remains Project-only",
+        "Every promoted memory claim cites its immediate source report",
+        "Unknown active and waiting time remains a measurement gap rather than an invented calibrated baseline",
+        "Nur's latest weekly evidence records the accepted listing outputs without changing persistent operating memory"
+      ],
+      "metadata": {
+        "title": "Long-term memory consolidation",
+        "notes": "Shows conservative Employee, SOP, Issue, and Decision memory updates without promoting every weekly observation.",
+        "tags": ["skill", "showcase"]
+      }
+    },
+    {
+      "id": "next_week_carry_forward",
+      "prompt": "Initialize next week's Project Memory from unresolved attention at the end of this week.",
+      "expected_output": "Next-week Project Memory contains unresolved owned attention only and does not carry completed work forward.",
+      "files": [
+        "evals/fixtures/weekly-inventory.json",
+        "evals/fixtures/project--cmt.md",
+        "evals/fixtures/project--ecom.md"
+      ],
+      "assertions": [
+        "Every active Project receives one next-week Project Memory file",
+        "Unresolved attention retains its owner, condition, and source citation",
+        "Resolved work does not reappear in next-week attention",
+        "No parallel planning artifact is created"
+      ],
+      "metadata": {
+        "title": "Next-week carry-forward",
+        "notes": "Shows weekly closure becoming a clean starting point for the following Daily cycle.",
+        "tags": ["skill", "showcase"]
+      }
+    },
+    {
+      "id": "incomplete_project_set_blocks_rollup",
+      "prompt": "Close the week when one expected active Project Memory file is missing.",
+      "expected_output": "The missing Project is reported and dependent Department and Company outputs remain blocked without long-term memory changes.",
+      "files": [
+        "evals/fixtures/weekly-inventory.json",
+        "evals/fixtures/project--cmt.md"
+      ],
+      "assertions": [
+        "The missing Project is named",
+        "No final Company report is written",
+        "No long-term memory artifact changes",
+        "No provider effect is attempted"
+      ],
+      "metadata": {
+        "title": "Incomplete Project set blocks rollup",
+        "notes": "Protects the completeness boundary so partial weekly evidence cannot appear as a final Company result.",
+        "tags": ["skill", "boundary"]
+      }
+    }
+  ]
+}

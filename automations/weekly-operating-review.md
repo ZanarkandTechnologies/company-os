@@ -1,205 +1,205 @@
 ---
 automation_id: company-os-weekly-operating-review
-automation_version: "0.5.0"
+automation_version: "2.4.0"
 kind: company-os-automation
 cadence: weekly
-status: draft
-owner: HermesCorp
-input_window: current-reporting-week
-opens_with:
-  - outcome
-  - why
-processes:
-  - plan-review
-  - issue-promotion
-  - decision-promotion
-  - resource-promotion
-  - skill-promotion
-  - report-finalization
-  - next-week-setup
+company_timezone: Asia/Kuala_Lumpur
+skill: skills/pm-weekly/SKILL.md
 ---
 
 # Weekly operating review
 
-> **Outcome**
->
-> Turn the weekly draft into an executive snapshot, promote useful records, and
-> open the next reporting window.
->
-> **Why**
->
-> Keep Daily findings from becoming clutter by deciding what deserves to become
-> an Issue, Decision, Resource, or Skill.
-
-## Reads
-
-- Current weekly report draft and its Daily receipts.
-- Previous finalized report and current Project context.
-- Related Tasks, Decisions, Resources, Skills, and People.
-
-## Process lanes
-
-Weekly lanes review Daily candidates by value gate, then either promote them or
-leave them in the report with an explicit disposition.
-
-> ### `plan-review`
->
-> **Reviews:** planned work, actual Task evidence, and unresolved commitments.
->
-> **Writes:** the executive summary, Plan versus actual, and proposed next-week commitments.
-
-> ### `issue-promotion`
->
-> **Reviews:** Problem candidates for recurrence, impact, evidence, and owner relevance.
->
-> **Writes:** accepted candidates to Tasks with `Type = Issue`; otherwise a disposition.
-
-> ### `decision-promotion`
->
-> **Reviews:** Decision candidates for precedent value, rationale, and authority.
->
-> **Writes:** a Decision record or a report-only disposition.
-
-> ### `resource-promotion`
->
-> **Reviews:** candidate knowledge against the future-value gate.
->
-> **Writes:** a Resource record or a report-only disposition.
-
-> ### `skill-promotion`
->
-> **Reviews:** SOP candidates for repeatability evidence and owner approval.
->
-> **Writes:** a Skill creation request or a report-only disposition.
-
-> ### `report-finalization`
->
-> **Reads:** the reviewed plan and every promotion disposition.
->
-> **Writes:** one immutable weekly Report with links to evidence and promoted records.
-
-> ### `next-week-setup`
->
-> **Reads:** the finalized Report and unresolved commitments.
->
-> **Writes:** the next weekly draft and proposed commitments for owner approval.
-
 ```text
-weekly_operating_review(weekly_draft, project_context, promotion_policy)
-  -> finalized_report + promoted_records + next_week_draft + receipt
-state: freezes the current report; opens the next reporting window
+[Weekly parent] --freeze--> [every Project Memory]
+[Project Memory] ----------> [finalized Project evidence summaries]
+[Project summaries] --by Department--> [Department reports] --> [Company report]
+[Project summaries] --by Person ID----> [Employee Memory]
+[Project summaries] --by workflow_key-> [SOP samples + baseline proposal]
+[Project summaries] --decisions/issues> [durable memory]
 ```
 
-## Flow
+## Purpose
 
-1. Run `plan-review`; carry unresolved commitments by reference and never delete
-   canonical Tasks.
-2. Run the four promotion lanes. Give every candidate a disposition, including
-   duplicates and low-value observations that stay in the Report.
-3. Run `report-finalization` and preserve links to evidence, dispositions, and
-   promoted records.
-4. Run `next-week-setup` and leave its proposed commitments for owner approval.
+Freeze the complete week. Run PM Weekly once. Sync only authorized outputs.
 
-## Write boundary
+## Authority
 
-Promotion requires the named value gate and owner-approved authority. Sharing
-the report, sending chases, changing source documents, and publishing Skills
-remain separately gated external actions.
+Use only the source and destination declared at the node that consumes it.
+Local files remain canonical. Never infer another source, recipient, or
+destination.
 
-## Output template
+## Todo List
 
-Fill every process row. Each promotion lane must return a disposition even when
-it creates no durable record.
+- [ ] **1 — Freeze the weekly input.**
 
-| Process | Decision or result | Evidence | Owned write |
-| --- | --- | --- | --- |
-| `plan-review` | {{Material plan-versus-actual conclusion and next-week proposal}} | {{Report, Task, and prior-report links}} | {{Executive summary and next-week draft delta}} |
-| `issue-promotion` | {{Candidate plus Promoted \| Duplicate \| Monitor \| Dismissed}} | {{Recurrence, impact, source, and owner context}} | {{Task with Type = Issue, or report-only disposition}} |
-| `decision-promotion` | {{Candidate plus Promoted \| Duplicate \| Monitor \| Dismissed}} | {{Precedent, rationale, and authority evidence}} | {{Decision record, or report-only disposition}} |
-| `resource-promotion` | {{Candidate plus Promoted \| Duplicate \| Monitor \| Dismissed}} | {{Future-use evidence and source}} | {{Resource record, or report-only disposition}} |
-| `skill-promotion` | {{Candidate plus Promoted \| Duplicate \| Monitor \| Dismissed}} | {{Repeatability evidence and owner approval}} | {{Skill creation request, or report-only disposition}} |
-| `report-finalization` | {{Finalization result}} | {{Reviewed draft and all dispositions}} | {{One immutable weekly Report}} |
-| `next-week-setup` | {{Carried commitments and proposed priorities}} | {{Final report and canonical Task links}} | {{Next weekly draft; no Task deletion}} |
+  Use `notion-fetch` and the hosted Notion MCP query tools for every Notion read.
 
-### Receipt
+  1. Fetch Projects from this source:
 
-- `review_window:` {{WEEK_START}}..{{WEEK_END}}
-- `candidates_reviewed:` {{Count by promotion lane}}
-- `records_promoted:` {{Created record links, or none}}
-- `source_gaps:` {{Missing or stale sources, or none}}
-- `finalized_report:` {{Immutable Report locator}}
-- `next_week_draft:` {{Draft locator}}
+     <!-- setup:weekly.projects -->
+     Fetch all active Projects from `<REPLACE_WITH_NOTION_PROJECTS_URL>`.
+     <!-- /setup:weekly.projects -->
 
-## Golden example
+     Keep each provider page ID, business ID, exact Department relation,
+     status, URL, and source revision.
+     Exclude inactive Projects.
 
-### Input and context
+  2. Find one current-week Project Memory file for every active Project.
+     Read only `weeks/<current-week>/project-memory/`.
 
-- Project: Northstar customer onboarding.
-- Weekly draft: the launch task is blocked; incomplete vendor packets have
-  reached Legal three times; the four-step handoff and vendor checklist are
-  candidates; no approved Decision candidate exists.
-- Policy: record promotion is allowed after owner review, but document edits
-  and outgoing chases require separate approval.
+  3. Validate the complete Project set.
+     Reject mixed weeks, duplicate Projects, unreadable files, and missing
+     Project Memory.
 
-### Accepted output
+  4. Freeze the inventory and file hashes.
+     Write `weekly/context/weekly-snapshot-YYYY-Www.json`.
 
-| Process | Decision or result | Evidence | Owned write |
-| --- | --- | --- | --- |
-| `plan-review` | Launch readiness missed plan because Legal lacked a complete packet; next week prioritizes closing that dependency. | Weekly draft, `task://NS-42` | Write the three-sentence executive summary and propose one next-week commitment. |
-| `issue-promotion` | `Promoted`: recurring incomplete vendor packets materially delay onboarding. | Three linked occurrences and owner confirmation | Create Task `NS-57` with `Type = Issue`. |
-| `decision-promotion` | `Dismissed`: no future-useful choice with rationale and authority exists. | Weekly Decision candidate section | Keep the disposition in the Report only. |
-| `resource-promotion` | `Promoted`: the checklist will be reused for future vendor handoffs. | Checklist plus owner confirmation | Create one Resource linked to `NS-42`. |
-| `skill-promotion` | `Monitor`: the four-step handoff is repeated, but the owner has not approved it as procedure. | Meeting notes and owner gap | Keep the candidate in the Report. |
-| `report-finalization` | All candidates have dispositions and every conclusion links to evidence. | Reviewed weekly draft | Freeze one immutable Weekly Report. |
-| `next-week-setup` | Carry `NS-42` and link new Issue `NS-57`; propose, but do not auto-approve, the packet-completion commitment. | Final Report and canonical Tasks | Open the next weekly draft. |
+- [ ] **2 — Run PM Weekly.**
 
-### Why it passes
+  1. Read `skills/pm-weekly/SKILL.md` completely.
 
-- Every candidate receives a disposition; only records that pass their value
-  gate are promoted.
-- Canonical Tasks are linked forward rather than copied, cleared, or deleted.
-- Approval boundaries still govern document edits and outgoing messages.
+  2. Give PM Weekly every frozen Project Memory file.
+     Add the prior reports and long-term memory needed for comparison.
+     Add the report, record, and message templates named by the skill.
 
-### Tempting negative
+     <!-- setup:memory.decisions -->
+     Extract decisions with their context, options, rationale, and outcome.
+     <!-- /setup:memory.decisions -->
 
-Promote every candidate, rewrite the checklist, send the chase, and copy all
-unfinished Task text into the next report.
+     <!-- setup:memory.employees -->
+     Aggregate each employee's contributions, blockers, ownership, and growth
+     evidence across Projects.
+     <!-- /setup:memory.employees -->
 
-Why it fails: promotion is selective, external writes remain gated, and the
-next report should reference canonical work instead of duplicating it.
+     <!-- setup:memory.sops -->
+     Compare repeated Work against its workflow baseline and retain reusable
+     process lessons.
+     <!-- /setup:memory.sops -->
 
-### Transferable invariants
+  3. Run PM Weekly once.
+     Let the skill write finalized Project summaries, Department and Company
+     reports, memory updates, next-week Project Memory, and the executive draft.
 
-- Return one explicit disposition per candidate and evidence for every promotion.
-- Finalize the current report before opening the next reporting window.
+  Treat Project summaries as intermediate evidence. Treat Department and
+  Company reports as management outputs. Do not add an extraction object,
+  generated template catalog, or Pydantic representation.
 
-### Non-copyable facts and wording
+- [ ] **3 — Review local artifacts.**
 
-- Northstar, `NS-42`, `NS-57`, the three occurrences, the vendor packet, and
-  every example locator belong only to this fixture.
-- Generate fresh conclusions and wording from the current company's evidence.
+  1. Read every changed file.
 
-### Proof receipt
+  2. Verify complete Project coverage and matching templates.
+     Require immediate-source links, conservative promotion, preserved prior
+     memory, and no changes outside the skill's declared paths.
 
-```yaml
-golden_case: company-os-weekly-operating-review/northstar-promotion-review
-source_refs:
-  - synthetic weekly Report, Task, Meeting, and document locators in this example
-qa_refs:
-  - every candidate receives one allowed disposition
-  - external writes remain approval-gated
-accepted_because:
-  - promotion follows value gates and the next draft links canonical Tasks
-heldout_required: true
-review_input: candidate + transferable_invariants + current_company_context
-review_excludes: Northstar fixture facts and wording
-```
+  3. Propagate blocked coverage.
+     A blocked Project blocks its Department and the Company report.
 
-## Completion proof
+  If any artifact fails review, stop before calling a provider.
 
-- The finalized report links plan, actual work, unresolved Issues, promotions,
-  and source receipts.
-- Every candidate has `Promoted`, `Duplicate`, `Monitor`, or `Dismissed`
-  disposition.
-- No canonical work item was cleared or deleted.
-- The next weekly draft exists without copying the prior week's narrative.
+- [ ] **4 — Sync authorized artifacts.**
+
+  Apply only the exact artifact types and paths returned by PM Weekly.
+
+  1. Configure report storage at this node.
+     <!-- setup:weekly.reports_destination -->
+     Keep reports in the private local workspace.
+     <!-- /setup:weekly.reports_destination -->
+     Sync each `project_report`, `department_report`, and `company_report`
+     returned under `weeks/<week>/reports/` only as configured above.
+     For an external destination, upload the exact file without rewriting it,
+     read it back, and record the returned URL. Otherwise call no provider.
+
+  2. Configure SOP storage at this node.
+     <!-- setup:weekly.sops_destination -->
+     Keep SOP Memory in the private local workspace.
+     <!-- /setup:weekly.sops_destination -->
+     Sync each approved, finalized `sop_memory` returned under `memory/sops/`
+     only as configured above.
+     Use the integration selected by that destination.
+     Read back the created record or file.
+     Keep proposals and unapproved baselines local.
+
+  3. Configure decision storage at this node.
+     <!-- setup:weekly.decisions_destination -->
+     Keep Decision Memory in the private local workspace.
+     <!-- /setup:weekly.decisions_destination -->
+     Sync each promoted, final `decision_memory` returned under
+     `memory/decisions/` only as configured above.
+     Use the integration selected by that destination.
+     Read back the created record or file.
+     Keep unapproved proposals local.
+
+  4. Configure executive delivery at this node.
+     <!-- setup:weekly.report_recipients -->
+     Keep the executive distribution draft local and send nothing.
+     <!-- /setup:weekly.report_recipients -->
+     Send `executive_distribution` returned under `weeks/<week>/outbound/`
+     only as configured above.
+     For Telegram or WhatsApp, resolve each exact target with `channels_list`.
+     Use `conversations_list` for that platform and `conversation_get` to find
+     the unique session whose `chat_id` matches the target.
+
+     Compute a SHA-256 delivery token from the exact draft bytes and exact
+     target. Split the draft into ordered messages of at most 1,900 characters,
+     including a header of
+     `[company-os:<token>:part <number>/<count>]`. Before sending, use
+     the current weekly receipt plus `messages_read` to find every expected
+     header and exact chunk. Send only missing chunks with `messages_send`.
+     After each successful send, immediately store its token, part number, and
+     provider message ID in the receipt before sending the next part. Resolve
+     the session again and require every unreceipted exact chunk in message
+     history. This keeps verification within the MCP's 2,000-character read
+     limit and makes a partial retry idempotent.
+     Limit one recipient delivery to 50 chunks; record `message_too_long` and
+     send nothing when the draft exceeds that bound.
+     Block only that recipient when the target or post-send session cannot be
+     resolved uniquely. Record the token, part count, and each returned message
+     ID. When delivery is disabled, call no provider and keep the draft local.
+
+  5. Configure Project Memory sync at this node.
+     <!-- setup:weekly.project_memory_destination -->
+     Keep Project Memory in the private local workspace.
+     <!-- /setup:weekly.project_memory_destination -->
+
+     Apply that rule to each `next_week_project_memory` path returned under
+     `weeks/<next-week>/project-memory/`. For Notion sync, use the exact source
+     Project URL, update only the named sections, then read those sections back.
+     Otherwise call no provider.
+
+  6. Configure Employee Memory storage at this node.
+     <!-- setup:weekly.employee_memory_destination -->
+     Keep Employee Memory in the private local workspace.
+     <!-- /setup:weekly.employee_memory_destination -->
+
+     Apply that rule to each `employee_memory` path returned under
+     `memory/employees/`. For external storage, upload the exact file, read it
+     back, and record the returned URL. Never sync Employee Memory to the public
+     People database.
+
+  7. Configure additional Memory storage at this node.
+     <!-- setup:weekly.other_memory_destination -->
+     Keep every additional extracted memory type in the private local workspace.
+     <!-- /setup:weekly.other_memory_destination -->
+
+     Apply that rule only to additional memory paths explicitly returned by PM
+     Weekly. For external storage, upload the exact file, read it back, and
+     record the returned URL. Keep `issue_memory` local unless this rule names it.
+
+  8. Record each provider effect.
+     Store only URLs and message IDs returned by the provider.
+
+  Use native skills and MCP tools directly. Do not add a dispatcher, delivery
+  plan, or provider executor.
+
+  If a destination is missing, incomplete, or unauthorized, block only that
+  effect. Keep its artifact local. Never use a fallback destination.
+
+## Integration outputs
+
+- `weekly/context/weekly-snapshot-YYYY-Www.json`
+- `weekly/receipts/weekly-YYYY-Www.json`
+
+PM Weekly returns every report, memory, next-week Project Memory, and draft
+path. The receipt stores frozen input hashes, validated paths, provider
+outcomes, returned provider IDs, and blockers. It does not copy artifact bodies.

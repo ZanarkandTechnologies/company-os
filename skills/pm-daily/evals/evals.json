@@ -1,0 +1,84 @@
+{
+  "skill_name": "pm-daily",
+  "evals": [
+    {
+      "id": "documentation_quality_follow_up",
+      "prompt": "Review today's completed work and prepare any documentation follow-ups that are actually needed.",
+      "expected_output": "Incomplete completed Work produces one precise documentation request for its accountable owner, while sufficiently documented Work produces none.",
+      "files": [
+        "evals/fixtures/daily-snapshot.json",
+        "evals/fixtures/project-memory-before.md"
+      ],
+      "assertions": [
+        "Exactly one documentation-request artifact is produced for TASK-102",
+        "The request identifies the missing affected order and payment-return trace",
+        "The request names the accountable owner resolved from source evidence",
+        "No documentation request is produced for sufficiently documented Work"
+      ],
+      "metadata": {
+        "title": "Documentation-quality follow-up",
+        "notes": "Shows that PM Daily asks the right owner for precise missing completion evidence without sending generic or duplicate questions.",
+        "tags": ["skill", "showcase"]
+      }
+    },
+    {
+      "id": "progress_chaser",
+      "prompt": "Review today's active work and prepare any progress follow-ups that are warranted.",
+      "expected_output": "Stale, overdue, or blocked Work produces one contextual progress follow-up, while healthy recently updated Work produces none.",
+      "files": [
+        "evals/fixtures/daily-snapshot.json",
+        "evals/fixtures/project-memory-before.md"
+      ],
+      "assertions": [
+        "Exactly one progress-follow-up artifact is produced for TASK-101",
+        "The follow-up asks for the overdue approval needed to unblock bulk cutting",
+        "The follow-up names the accountable owner resolved from source evidence",
+        "TASK-101 does not also receive a documentation-quality request"
+      ],
+      "metadata": {
+        "title": "Progress chaser",
+        "notes": "Shows that PM Daily chases a real delivery risk with project context and does not duplicate the documentation-quality workflow.",
+        "tags": ["skill", "showcase"]
+      }
+    },
+    {
+      "id": "project_memory_update",
+      "prompt": "Update this week's Project Memory from today's bounded project snapshot.",
+      "expected_output": "Project Memory preserves verified history while adding grounded current progress, blockers, and attention items.",
+      "files": [
+        "evals/fixtures/daily-snapshot.json",
+        "evals/fixtures/project-memory-before.md"
+      ],
+      "assertions": [
+        "The current Project Memory file is updated in place",
+        "Existing verified knowledge remains present",
+        "Every new factual claim cites TASK-101 or TASK-102",
+        "The output retains the complete Project Memory template structure"
+      ],
+      "metadata": {
+        "title": "Project Memory update",
+        "notes": "Shows the daily cache accumulating current evidence without erasing valid history or introducing an intermediary extraction object.",
+        "tags": ["skill", "showcase"]
+      }
+    },
+    {
+      "id": "healthy_work_noop",
+      "prompt": "Run today's PM update when all selected work is healthy and recently updated.",
+      "expected_output": "No Project Memory or message artifact changes when the bounded snapshot contains no meaningful new evidence or follow-up condition.",
+      "files": [
+        "evals/fixtures/daily-snapshot-no-change.json",
+        "evals/fixtures/project-memory-before.md"
+      ],
+      "assertions": [
+        "The Project Memory bytes remain unchanged",
+        "No documentation or progress message artifact is created",
+        "No provider effect is attempted"
+      ],
+      "metadata": {
+        "title": "Healthy-work no-op",
+        "notes": "Protects the boundary where normal healthy activity should not create noise or rewrite memory.",
+        "tags": ["skill", "boundary"]
+      }
+    }
+  ]
+}

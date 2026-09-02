@@ -1,0 +1,37 @@
+name: notion-platform
+label: Notion Webhooks
+kind: platform
+version: 1.3.0
+description: Hermes-native Notion webhook receiver with discussion-scoped continuation and bounded ticket context.
+author: Zanarkand Technologies
+provides_tools:
+  - notion_get_page
+  - notion_get_ticket_context
+  - notion_list_data_sources
+  - notion_update_page_properties
+requires_env:
+  - name: NOTION_TOKEN
+    description: Internal integration token used for Notion API reads and opt-in writes
+    prompt: Notion integration token
+    password: true
+optional_env:
+  - name: NOTION_WEBHOOK_PUBLIC_URL
+    description: Public HTTPS URL ending in /notion/webhook
+    prompt: Public Notion webhook URL
+    password: false
+  - name: NOTION_ENABLE_WRITES
+    description: Set true to enable the page-property update tool
+    prompt: Enable Notion writes (true/false)
+    password: false
+  - name: NOTION_ROOT_PAGE_ID
+    description: Root page whose shared scope defines the Notion catalog
+    prompt: Notion root page ID
+    password: false
+  - name: NOTION_ALLOWED_DATA_SOURCES
+    description: Comma-separated data-source IDs allowed for ticket context
+    prompt: Allowed Notion data-source IDs
+    password: false
+  - name: NOTION_COMMENT_TRIGGER
+    description: Prefix that activates a Notion discussion for Hermes
+    prompt: Notion comment trigger
+    password: false

@@ -1,256 +1,231 @@
 ---
 automation_id: company-os-daily-operating-update
-automation_version: "0.7.0"
+automation_version: "2.5.0"
 kind: company-os-automation
 cadence: daily
-status: draft
-owner: HermesCorp
-input_window: current-local-day
-opens_with:
-  - outcome
-  - why
-processes:
-  - progress-extraction
-  - problem-extraction
-  - decision-extraction
-  - sop-extraction
-  - resource-extraction
-  - documentation-template-check
-  - chase-planning
-  - weekly-draft-projection
+company_timezone: Asia/Kuala_Lumpur
+skill: skills/pm-daily/SKILL.md
 ---
 
 # Daily operating update
 
-> **Outcome**
->
-> Read each changed source once, detect useful operating signals, and keep the
-> current weekly Report up to date without creating permanent records too early.
->
-> **Why**
->
-> Give the owner a current operating picture while every process reuses the same
-> Tasks, Meeting notes, and documents.
-
-## Reads
-
-- Tasks, including `Meeting` rows and embedded notes, created or edited during
-  the current local day.
-- Documents and company records created or edited during the current local day.
-- The matching Notion template for each record type.
-- Current Projects, weekly report drafts, Decisions, Resources, Skills, and
-  People needed for context and deduplication.
-
-## Process lanes
-
-Each lane reads the same deduplicated evidence bundle. Extraction lanes update
-the weekly draft, the documentation check comments on its source record, and
-chase planning produces proposals only.
-
-Run `documentation-template-check` through the peer
-`daily-documentation-check` skill. `.hermes.md` owns its timezone, source,
-template routing, and comment policy; the skill owns bounded Notion reads and
-deduplicated source comments.
-
-> ### `progress-extraction`
->
-> **Looks for:** meaningful progress, changed commitments, blockers, and stale work.
->
-> **Writes:** Plan-versus-actual updates. It never sends a chase.
-
-> ### `problem-extraction`
->
-> **Looks for:** recurring blockers, operating failures, and unresolved risks.
->
-> **Writes:** Problem candidates with evidence and no weekly disposition yet.
-
-> ### `decision-extraction`
->
-> **Looks for:** choices that may guide future work.
->
-> **Writes:** Decision candidates that still need rationale and authority.
-
-> ### `sop-extraction`
->
-> **Looks for:** repeatable steps performed by people or agents.
->
-> **Writes:** SOP candidates that still need repeatability evidence and owner review.
-
-> ### `resource-extraction`
->
-> **Looks for:** notes or documents with future reuse value.
->
-> **Writes:** Resource candidates that pass the future-value gate.
-
-> ### `documentation-template-check`
->
-> **Looks for:** Tasks, Meeting notes, and documents created or edited today.
-> It resolves the applicable Notion template by record type and checks the
-> required properties and section expectations against the edited record.
->
-> **Writes:** one source comment listing only the information still missing for
-> documentation. It comments when the company has approved internal comments
-> for that surface; otherwise it saves the exact comment as a proposal. It does
-> not edit the record, create a weekly candidate, ask for information available
-> elsewhere, or repeat an unresolved comment.
-
-> ### `chase-planning`
->
-> **Looks for:** stale commitments with a named owner and a useful next question.
->
-> **Writes:** proposed chases with recipient, reason, channel, and timing. Sending
-> remains separately gated.
-
-> ### `weekly-draft-projection`
->
-> **Reads:** the candidate sets produced by the five extraction lanes. It does
-> not ingest documentation-check comments.
->
-> **Writes:** one deduplicated delta to the matching current weekly Report.
-
 ```text
-daily_operating_update(window, sources, current_weekly_report)
-  -> weekly_report_delta + candidate_sets + documentation_comments + chase_proposals + receipt
-state: the company-local day defines one UTC window; candidates upsert by source fingerprint
+[Daily parent] --fetch Projects--> [one Project snapshot each]
+[Project] --discover explicit Work source(s)--> [schema + bounded Work]
+[bounded Work] --normalize without overwriting raw fields--> [Project snapshot]
+[Project packet] --isolated PM Daily subagent--> [Project Memory + action drafts]
+[all results] --parent review and dedupe--> [authorized effects + receipt]
+[unresolved relation] ---------------------> [named gap; no edit]
 ```
 
-## Flow
+## Purpose
 
-1. Resolve `company_timezone` from `.hermes.md`, calculate the current local
-   day's half-open UTC window, and collect one bounded evidence bundle with
-   stable source locators.
-2. Deduplicate unchanged or previously processed evidence.
-3. Run the five extraction lanes against that bundle.
-4. For each record created or edited today, run `documentation-template-check`:
-   resolve its Notion template, compare required properties and sections, and
-   post one source-local comment containing the missing items. If comments are
-   not approved, save the exact comment as a proposal. If no template is
-   configured, record `configuration_gap: unmapped_template` instead of
-   inventing requirements. Use `source_gap` only when configured evidence
-   cannot be read.
-5. Run `chase-planning` from the progress results. Send nothing unless the
-   company has approved the channel, timing, recipients, and frequency policy.
-6. Run `weekly-draft-projection` and upsert extraction candidates by source
-   fingerprint. Do not project documentation comments into the weekly draft.
-7. Write a receipt containing the evidence window, templates checked, source
-   configuration gaps, candidate counts, documentation comments, proposed
-   chases, and partial-query status.
+Build one snapshot per Project. Run PM Daily for each snapshot. Apply only its
+authorized effects.
 
-## Write boundary
+## Authority
 
-The Daily automation may update the current weekly draft and explicit task
-progress supported by source evidence. It may post one focused internal comment
-on a source record only when onboarding has approved that surface and policy.
-It must not promote Issues, Decisions, Resources, or Skills; finalize reports;
-invent rationale; edit the underlying source content; or send unapproved
-messages.
+Use only the source and delivery values declared at the node that consumes them.
+Step 4 authorizes only the exact Notion comments and preference-routed direct
+messages returned by PM Daily. Never infer another source, recipient, or
+destination.
 
-## Output template
+## Todo List
 
-Fill every process row. Use `No finding` when a lane ran successfully but found
-nothing; use `Source gap` when evidence was unavailable.
+- [ ] **1 — Build the Daily Project snapshots.**
 
-| Process | Result | Evidence | Owned write |
-| --- | --- | --- | --- |
-| `progress-extraction` | {{Meaningful progress, blocker, stale commitment, or No finding}} | {{Stable source links}} | {{Plan-versus-actual delta or No write}} |
-| `problem-extraction` | {{Problem candidate with recurrence and impact, or No finding}} | {{Stable source links}} | {{Weekly Problems observed delta or No write}} |
-| `decision-extraction` | {{Future-precedent candidate plus missing rationale or authority, or No finding}} | {{Stable source links}} | {{Weekly Decision candidate or No write}} |
-| `sop-extraction` | {{Repeated workflow candidate plus repeatability evidence, or No finding}} | {{Stable source links}} | {{Weekly SOP candidate or No write}} |
-| `resource-extraction` | {{Future-useful knowledge candidate, or No finding}} | {{Stable source links}} | {{Weekly Resource candidate or No write}} |
-| `documentation-template-check` | {{Record type, template used, and missing required information, or Complete}} | {{Edited source, template, and prior-comment links}} | {{Posted source comment \| Comment proposal \| No write}} |
-| `chase-planning` | {{Recipient, stale commitment, useful question, timing, or No chase}} | {{Progress finding links}} | {{Draft proposal only or No write}} |
-| `weekly-draft-projection` | {{Candidate counts and dedupe result}} | {{Candidate and prior receipt links}} | {{One upserted weekly Report delta}} |
+  Use `notion-fetch` and the hosted Notion MCP query tools for every Notion
+  read. Use Multica tools for every Multica read. Do not call provider CLIs
+  from the Docker terminal.
 
-### Receipt
+  1. Fetch Projects from this source:
 
-- `window:` {{START_TIMESTAMP}}..{{END_TIMESTAMP}}
-- `company_timezone:` {{IANA_TIMEZONE}}
-- `sources_checked:` {{Stable source names or locators}}
-- `source_gaps:` {{Missing or stale sources, or none}}
-- `configuration_gaps:` {{Unmapped record templates or policies, or none}}
-- `documentation_template_checks:` {{Records checked, template used, and result}}
-- `documentation_comments:` {{Posted comments and proposals, or none}}
-- `partial:` {{True when any bounded query reports more records, otherwise false}}
+     <!-- setup:daily.projects -->
+     Fetch all active Projects from `<REPLACE_WITH_NOTION_PROJECTS_URL>`.
+     <!-- /setup:daily.projects -->
 
-## Golden example
+     Read each complete Project page.
+     Keep its provider ID, business ID, status, Department, URL, revision, and
+     linked task sources.
 
-### Input and context
+  2. Inspect each Project's linked task sources.
+     <!-- setup:daily.work -->
+     Discover Work only from task databases explicitly linked inside that
+     Project page.
+     <!-- /setup:daily.work -->
+     Read each source's schema and status options.
+     Map its title, status, owner, due date, update, priority, and progress fields.
+     Do not search for task sources outside the Project page.
 
-- Project: Northstar customer onboarding.
-- Changed evidence: Ava's Task `NS-42` was edited today. It says Legal received
-  an incomplete vendor packet for the third time and the team repeated the same
-  four-step handoff, but its Outcome does not define done, Current status has no
-  next action or date, and Evidence does not link the packet.
-- Template: the Notion Task template requires those entries in Outcome, Current
-  status, and Evidence.
+     For Multica Work, map issues to a Project only through an exact configured
+     project ID or an explicit Project reference in issue metadata. Record
+     `work_project_relation_missing` when neither exists.
 
-### Accepted output
+  3. Fetch the relevant Work from each source.
+     Include active, blocked, overdue, Work changed during the last week, and
+     completed Work awaiting documentation review.
+     Keep every raw field, source provider, provider record ID, source reference,
+     available source URL, source revision, and complete description or page body.
 
-| Process | Result | Evidence | Owned write |
-| --- | --- | --- | --- |
-| `progress-extraction` | `NS-42` is blocked; launch timing is now at risk. | `task://NS-42`, `meeting://NS-42/2026-08-20` | Update Plan versus actual. |
-| `problem-extraction` | Incomplete vendor packets have blocked Legal three times. | `meeting://NS-42/2026-08-20` | Add one recurring-problem candidate. |
-| `decision-extraction` | No finding; no choice with rationale and authority was recorded. | Same Meeting notes | No write. |
-| `sop-extraction` | The four-step handoff is a candidate, but its repeatability still needs owner review. | Same Meeting notes | Add one SOP candidate. |
-| `resource-extraction` | No finding; the edited Task contains no standalone knowledge with future reuse value. | `task://NS-42` | No write. |
-| `documentation-template-check` | Task template gaps: Outcome does not define done; Current status lacks the next action and date; Evidence does not link the packet. | `task://NS-42`, `template://task`, prior comments: none | Post: “For documentation, could you define done, add the next action and date, and link the vendor packet?” Do not edit the Task. |
-| `chase-planning` | Draft a question to Ava asking when the complete packet will reach Legal. | `task://NS-42` | Save a chase proposal; do not send. |
-| `weekly-draft-projection` | Two candidates and one progress delta; no matching fingerprints existed. | Current candidate set and prior receipt | Upsert one deduplicated weekly Report delta. |
+  4. Normalize each status.
+     Keep the original value as `raw_status`.
+     Set `normalized_status` to `not_started`, `in_progress`, `blocked`,
+     `completed`, `cancelled`, or `unknown`.
+     Use `unknown` when the meaning is unclear and record
+     `status_mapping_ambiguous`.
 
-### Why it passes
+  5. Fetch referenced People.
+     <!-- setup:daily.people -->
+     Fetch People from `<REPLACE_WITH_NOTION_PEOPLE_URL>`. Read preferred
+     channel from `<REPLACE_WITH_FIELD_NAME_OR_NONE>` and its endpoint from
+     `<REPLACE_WITH_FIELD_NAME_OR_NONE>`.
+     <!-- /setup:daily.people -->
+     Fetch only People linked to the selected Work.
+     For Multica Work, require an explicit stable Person reference in the issue
+     metadata or configured assignee mapping. Do not match People by guesswork.
+     Keep their ID, name, preferred channel, and matching contact endpoint when
+     available. Preserve the original field names and values.
 
-- Every lane reports independently from one shared evidence bundle.
-- Candidates remain in the weekly draft; no Issue, Resource, Decision, or Skill
-  is promoted. The only posted message is the policy-approved source comment;
-  the stale-work chase remains a proposal.
-- The documentation comment is based on the Task template and remains on the
-  Task; Weekly does not process it.
-- The result distinguishes `No finding` from unavailable evidence.
+  6. Record completeness facts for each selected Work item.
+     Record whether its page body, progress, owner, due date, next action, and
+     completion evidence are present. Preserve the source values without
+     judging their quality. Do not edit the source record.
 
-### Tempting negative
+  7. Add relevant Meetings.
+     <!-- setup:daily.meetings -->
+     Read Meeting notes embedded in or explicitly linked from selected Work.
+     <!-- /setup:daily.meetings -->
 
-Create an Issue, publish a Resource, post “please add more detail” without
-checking a template, add the documentation gap to Weekly, and send the chase.
+  8. Return one snapshot for every active Project.
+     Write all Project snapshots to
+     `daily/context/daily-snapshot-YYYY-MM-DD.json`.
 
-Why it fails: Daily stages evidence for Weekly review and has no authority to
-promote records, invent template requirements, edit source documents, route
-documentation comments into Weekly, or send a chase.
+  If a Project has no task source, return an empty snapshot with
+  `project_work_source_missing`.
 
-### Transferable invariants
+  If a task source lacks required fields, record `task_schema_gap` and list the
+  missing fields.
 
-- Reuse one bounded evidence pass, but return a result for every process lane.
-- Link every retained finding to its source and upsert by source fingerprint.
-- Check only records created or edited today, use the matching configured
-  template, and keep the resulting comment on the source record.
+  If Work lacks an exact Project relation, record
+  `work_project_relation_missing`. Exclude it from packets and effects.
 
-### Non-copyable facts and wording
+  If Work lacks a referenced Person relation, record
+     `work_person_relation_missing`. Do not infer a Person. An exact Notion Work
+     URL may still receive its comment; block only optional direct delivery.
 
-- Northstar, Ava, the three occurrences, the four-step handoff, and every
-  example locator belong only to this fixture.
-- Generate fresh findings and wording from the current company's evidence.
+  Use `templates/task.md` as the remediation template for both gaps.
+  Do not create a follow-up or Notion comment for a setup gap.
+  Do not scan unrelated history or widen a query for missing data.
 
-### Proof receipt
+- [ ] **2 — Run PM Daily.**
 
-```yaml
-golden_case: company-os-daily-operating-update/northstar-blocked-handoff
-source_refs:
-  - synthetic Task, Meeting, and document locators in this example
-qa_refs:
-  - every process lane returns a result
-  - Daily promotes nothing and makes no ungated write
-accepted_because:
-  - the Task is checked against its configured template and receives one specific source comment
-heldout_required: true
-review_input: candidate + transferable_invariants + current_company_context
-review_excludes: Northstar fixture facts and wording
-```
+  1. Read `skills/pm-daily/SKILL.md` completely.
 
-## Completion proof
+  2. Build one packet from each Project snapshot.
+     <!-- setup:daily.existing_memory -->
+     Read that Project's current-week Project Memory from the local weekly
+     filesystem and update that same file.
+     <!-- /setup:daily.existing_memory -->
+     Add the PM Daily templates.
+     Never add context from another Project.
 
-- Every retained finding links to source evidence.
-- Rerunning the same window produces no duplicate candidates.
-- Failed connectors remain visible source gaps and cannot be reported as
-  successful coverage of the local-day window.
-- Documentation checks name the record and template used, list only missing
-  requirements, and do not repeat an unresolved comment.
-- The current weekly report identifies the last successful Daily receipt.
+  3. Run PM Daily once per packet in a native subagent.
+     Require each subagent to read the skill before editing.
+     Give each subagent only that Project's Memory file and Work drafts.
+     Require each subagent to return changed paths and named gaps.
+
+  4. Run independent packets concurrently when safe.
+     A packet failure blocks only its Project unless it exposes a cross-Project
+     safety or completeness failure.
+
+  PM Daily writes Project Memory and message drafts directly. Do not add an
+  extraction object, generated template catalog, or Pydantic representation.
+
+- [ ] **3 — Review local changes.**
+
+  1. Collect every subagent result.
+     Reject overlapping write paths.
+
+  2. Deduplicate actions by Work item and question condition.
+
+     <!-- setup:daily.staleness -->
+     Treat Work as stale when it is overdue, blocked, or has no meaningful
+     update for seven days.
+     <!-- /setup:daily.staleness -->
+
+     <!-- setup:daily.documentation_quality -->
+     Treat completed Work as poorly documented when its outcome, evidence,
+     rationale, or next action is missing.
+     <!-- /setup:daily.documentation_quality -->
+
+  3. Read every changed file.
+     Require source citations, preserved memory, complete template headings,
+     precise questions, and no changes outside the owning Project packet.
+
+  4. Repair unclear prose with `unslop` without changing facts.
+
+  If any artifact fails review, stop before calling a provider.
+
+- [ ] **4 — Apply authorized effects.**
+
+  1. Keep every `project_memory` file local.
+
+  2. Apply each `documentation_request` and `progress_followup` with a Notion
+     `source_provider` and nonempty `source_url` to that exact Work item with the
+     Notion MCP. A Multica source reference is not a Notion comment target.
+     Use the Markdown body after the routing frontmatter as the message.
+     Read the page comments with `notion-get-comments`.
+     If the exact message exists, record `duplicate` and stop that effect.
+     Otherwise create it with `notion-create-comment`.
+     Read the comments again and require an exact match.
+
+     <!-- setup:daily.documentation_route -->
+     Deliver documentation requests only as comments on the exact Notion Work
+     item.
+     <!-- /setup:daily.documentation_route -->
+
+     <!-- setup:daily.progress_route -->
+     Post every progress follow-up on the exact Notion Work item, then also use
+     the linked Person's preferred Gmail or Telegram endpoint when present.
+     <!-- /setup:daily.progress_route -->
+
+  3. Follow the configured route for each artifact. When it authorizes direct
+     delivery, read the linked Person's preferred channel and endpoint from the
+     Project snapshot. Send the same question plus the exact Work source
+     reference through Gmail, Telegram, or WhatsApp. Direct delivery does not
+     require a Notion comment first.
+     For Telegram or WhatsApp, use the configured Company OS messaging MCP.
+     Resolve the exact target with `channels_list`. Use `conversations_list`
+     for that platform and `conversation_get` to find the unique session whose
+     `chat_id` matches the target. If a session exists, use `messages_read` and
+     record `duplicate` when the exact message already exists. Otherwise send
+     with `messages_send`. Resolve the session again, read the message back,
+     and record the returned message ID. Block that effect when a target or
+     session cannot be resolved uniquely after sending.
+
+     If direct delivery is disabled, record `skipped_disabled` without creating
+     an attempt. If an enabled preference or endpoint is missing or invalid,
+     preserve any source-record result and record `contact_route_missing`. Do
+     not choose a fallback.
+
+  4. Record one attempt for each `notion_comment`, `gmail`, `telegram`, or
+     `whatsapp` effect. Give each attempt its own `applied`, `duplicate`, `blocked`, or
+     `failed` status and returned provider ID.
+
+  Use native skills and MCP tools directly. Do not add a dispatcher, delivery
+  plan, or provider executor. Never substitute another Work record, channel,
+  destination, or person.
+
+  If an integration or route is missing, block only that effect.
+
+## Integration outputs
+
+- `daily/context/daily-snapshot-YYYY-MM-DD.json`
+- `daily/receipts/daily-YYYY-MM-DD.json`
+
+PM Daily returns every Project Memory and message-draft path. The receipt stores
+attempted effects, exact targets, provider confirmations, and blockers. It does
+not copy artifact bodies. It also records `records_scanned`, `empty_entries`,
+`sparse_entries`, `reviewable_entries`, `completed_without_evidence`,
+`documentation_requests_created`, `progress_followups_created`, and
+`records_skipped_with_reason`.

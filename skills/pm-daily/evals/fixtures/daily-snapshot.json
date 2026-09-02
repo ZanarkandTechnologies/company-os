@@ -1,0 +1,38 @@
+{
+  "date": "2026-08-25",
+  "projects": [
+    {"id": "PROJ-CMT", "name": "CMT Pipeline", "status": "Active", "source_revision": "project-cmt-r7"}
+  ],
+  "people": [
+    {"id": "PERSON-AISHA", "name": "Aisha Rahman", "source_revision": "person-aisha-r2"},
+    {"id": "PERSON-DARREN", "name": "Darren Lim", "source_revision": "person-darren-r3"}
+  ],
+  "work": [
+    {
+      "id": "TASK-101",
+      "source_provider": "multica",
+      "provider_record_id": "issue-task-101",
+      "source_reference": "multica:issue:TASK-101",
+      "project_id": "PROJ-CMT",
+      "owner_id": "PERSON-AISHA",
+      "status": "Blocked",
+      "due_date": "2026-08-24",
+      "updated_at": "2026-08-20T09:00:00+08:00",
+      "summary": "Bulk cutting waits for the signed collar measurement.",
+      "source_revision": "task-101-r9"
+    },
+    {
+      "id": "TASK-102",
+      "source_provider": "notion",
+      "provider_record_id": "22222222-2222-4222-8222-222222222222",
+      "source_reference": "https://example.invalid/TASK-102",
+      "project_id": "PROJ-CMT",
+      "owner_id": "PERSON-DARREN",
+      "status": "Done",
+      "updated_at": "2026-08-25T10:00:00+08:00",
+      "summary": "Guest checkout confirmation was fixed, but no affected order or trace was attached.",
+      "source_url": "https://example.invalid/TASK-102",
+      "source_revision": "task-102-r5"
+    }
+  ]
+}

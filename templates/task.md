@@ -1,54 +1,37 @@
 ---
 template_id: company-os-task
-template_version: "0.2.0"
-kind: company-record-template
-record_type: work-item
-status: active
-owner: HermesCorp
-opens_with:
-  - outcome
-  - why
-type_options:
-  - Task
-  - Issue
-  - Meeting
-required_properties:
-  - name
-  - project
-  - department
-  - owner
-  - type
-  - status
-  - priority
-  - last_meaningful_update
+template_version: "0.7.0"
+name: "{{WORK_ITEM_NAME}}"
+work_item_id: "{{WORK_ITEM_ID}}"
+project: "{{PROJECT}}"
+department: "{{DEPARTMENT}}"
+owner: "{{OWNER}}"
+type: "Task"
+status: "{{STATUS}}"
+ai_review: "{{AI_REVIEW}}"
+priority: "{{PRIORITY}}"
+start_date: "{{START_DATE}}"
+due_date: "{{DUE_DATE}}"
+progress: "{{PROGRESS}}"
+last_meaningful_update: "{{LAST_MEANINGFUL_UPDATE}}"
 ---
 
 # {{WORK_ITEM_NAME}}
 
-> **Outcome**
->
-> _For a Task or Issue, define done. For a Meeting, state what the meeting must accomplish._
->
-> **Why**
->
-> _Explain why this matters now: customer impact, business value, risk, dependency, or learning._
+## Notes
 
-## Current status
+<!-- Freeform working space for ideas, scratchpad todos, progress, meeting
+fragments, decisions, analysis, evidence, completion notes, and useful links.
+A checkbox stays here until it needs an external owner, due date, blocker, or
+reporting consequence; then create or link a canonical Work item.
 
-<!-- Record the latest meaningful progress, constraint, and next action. Skip for a completed Meeting. -->
+GOLDEN EXAMPLE — replace every fact below; it demonstrates useful detail.
+- [ ] Reconcile the pilot count before Friday's variance review.
+  **Why now:** the launch decision depends on it.
+  **Evidence:** [pilot review](meeting://MEETING-042).
+- **Decision:** use the reconciliation sheet as the release gate.
+  **Reason:** the pilot exposed a recurring count mismatch.
+  **Unknown:** confirm the rule works for every store format.
+END GOLDEN EXAMPLE -->
 
-## Meeting notes and updates
-
-<!-- Add dated notes that directly affect this work item. -->
-
-## Commitments and follow-ups
-
-<!-- Record the owner, commitment, due date, and related Task or Issue. -->
-
-## Evidence
-
-<!-- Source links, files, messages, and related records. -->
-
-## Resolution
-
-<!-- What changed, proof it worked, and remaining risk. -->
+{{NOTES}}

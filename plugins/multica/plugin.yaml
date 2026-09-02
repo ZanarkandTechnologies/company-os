@@ -1,0 +1,19 @@
+name: multica
+label: Multica Tasks
+kind: backend
+version: 1.0.0
+description: Host-side Multica task tools for Company OS automations.
+author: Zanarkand Technologies
+provides_tools:
+  - multica_list_projects
+  - multica_list_issues
+  - multica_create_issue
+optional_env:
+  - name: MULTICA_BIN
+    description: Absolute path to the Multica CLI binary
+    prompt: Multica CLI path
+    password: false
+  - name: MULTICA_PROFILE
+    description: Authenticated Multica CLI profile name
+    prompt: Multica CLI profile
+    password: false

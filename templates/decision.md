@@ -1,55 +1,59 @@
 ---
 template_id: company-os-decision
-template_version: "0.2.0"
-kind: company-record-template
-record_type: decision-precedent
-status: active
-owner: HermesCorp
-promotion_gate: precedent-value
-opens_with:
-  - outcome
-  - why
-required_properties:
-  - decision
-  - projects
-  - proposer
-  - approver
-  - decided_at
-  - status
+template_version: "0.6.0"
+name: "{{DECISION}}"
+decision_id: "{{DECISION_ID}}"
+project: "{{PROJECT}}"
+department: "{{DEPARTMENT}}"
+proposer: "{{PROPOSER}}"
+approver: "{{APPROVER}}"
+status: "{{STATUS}}"
+decided_at: "{{DECIDED_AT}}"
+review_date: "{{REVIEW_DATE}}"
 ---
 
 # {{DECISION}}
 
-> **Outcome**
->
-> _State the Decision now in force and the behavior it changes._
->
-> **Why**
->
-> _Explain why this deserves precedent status instead of staying in Task or Report context._
-
 > **Promotion gate**
 >
-> Keep this only when the Decision is costly to reverse, affects several people,
-> establishes precedent, resolves a recurring tradeoff, or explains an important
-> constraint.
+> Keep this only when it establishes a reusable precedent or operating
+> standard, governs recurring customer handling, carries material monetary or
+> risk consequence, resolves a recurring cross-team tradeoff, or is costly to
+> reverse. Routine execution choices remain in the Project report.
 
 ## Context
 
-<!-- Problem, constraints, and affected projects. -->
+<!-- Problem, constraints, affected people, and the evidence that made a
+decision necessary.
 
-## Rationale
+GOLDEN EXAMPLE — replace every fact below; it demonstrates useful detail.
+The pilot has three verified count samples but no consistent expansion rule.
+Without one, managers apply different thresholds and cannot compare results.
+END GOLDEN EXAMPLE -->
 
-<!-- Why this option won and which alternatives were rejected. -->
+{{CONTEXT}}
 
-## Authority
+## Options and tradeoffs
 
-<!-- Proposer, approver, decision date, and current status. -->
+<!-- Compare two or three real options. For each, state the upside and downside;
+do not invent a third option merely to fill the template. -->
 
-## Precedent
+{{OPTIONS_AND_TRADEOFFS}}
 
-<!-- When future work should follow or reconsider this decision. -->
+## Decision rationale
 
-## Evidence and relationships
+<!-- State the selected option, why it won against the alternatives, who had
+authority, and the tradeoff explicitly accepted. -->
 
-<!-- Related work items, reports, resources, people, and prior decisions. -->
+{{RATIONALE}}
+
+## Consequences and review trigger
+
+<!-- State the operational and monetary/risk consequences, who is affected,
+and exactly what evidence or threshold would reopen this decision. -->
+
+{{CONSEQUENCES_AND_REVIEW}}
+
+## Evidence and related records
+
+{{EVIDENCE_AND_RELATED_RECORDS}}
