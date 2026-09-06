@@ -122,7 +122,14 @@ def _session_trace(raw: str) -> list[dict[str, str]]:
             if message.get("role") != "tool":
                 continue
             name = str(message.get("tool_name") or message.get("name") or "unknown")
-            if name not in called_tools:
+            # Current Hermes session exports may redact the assistant's
+            # tool_calls while retaining the provider-issued tool_call_id on
+            # the result. That ID is still direct evidence of an executed
+            # tool call. Keep rejecting truly orphaned results with neither
+            # form of call evidence.
+            tool_call_id = message.get("tool_call_id")
+            has_result_call_id = isinstance(tool_call_id, str) and bool(tool_call_id)
+            if name not in called_tools and not has_result_call_id:
                 raise ReadinessEvalError("tool_result_without_call")
             content = message.get("content")
             if not isinstance(content, str):
@@ -130,7 +137,10 @@ def _session_trace(raw: str) -> list[dict[str, str]]:
             trace.append({"tool": name, "content": content[:12000]})
     if not trace:
         raise ReadinessEvalError("tool_result_missing")
-    if len(trace) != len(called_tools):
+    # Some current exports redact assistant tool-call entries, so a trace can
+    # legitimately contain additional tool results that carry their own call
+    # ID. A recorded assistant call must still have a result.
+    if len(trace) < len(called_tools):
         raise ReadinessEvalError("tool_call_without_result")
     return trace
 

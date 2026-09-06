@@ -152,11 +152,17 @@ class CompanyOSTests(unittest.TestCase):
         self.assertIn("SOP Memory", proposal)
         self.assertIn("proposal-only", proposal)
 
-    def test_four_docs_and_two_skills_own_product_behavior(self) -> None:
+    def test_product_docs_and_two_skills_own_product_behavior(self) -> None:
         docs = sorted(path.name for path in (ROOT / "docs").glob("*.md"))
         self.assertEqual(
             docs,
-            ["autonomous-testing.md", "operator-guide.md", "prd.md", "tuning-sop.md"],
+            [
+                "autonomous-testing.md",
+                "discord-v1-delivery-contract.md",
+                "operator-guide.md",
+                "prd.md",
+                "tuning-sop.md",
+            ],
         )
         for removed in ("features", "research", "systems"):
             self.assertFalse((ROOT / "docs" / removed).exists())

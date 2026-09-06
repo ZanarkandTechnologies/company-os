@@ -12,12 +12,13 @@ try:
     from prompt_toolkit.keys import Keys
     from prompt_toolkit.layout import HSplit, Layout, Window
     from prompt_toolkit.layout.controls import FormattedTextControl
+    from prompt_toolkit.shortcuts import prompt as toolkit_prompt
     from prompt_toolkit.styles import Style
     from prompt_toolkit.widgets import CheckboxList, RadioList
     PROMPT_TOOLKIT_AVAILABLE = True
 except ImportError:  # pragma: no cover - exercised only in minimal Python installs
     Application = KeyBindings = Keys = HSplit = Layout = Window = None
-    FormattedTextControl = Style = CheckboxList = RadioList = None
+    FormattedTextControl = Style = CheckboxList = RadioList = toolkit_prompt = None
     PROMPT_TOOLKIT_AVAILABLE = False
 from rich.console import Console
 from rich.prompt import Confirm, Prompt
@@ -205,9 +206,19 @@ def pause(label: str) -> None:
 
 
 def _prompt_secret(label: str) -> str:
-    """Require one nonempty secret without echoing or persisting blank input."""
+    """Require one nonempty secret with a visible mask, never echoing its value."""
     while True:
-        value = str(getpass.getpass(label) or "").strip()
+        if PROMPT_TOOLKIT_AVAILABLE:
+            try:
+                # Recent prompt_toolkit versions let us choose a friendlier mask.
+                value = toolkit_prompt(label, is_password=True, password_mask="•")
+            except TypeError:
+                # Hermes may bundle an older prompt_toolkit. Its password mode
+                # still masks the token, but does not support password_mask.
+                value = toolkit_prompt(label, is_password=True)
+            value = str(value or "").strip()
+        else:  # pragma: no cover - retained for minimal Python environments
+            value = str(getpass.getpass(label) or "").strip()
         if value:
             return value
         CONSOLE.print("[yellow]A value is required. Press Ctrl+C to stop safely.[/yellow]")

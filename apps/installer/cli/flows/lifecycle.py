@@ -190,6 +190,11 @@ def _workspace_update(profile_home: Path) -> int:
             state.provider_requirements,
             non_interactive=False,
         )
+        _configure_discord_if_needed(
+            profile_home,
+            state.provider_requirements,
+            non_interactive=False,
+        )
         _configure_messaging_tools_if_needed(
             profile_home, state.provider_requirements
         )
@@ -251,9 +256,12 @@ def launch_command(args: argparse.Namespace) -> int:
         )
         action = choose(
             "Incomplete setup",
-            choices=["resume", "start-over", "exit"],
+            choices=["resume", "update-features", "start-over", "exit"],
             default="resume",
         )
+        if action == "update-features":
+            result = _workspace_update(profile_home)
+            return LAUNCH_STATIC_VERIFY if result == 0 else (0 if result == 1 else 2)
         if action == "start-over":
             if not confirm(
                 "Start over and preserve the current incomplete profile as a backup?",
@@ -504,6 +512,37 @@ def _configure_whatsapp_if_needed(
         raise runtime.RuntimeSetupError("whatsapp_gateway_setup_incomplete")
 
 
+def _configure_discord_if_needed(
+    profile_home: Path,
+    provider_requirements: dict[str, tuple[str, ...]],
+    *,
+    non_interactive: bool,
+) -> None:
+    """Configure the optional Discord owner-report route only when selected."""
+    required = {provider for values in provider_requirements.values() for provider in values}
+    if "discord" not in required:
+        return
+    configured = {
+        "DISCORD_BOT_TOKEN",
+        "DISCORD_OWNER_GUILD_ID",
+        "DISCORD_OWNER_CHANNEL_ID",
+    } <= runtime.configured_secret_names(profile_home)
+    if configured:
+        return
+    if non_interactive:
+        raise runtime.RuntimeSetupError("discord_gateway_requires_input")
+    from plugins.platforms.discord import onboarding
+
+    CONSOLE.print(
+        Panel.fit(
+            "[bold]Connect Discord[/bold]\n"
+            "Discord is optional and is limited to the private owner-report channel you choose.",
+            border_style="cyan",
+        )
+    )
+    onboarding.configure_owner_route(profile_home)
+
+
 def _configure_messaging_tools_if_needed(
     profile_home: Path,
     provider_requirements: dict[str, tuple[str, ...]],
@@ -595,6 +634,11 @@ def install_command(args: argparse.Namespace) -> int:
             non_interactive=args.non_interactive,
         )
         _configure_whatsapp_if_needed(
+            profile_home,
+            state.provider_requirements,
+            non_interactive=args.non_interactive,
+        )
+        _configure_discord_if_needed(
             profile_home,
             state.provider_requirements,
             non_interactive=args.non_interactive,

@@ -92,6 +92,50 @@ class SetupRuntimeTests(unittest.TestCase):
 
             self.assertTrue(runtime.model_auth_configured(profile))
 
+    def test_current_codex_oauth_marker_is_model_auth(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            profile = Path(temporary)
+            (profile / "config.yaml").write_text(
+                "model:\n  provider: openai-codex\n", encoding="utf-8"
+            )
+            (profile / "auth.json").write_text(
+                json.dumps({"active_provider": "openai-codex", "providers": {}}),
+                encoding="utf-8",
+            )
+
+            self.assertTrue(runtime.model_auth_configured(profile))
+
+    def test_gateway_lane_reads_only_the_selected_profile_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            profile = Path(temporary) / "profiles" / runtime.PROFILE_NAME
+            profile.mkdir(parents=True)
+            (profile / "gateway_state.json").write_text(
+                json.dumps(
+                    {
+                        "gateway_state": "running",
+                        "hermes_home": str(profile),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                runtime._gateway_lane(profile, lambda *_args, **_kwargs: None)["status"],
+                "pass",
+            )
+            (profile / "gateway_state.json").write_text(
+                json.dumps(
+                    {
+                        "gateway_state": "running",
+                        "hermes_home": str(profile.parent),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                runtime._gateway_lane(profile, lambda *_args, **_kwargs: None)["status"],
+                "fail",
+            )
+
     def test_failed_ngrok_candidate_restores_previous_ingress_state(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             profile = Path(temporary)
@@ -301,6 +345,15 @@ class SetupRuntimeTests(unittest.TestCase):
             calls[-1],
             (["hermes", "mcp", "test", "company_os_messaging"], False),
         )
+
+    def test_mcp_connection_ready_accepts_windows_mojibake_success_markers(self) -> None:
+        result = subprocess.CompletedProcess(
+            ["hermes", "mcp", "test", "notion"],
+            0,
+            "âœ“ Connected\nâœ“ Tools discovered: 42\n",
+            "",
+        )
+        self.assertTrue(runtime.mcp_connection_ready(result))
 
     def test_whatsapp_requires_enabled_secret_and_paired_credentials(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -555,6 +608,15 @@ class SetupRuntimeTests(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+        (profile / "gateway_state.json").write_text(
+            json.dumps(
+                {
+                    "gateway_state": "running",
+                    "hermes_home": str(profile),
+                }
+            ),
+            encoding="utf-8",
+        )
         return profile
 
     def test_verify_returns_ready_without_claiming_skipped_webhook(self) -> None:
@@ -575,8 +637,6 @@ class SetupRuntimeTests(unittest.TestCase):
                     output = "COMPANY_OS_DOCKER_BACKEND_OK"
                 elif "mcp_servers.notion.url" in joined:
                     output = runtime.NOTION_MCP_URL
-                elif "gateway status" in joined:
-                    output = "✓ Gateway is running"
                 else:
                     output = ""
                 return subprocess.CompletedProcess(arguments, 0, output, "")

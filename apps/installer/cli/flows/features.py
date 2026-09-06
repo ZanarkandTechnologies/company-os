@@ -77,7 +77,7 @@ CUSTOM_PROVIDERS = {
     "weekly.employee_memory_destination": ("google_drive",),
     "weekly.decisions_destination": ("notion", "google_drive"),
     "weekly.other_memory_destination": ("google_drive",),
-    "weekly.report_recipients": ("gmail", "telegram", "whatsapp"),
+    "weekly.report_recipients": ("gmail", "telegram", "whatsapp", "discord"),
     "weekly_meeting.destination": ("multica",),
     "weekly.project_memory_destination": ("notion",),
 }
@@ -141,7 +141,7 @@ def _ask_delivery_question(
     is_weekly = question.key == "weekly.report_recipients"
     labels = ["Notion Work comment", "Gmail", "Telegram", "WhatsApp", "Custom instructions"]
     if is_weekly:
-        labels = labels[1:]
+        labels = ["Gmail", "Telegram", "WhatsApp", "Discord", "Custom instructions"]
     if current:
         labels.insert(0, "Keep current")
     labels.append("Back")
@@ -194,6 +194,12 @@ def _ask_delivery_question(
             if target.casefold() == "back":
                 return None
             instructions.append(f"Send the exact {artifact} with `messages_send` to these WhatsApp targets: {target}; record each returned message ID.")
+        elif label == "Discord":
+            providers.append("discord")
+            instructions.append(
+                f"Send the exact {artifact} to the configured private Discord owner-report channel; "
+                "do not send employee follow-ups through Discord."
+            )
         else:
             custom = _required_text(question.custom_hint, None)
             if custom.casefold() == "back":

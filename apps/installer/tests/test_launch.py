@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import ast
 import subprocess
 import sys
@@ -112,6 +113,21 @@ class SetupLaunchTests(unittest.TestCase):
             self.assertEqual(
                 [path.name for path in profile.iterdir()], ["distribution.yaml"]
             )
+
+    def test_incomplete_profile_can_update_features_without_starting_over(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            profile = Path(temporary) / "profiles" / "company-os"
+            profile.mkdir(parents=True)
+            (profile / "distribution.yaml").write_text(
+                "name: company-os\n", encoding="utf-8"
+            )
+            args = argparse.Namespace(profile_home=profile)
+            with patch.object(lifecycle, "choose", return_value="update-features"), patch.object(
+                lifecycle, "_workspace_update", return_value=0
+            ) as update:
+                result = lifecycle.launch_command(args)
+            self.assertEqual(result, lifecycle.LAUNCH_STATIC_VERIFY)
+            update.assert_called_once_with(profile)
 
     def test_fresh_start_archives_incomplete_profile_and_relaunches_clean(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

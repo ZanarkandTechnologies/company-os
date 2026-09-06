@@ -113,6 +113,18 @@ class FeatureSetupTests(unittest.TestCase):
             },
         )
 
+    def test_derived_weekly_projects_uses_the_projects_notion_role(self) -> None:
+        bindings = selected_bindings(
+            {"weekly.projects": "Fetch Projects from https://notion.so/projects."},
+            load_catalog(),
+            {"weekly.projects": ("notion",)},
+            {"weekly.projects": {"notion": "https://notion.so/projects"}},
+        )
+        self.assertEqual(
+            [(item["data_source"], item["provider"]["id"]) for item in bindings],
+            [("projects", "notion")],
+        )
+
     def test_saved_feature_answers_override_legacy_workspace_bindings(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

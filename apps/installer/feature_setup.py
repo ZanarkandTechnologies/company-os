@@ -24,6 +24,9 @@ OPTIONAL_DEFAULT_ANSWERS = {
 }
 NOTION_ROLE_BY_QUESTION = {
     "daily.projects": "projects",
+    # Weekly Projects is derived from the same approved Projects source as the
+    # daily workflow, so it shares the Projects provider contract.
+    "weekly.projects": "projects",
     "daily.work": "tasks",
     "daily.meetings": "meetings",
     "daily.people": "people",
@@ -282,12 +285,13 @@ def _require_provider_url(target: str, hosts: set[str], error_code: str) -> None
         raise FeatureSetupError(error_code)
 
 
-def _atomic_write(path: Path, content: str) -> None:
+def _atomic_write_bytes(path: Path, content: bytes) -> None:
+    """Atomically replace one file without changing its existing line endings."""
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     temporary = Path(temporary_name)
     try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+        with os.fdopen(descriptor, "wb") as handle:
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
@@ -295,6 +299,10 @@ def _atomic_write(path: Path, content: str) -> None:
     except Exception:
         temporary.unlink(missing_ok=True)
         raise
+
+
+def _atomic_write(path: Path, content: str) -> None:
+    _atomic_write_bytes(path, content.encode("utf-8"))
 
 
 def write_batch(files: dict[Path, str]) -> None:
@@ -314,5 +322,5 @@ def write_batch(files: dict[Path, str]) -> None:
             if original is None:
                 path.unlink(missing_ok=True)
             else:
-                _atomic_write(path, original.decode("utf-8"))
+                _atomic_write_bytes(path, original)
         raise

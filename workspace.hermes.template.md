@@ -106,6 +106,12 @@ the message, app, recipient, and whether Hermes should draft or send it:
 
 One message type never substitutes for another.
 
+Messaging channels must have an installed Company OS connector before they can
+send. Discord is limited to a controlled owner-delivery channel and remains
+draft-only until its exact private route has a confirmed connection-test
+receipt. Do not add tokens, server IDs, channel IDs, or webhook URLs to this
+document.
+
 <!-- hermes:managed communications -->
 | Message | App | Send to | Behavior |
 | --- | --- | --- | --- |

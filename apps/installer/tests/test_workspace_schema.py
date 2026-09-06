@@ -48,6 +48,25 @@ class WorkspaceSchemaTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             MessageType("connection test")
 
+    def test_discord_is_a_typed_messaging_app(self) -> None:
+        self.assertEqual(MessagingApp.DISCORD.value, "discord")
+        self.assertEqual(self.binding(app=MessagingApp.DISCORD).app, MessagingApp.DISCORD)
+        with self.assertRaisesRegex(ValidationError, "discord_connection_test_required"):
+            self.binding(
+                app=MessagingApp.DISCORD,
+                behavior=DeliveryBehavior.SEND_AUTOMATICALLY,
+            )
+
+    def test_existing_messaging_apps_remain_available(self) -> None:
+        for app in (
+            MessagingApp.TELEGRAM,
+            MessagingApp.SLACK,
+            MessagingApp.WHATSAPP,
+            MessagingApp.DISCORD,
+        ):
+            with self.subTest(app=app):
+                self.assertEqual(self.binding(app=app).app, app)
+
     def test_managed_table_parses_customer_fields_only(self) -> None:
         content = """
 <!-- hermes:managed communications -->
