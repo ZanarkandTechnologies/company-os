@@ -270,6 +270,27 @@ class ReadinessEvalTests(unittest.TestCase):
             self.assertEqual(project["status"], "failed")
             self.assertEqual(project["issues"], ["tool_result_without_call"])
 
+    def test_modern_export_tool_call_id_proves_a_redacted_tool_call(self) -> None:
+        trace = readiness_evals._session_trace(
+            json.dumps(
+                {
+                    "messages": [
+                        {
+                            "role": "tool",
+                            "tool_name": "mcp__notion__notion_fetch",
+                            "tool_call_id": "call_123",
+                            "content": "redacted provider result",
+                        }
+                    ]
+                }
+            )
+            + "\n"
+        )
+        self.assertEqual(
+            trace,
+            [{"tool": "mcp__notion__notion_fetch", "content": "redacted provider result"}],
+        )
+
     def test_activation_validator_rejects_stale_or_tampered_readiness_proof(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw)

@@ -81,9 +81,14 @@ The workspace contract supports:
 
 | Message | Apps | Behavior | Recipient boundary |
 | --- | --- | --- | --- |
-| `owner report` | Telegram, Slack, WhatsApp | Draft for approval or automatic after a confirmed test | Named owner |
-| `owner alert` | Telegram, Slack, WhatsApp | Draft for approval or automatic after a confirmed test | Same reviewed route as owner report |
+| `owner report` | Telegram, Slack, WhatsApp, Discord | Draft for approval or automatic after a confirmed test | Named owner |
+| `owner alert` | Telegram, Slack, WhatsApp, Discord | Draft for approval or automatic after a confirmed test | Same reviewed route as owner report |
 | `employee follow-up` | Telegram, Slack, WhatsApp | Draft only | Employee-approved People-directory route |
+
+Discord is available only for owner reports and owner alerts. Its private bot
+token, guild ID, and channel ID belong in the Hermes profile, never the
+workspace document. Until an exact route has a confirmed test receipt, Discord
+must remain draft-only and must not be treated as a delivery fallback.
 
 The current wizard exposes owner report and owner alert. It does not expose employee follow-up. Owner report and alert must share one app, named recipient, and behavior.
 

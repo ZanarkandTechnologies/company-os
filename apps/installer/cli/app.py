@@ -61,6 +61,10 @@ def parser() -> argparse.ArgumentParser:
     certify.add_argument("--profile-home", type=Path)
     certify.add_argument("--allow-side-effects", action="store_true")
 
+    discord = subcommands.add_parser("discord", help="Configure or test the private Discord owner route")
+    discord.add_argument("action", choices=("configure", "status", "test"))
+    discord.add_argument("--profile-home", type=Path)
+
     doctor = subcommands.add_parser("doctor")
     doctor_modes = doctor.add_subparsers(dest="doctor_mode", required=True)
 
@@ -119,6 +123,14 @@ def main(arguments: list[str] | None = None) -> int:
             return verify_command(args)
         if selected == "certify":
             return certify_command(args)
+        if selected == "discord":
+            from apps.installer.cli.flows import discord as discord_flow
+            home = profile_home(args.profile_home)
+            if args.action == "configure":
+                return discord_flow.configure_command(home)
+            if args.action == "status":
+                return discord_flow.status_command(home)
+            return discord_flow.test_command(home)
         if selected == "doctor":
             from apps.installer.cli.flows import doctor
 

@@ -71,6 +71,33 @@ class SetupProfileTests(unittest.TestCase):
         self.assertFalse(PROFILE.gateway_is_running(stopped))
         self.assertTrue(PROFILE.gateway_is_running(running))
 
+    def test_apply_defers_gateway_readiness_to_the_launcher(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            profile_home = Path(temporary)
+            workspace = profile_home / "workspace"
+
+            def fake_command(arguments, selected_profile, **kwargs):
+                del selected_profile, kwargs
+                joined = " ".join(str(item) for item in arguments)
+                if "workspace.py" in joined:
+                    return subprocess.CompletedProcess(
+                        arguments, 0, json.dumps({"state": "configured", "pending": []}), ""
+                    )
+                if arguments[-2:] == ["get", "terminal.backend"]:
+                    return subprocess.CompletedProcess(arguments, 0, "docker\n", "")
+                if arguments[-2:] == ["get", "terminal.cwd"]:
+                    return subprocess.CompletedProcess(arguments, 0, f"{workspace}\n", "")
+                if arguments[-2:] == ["get", "terminal.docker_mount_cwd_to_workspace"]:
+                    return subprocess.CompletedProcess(arguments, 0, "true\n", "")
+                return subprocess.CompletedProcess(arguments, 0, "", "")
+
+            with (
+                patch.object(PROFILE, "run_command", side_effect=fake_command),
+                patch.object(PROFILE, "cron_plan", return_value=[]),
+                patch.object(PROFILE, "apply_cron"),
+            ):
+                self.assertEqual(PROFILE.run(profile_home, apply=True), 0)
+
     def test_notion_plugin_enabled_reads_native_plugin_inventory(self) -> None:
         profile_home = Path("/tmp/client-profile")
         payload = json.dumps(

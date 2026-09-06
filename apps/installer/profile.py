@@ -470,11 +470,11 @@ def run(
         verified = cron_plan(profile_home, workspace)
         if any(item["action"] != "in_sync" for item in verified):
             raise ProfileSetupError("cron_verification_failed")
-        gateway = subprocess.run(
-            ["hermes", "gateway", "status"], text=True, capture_output=True,
-            check=False, env=command_env(profile_home),
-        )
-        scheduler_ready = gateway_is_running(gateway)
+        # Gateway health is intentionally verified by setup.cmd after it starts
+        # the selected profile gateway. Probing it here can leave child Hermes
+        # processes holding the captured output pipe on Windows, which stalls
+        # a first installation after all profile files have already been set up.
+        scheduler_ready = False
         emit(
             "configured" if scheduler_ready else "partial",
             profile_home=str(profile_home),

@@ -17,6 +17,8 @@ distribution_owned:
   - distribution.yaml
   - setup.py
   - setup.cmd
+  - discord-setup.cmd
+  - discord-test.cmd
   - setup.sh
   - compose.yaml
   - apps/__init__.py
@@ -59,5 +61,10 @@ distribution_owned:
   - plugins/platforms/notion/onboarding.py
   - plugins/platforms/notion/plugin.yaml
   - plugins/platforms/notion/protocol.py
+  - plugins/platforms/discord/__init__.py
+  - plugins/platforms/discord/adapter.py
+  - plugins/platforms/discord/api.py
+  - plugins/platforms/discord/onboarding.py
+  - plugins/platforms/discord/plugin.yaml
   - plugins/multica/__init__.py
   - plugins/multica/plugin.yaml

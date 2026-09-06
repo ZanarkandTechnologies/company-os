@@ -48,6 +48,16 @@ class MessagingApp(StrEnum):
     TELEGRAM = "telegram"
     SLACK = "slack"
     WHATSAPP = "whatsapp"
+    # Outbound owner delivery is limited to one profile-configured route.
+    DISCORD = "discord"
+
+
+INSTALLED_MESSAGING_APPS = frozenset({
+    MessagingApp.TELEGRAM,
+    MessagingApp.SLACK,
+    MessagingApp.WHATSAPP,
+    MessagingApp.DISCORD,
+})
 
 
 class ArtifactType(StrEnum):
@@ -86,6 +96,25 @@ class CommunicationBinding(BaseModel):
     app: MessagingApp
     send_to: NonEmptyString
     behavior: DeliveryBehavior
+
+    @model_validator(mode="after")
+    def require_installed_messaging_app(self) -> "CommunicationBinding":
+        if self.app not in INSTALLED_MESSAGING_APPS:
+            raise ValueError(
+                f"{self.app.value}_delivery_connector_not_installed"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def keep_discord_draft_only_until_connection_test_exists(self) -> "CommunicationBinding":
+        if (
+            self.app is MessagingApp.DISCORD
+            and self.behavior is DeliveryBehavior.SEND_AUTOMATICALLY
+        ):
+            raise ValueError(
+                "discord_connection_test_required_before_automatic_delivery"
+            )
+        return self
 
     @model_validator(mode="after")
     def keep_employee_delivery_draft_only(self) -> "CommunicationBinding":

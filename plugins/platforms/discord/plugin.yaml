@@ -1,0 +1,36 @@
+name: discord-platform
+label: Discord owner delivery
+kind: platform
+version: 0.2.0
+description: Bounded Discord delivery and mention-only Hermes assistant for one approved channel.
+author: Zanarkand Technologies
+provides_tools:
+  - discord_get_channel
+  - discord_list_messages
+  - discord_send_message
+requires_env:
+  - name: DISCORD_BOT_TOKEN
+    description: Bot token for the approved Discord owner-delivery route
+    prompt: Discord bot token
+    password: true
+  - name: DISCORD_OWNER_GUILD_ID
+    description: Exact Discord guild ID containing the approved owner channel
+    prompt: Approved Discord guild ID
+    password: false
+  - name: DISCORD_OWNER_CHANNEL_ID
+    description: Exact private Discord text-channel ID for owner delivery
+    prompt: Approved Discord owner channel ID
+    password: false
+optional_env:
+  - name: DISCORD_ASSISTANT_ENABLED
+    description: Enable mention-only Hermes replies in the approved Discord channel
+    prompt: Enable Discord assistant replies (true/false)
+    password: false
+  - name: DISCORD_ALLOW_ALL_USERS
+    description: Allow employees who can access the exact approved channel to use mention-only replies
+    prompt: Allow approved-channel members to mention Hermes (true/false)
+    password: false
+  - name: DISCORD_ENABLE_WRITES
+    description: Set true only after the exact Discord route has a confirmed connection-test receipt
+    prompt: Enable Discord writes (true/false)
+    password: false
