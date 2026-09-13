@@ -34,20 +34,29 @@ def _run(arguments: list[str]) -> str:
     binary = _binary()
     if not binary:
         return json.dumps({"error": "multica_cli_missing"})
-    result = subprocess.run(
-        [binary, *arguments, *_profile_args(), "--output", "json"],
-        text=True,
-        capture_output=True,
-        check=False,
-        timeout=60,
-    )
+    mutating = arguments[:2] == ["issue", "create"]
+    uncertain = {
+        "outcome": "unknown",
+        "recovery": "Read back before retrying; do not automatically repeat creation.",
+    } if mutating else {}
+    try:
+        result = subprocess.run(
+            [binary, *arguments, *_profile_args(), "--output", "json"],
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=60,
+        )
+    except subprocess.TimeoutExpired:
+        return json.dumps({"error": "multica_timeout", **uncertain})
+    except OSError:
+        return json.dumps({"error": "multica_launch_failed"})
     if result.returncode:
-        detail = (result.stderr or result.stdout).strip().splitlines()
-        return json.dumps({"error": detail[-1] if detail else "multica_command_failed"})
+        return json.dumps({"error": "multica_command_failed", "exit_code": result.returncode, **uncertain})
     try:
         payload = json.loads(result.stdout)
     except json.JSONDecodeError:
-        return json.dumps({"error": "multica_output_invalid"})
+        return json.dumps({"error": "multica_output_invalid", **uncertain})
     return json.dumps(payload)
 
 
@@ -68,6 +77,18 @@ def _list_issues(args: dict[str, Any] | None = None, **_: Any) -> str:
         if value:
             command.extend([flag, value])
     return _run(command)
+
+
+def _get_issue(args: dict[str, Any] | None = None, **_: Any) -> str:
+    values = args or {}
+    return _run(["issue", "get", str(values["issue_id"]),
+                 "--workspace-id", str(values["workspace_id"])])
+
+
+def _list_comments(args: dict[str, Any] | None = None, **_: Any) -> str:
+    values = args or {}
+    return _run(["issue", "comment", "list", str(values["issue_id"]), "--full",
+                 "--workspace-id", str(values["workspace_id"])])
 
 
 def _create_issue(args: dict[str, Any] | None = None, **_: Any) -> str:
@@ -107,6 +128,18 @@ def register(ctx) -> None:
         check_fn=_available, emoji="📋",
         schema={"name": "multica_list_issues", "description": "List bounded Multica issues with optional project, status, and assignee filters.", "parameters": {"type": "object", "properties": issue_properties, "required": ["workspace_id"]}},
     )
+    for name, handler, description in (
+        ("multica_get_issue", _get_issue, "Read full details of one discovered Multica issue, retaining raw properties."),
+        ("multica_list_comments", _list_comments, "Read all comments on one discovered Multica issue, including full resolved threads without folding or clipping."),
+    ):
+        ctx.register_tool(
+            name=name, toolset="multica", handler=handler,
+            check_fn=_available, emoji="📋",
+            schema={"name": name, "description": description, "parameters": {
+                "type": "object", "properties": {**common, "issue_id": {"type": "string"}},
+                "required": ["workspace_id", "issue_id"],
+            }},
+        )
     create_properties = {
         **common, "title": {"type": "string"}, "description": {"type": "string"},
         "project": {"type": "string"}, "assignee": {"type": "string"},

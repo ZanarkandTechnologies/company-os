@@ -1,0 +1,35 @@
+{
+  "company": "AGI Toy Shop",
+  "evidence_kind": "synthetic",
+  "run_started_at": "2026-09-10T09:00:00Z",
+  "week": "2026-W37",
+  "environment": {
+    "mode": "isolated provider fixtures; never use live bindings",
+    "initial_memory": "absent for both Projects",
+    "unrelated_file": {"path": "operator-notes.md", "content": "Keep this operator note unchanged.\n"},
+    "reads": "All listed records are fully readable; every list is one complete page. Unlisted comments, attachments and child blocks are empty, not denied.",
+    "effects": "Isolated sink only; no real provider writes or fabricated provider confirmations."
+  },
+  "notion": {
+    "projects": [
+      {"id":"toy-launch","name":"AGI Toy Shop — Launch","Status":"Active","Client":"toy-client","Department":"Operations","url":"https://example.invalid/projects/launch","body":"Release the launch catalog. Multica: toy-board-launch. Discord: toy-thread-launch."},
+      {"id":"toy-reference","name":"AGI Toy Shop — Reference","Status":"Active","Client":"toy-client","Department":"Operations","url":"https://example.invalid/projects/reference","body":"Maintain the reference catalog. No change is scheduled this week. Multica: toy-board-reference. Discord: toy-thread-reference."}
+    ],
+    "clients": [{"id":"toy-client","name":"AGI Toy Shop","body":"Toy storefront operator."}],
+    "admin_and_meetings": []
+  },
+  "multica": {
+    "projects": [
+      {"id":"toy-board-launch","name":"AGI Toy Shop — Launch"},
+      {"id":"toy-board-reference","name":"AGI Toy Shop — Reference"}
+    ],
+    "issues": [{"id":"toy-issue-validation","project_id":"toy-board-launch","title":"Validate catalog batch","status":"Done","assignee":"Nur","updated_at":"2026-09-10T08:00:00Z","url":"https://example.invalid/issues/validation","body":"Nur validated all 24 SKU rows in catalog-validation.csv against the supplied source sheet. Scope: validation, not publication.","comments":[{"author":"Mei","created_at":"2026-09-10T08:00:00Z","body":"I accepted the 24-row validation artifact. No publication approval is implied."}]}]
+  },
+  "discord": {
+    "active_threads": [
+      {"id":"toy-thread-launch","name":"AGI Toy Shop — Launch","messages":[{"id":"toy-message-current","timestamp":"2026-09-10T08:10:00Z","author":"Mei","content":"The catalog validation is accepted; details are in https://example.invalid/issues/validation."}]},
+      {"id":"toy-thread-reference","name":"AGI Toy Shop — Reference","messages":[]}
+    ],
+    "archived_threads": []
+  }
+}

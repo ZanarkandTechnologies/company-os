@@ -2,23 +2,114 @@
   "skill_name": "pm-weekly",
   "evals": [
     {
-      "id": "weekly_operating_reports",
-      "prompt": "Close the week and produce the complete operating report set from the frozen Project Memory files.",
-      "expected_output": "Final Project reports roll into complete Department reports and one Company report without hiding missing measurements or blocked children.",
+      "id": "closed_project_and_missing_interval",
+      "prompt": "Close the reporting interval using the supplied Project inventory and frozen Daily evidence.",
+      "expected_output": "The archived Project's observed work and people remain in the weekly report, its open obligation is qualified as closure attention rather than reopened work, and missing interval coverage remains visible.",
       "files": [
-        "evals/fixtures/weekly-inventory.json",
-        "evals/fixtures/project--cmt.md",
-        "evals/fixtures/project--ecom.md"
+        "evals/fixtures/coverage/closed-inventory.json",
+        "evals/fixtures/coverage/closed-status.md",
+        "evals/fixtures/coverage/project--toy-studio.md",
+        "evals/fixtures/coverage/extraction--toy-studio.json",
+        "evals/fixtures/coverage/sources--toy-studio.md",
+        "evals/fixtures/unblocking/project--toy-launch.md",
+        "evals/fixtures/unblocking/project--toy-retail.md",
+        "evals/fixtures/unblocking/project--toy-archive.md",
+        "evals/fixtures/unblocking/extraction--toy-launch.json",
+        "evals/fixtures/unblocking/extraction--toy-retail.json",
+        "evals/fixtures/unblocking/extraction--toy-archive.json",
+        "evals/fixtures/unblocking/sources--toy-launch.md",
+        "evals/fixtures/unblocking/sources--toy-retail.md",
+        "evals/fixtures/unblocking/sources--toy-archive.md",
+        "evals/fixtures/unblocking/person--nur-before.md",
+        "evals/fixtures/unblocking/sop--catalog-handoff-before.md"
       ],
       "assertions": [
-        "Every expected Project has one final report with the required template headings",
-        "Each Department report cites every immediate Project report",
-        "The Company report cites every immediate Department report",
-        "Open measurement gaps remain explicit instead of being estimated"
+        "Storefront Design and Casey remain visible in Project, Product Design and Company reports despite Archived status",
+        "The September 14 review is a closure contradiction requiring clarification, not an instruction to resume work or evidence of completed screens",
+        "No next_week_project_memory is created for the archived Storefront Design Project",
+        "The missing September 8\u00e2\u20ac\u201c9 coverage interval is visible and never described as a complete successful week",
+        "Historical gaps are repaired only from retained evidence or a proposed bounded backfill, never by fabricating a successful receipt from present snapshots",
+        "Readable health/SOP/priority text contains no raw machine IDs or file-management instructions, and next-week dependencies occur only once",
+        "Quiet activity and incomplete interval coverage remain distinct; snapshot facts do not disappear into unsupported performance judgments"
       ],
       "metadata": {
-        "title": "Weekly operating reports",
-        "notes": "Shows the complete Project-to-Department-to-Company reporting chain produced from one frozen week.",
+        "title": "Closed Project retained without revival",
+        "tags": [
+          "skill",
+          "boundary"
+        ]
+      }
+    },
+    {
+      "id": "visible_people_and_department_coverage",
+      "prompt": "Close the week for AGI Toy Shop using the supplied weekly inventory and frozen evidence.",
+      "expected_output": "Weekly JSON contains visible progress for every supplied reporting person and a separate executive-summary entry for each Department, including work still in progress and people with insufficient evidence.",
+      "files": [
+        "evals/fixtures/coverage/inventory.json",
+        "evals/fixtures/coverage/project--toy-studio.md",
+        "evals/fixtures/coverage/extraction--toy-studio.json",
+        "evals/fixtures/coverage/sources--toy-studio.md",
+        "evals/fixtures/unblocking/project--toy-launch.md",
+        "evals/fixtures/unblocking/project--toy-retail.md",
+        "evals/fixtures/unblocking/project--toy-archive.md",
+        "evals/fixtures/unblocking/extraction--toy-launch.json",
+        "evals/fixtures/unblocking/extraction--toy-retail.json",
+        "evals/fixtures/unblocking/extraction--toy-archive.json",
+        "evals/fixtures/unblocking/sources--toy-launch.md",
+        "evals/fixtures/unblocking/sources--toy-retail.md",
+        "evals/fixtures/unblocking/sources--toy-archive.md",
+        "evals/fixtures/unblocking/person--nur-before.md",
+        "evals/fixtures/unblocking/sop--catalog-handoff-before.md"
+      ],
+      "assertions": [
+        "Company Department executive summary visibly names Operations and Product Design separately with result, attention, next priority and immediate report sources",
+        "Project and Department People progress cover their roster; Company People progress visibly covers Nur, Mei, Aisha, Jon and Casey with exact identity metadata",
+        "Casey's two-to-four-of-six screen progress, remaining screens and supplied September 14 review remain visible despite no accepted output or blocker",
+        "Jon's progress is insufficient evidence, not omitted, completed, inactive or rated poorly",
+        "Nur remains the producer, Mei the acceptance receiver and Aisha the decision owner; approval is still pending",
+        "Accepted artifacts and scopes remain intact without repeated detailed artifact lists in People progress; no worker ratings or invented dates",
+        "Executive data references the complete Company report, which contains both Department summaries and People progress"
+      ],
+      "metadata": {
+        "title": "Visible people and Department coverage",
+        "tags": [
+          "skill",
+          "boundary"
+        ],
+        "notes": "Regression: matching weakened template headings hid missing user-visible reporting coverage. Four Projects, two Departments and five named people."
+      }
+    },
+    {
+      "id": "weekly_operating_reports",
+      "prompt": "Use only the supplied local frozen fixtures. Write only weekly/extractions/2026-09-10T00:00:00Z.json with {week,evidence_kind,artifacts:[],blockers:[]}. Each artifact uses {type,path,title,frontmatter,sections:[{heading,items:[{text,sources:[{label,reference}],metadata?}]}]}. Artifact paths are proposed destinations, not files to write. Do not access providers, runtime, or write Markdown. Close 2026-W37 for AGI Toy Shop using inventory.json. Produce lean Project, Department, Company, and executive report artifact data.",
+      "expected_output": "One synthetic Weekly JSON result with complete report artifact data, concise evidence-supported conclusions and a material Retail evidence limitation; healthy quiet Reference Catalog is not warned on for inactivity.",
+      "files": [
+        "evals/fixtures/unblocking/inventory.json",
+        "evals/fixtures/unblocking/project--toy-launch.md",
+        "evals/fixtures/unblocking/project--toy-retail.md",
+        "evals/fixtures/unblocking/project--toy-archive.md",
+        "evals/fixtures/unblocking/extraction--toy-launch.json",
+        "evals/fixtures/unblocking/extraction--toy-retail.json",
+        "evals/fixtures/unblocking/extraction--toy-archive.json",
+        "evals/fixtures/unblocking/sources--toy-launch.md",
+        "evals/fixtures/unblocking/sources--toy-retail.md",
+        "evals/fixtures/unblocking/sources--toy-archive.md",
+        "evals/fixtures/unblocking/person--nur-before.md",
+        "evals/fixtures/unblocking/sop--catalog-handoff-before.md"
+      ],
+      "assertions": [
+        "Only the declared Weekly extraction JSON is written; no report, memory, outbound Markdown or provider effect occurs",
+        "week is 2026-W37 and evidence_kind is synthetic; each artifact has type, path, title, frontmatter, and sections containing sourced items",
+        "All three expected Projects are represented and each Department/Company rollup references every immediate child artifact",
+        "Retail's successful reads with content-poor bodies are described as a bounded evidence limitation, not a provider failure, employee blame, or completed work",
+        "Reference Catalog's complete source coverage and scheduled quiet interval produce no inactivity-based health warning or invented new accepted output",
+        "A source-health footer is absent or tiny and material; it does not expand into a duplicated audit report",
+        "Cached citations resolve to absolute frozen input paths; future citations name declared report destinations",
+        "The unresolved price choice does not become a claim that no approval process exists; Aisha's documented ownership and procedure are preserved"
+      ],
+      "metadata": {
+        "title": "Lean JSON operating reports",
+        "notes": "Frozen synthetic semantic replay; JSON-to-Markdown rendering is automation-owned.",
         "tags": [
           "skill",
           "showcase"
@@ -27,49 +118,71 @@
     },
     {
       "id": "knowledge_promotion",
-      "prompt": "Consolidate this week's reusable operating knowledge into long-term memory where the evidence supports it.",
-      "expected_output": "Accepted outcomes group by Person ID and comparable workflow samples group by workflow_key without replacing an approved baseline from one fast observation.",
+      "prompt": "Use only the supplied local frozen fixtures. Write only weekly/extractions/2026-09-10T00:00:00Z.json with {week,evidence_kind,artifacts:[],blockers:[]}. Each artifact uses {type,path,title,frontmatter,sections:[{heading,items:[{text,sources:[{label,reference}],metadata?}]}]}. Artifact paths are proposed destinations, not files to write. Do not access providers, runtime, or write Markdown. Consolidate grounded 2026-W37 knowledge for the complete inventory, using existing Person and SOP memory as baseline.",
+      "expected_output": "Exact-source attribution and accepted outputs appear in latest interval artifact data, while approved persistent baseline and one-off boundaries remain intact.",
       "files": [
-        "evals/fixtures/project--cmt.md",
-        "evals/fixtures/project--ecom.md",
-        "evals/fixtures/sop--listing-handoff-before.md",
-        "evals/fixtures/person--nur-before.md"
+        "evals/fixtures/unblocking/inventory.json",
+        "evals/fixtures/unblocking/project--toy-launch.md",
+        "evals/fixtures/unblocking/project--toy-retail.md",
+        "evals/fixtures/unblocking/project--toy-archive.md",
+        "evals/fixtures/unblocking/extraction--toy-launch.json",
+        "evals/fixtures/unblocking/extraction--toy-retail.json",
+        "evals/fixtures/unblocking/extraction--toy-archive.json",
+        "evals/fixtures/unblocking/sources--toy-launch.md",
+        "evals/fixtures/unblocking/sources--toy-retail.md",
+        "evals/fixtures/unblocking/sources--toy-archive.md",
+        "evals/fixtures/unblocking/person--nur-before.md",
+        "evals/fixtures/unblocking/sop--catalog-handoff-before.md"
       ],
       "assertions": [
-        "The repeated receiver-accepted listing workflow updates SOP interval evidence",
-        "The existing approved SOP baseline is preserved",
-        "The one-off collar workflow remains Project-only",
-        "Every promoted memory claim cites its immediate source report",
-        "Unknown active and waiting time remains a measurement gap rather than an invented calibrated baseline",
-        "Nur's latest weekly evidence records the accepted listing outputs without changing persistent operating memory"
+        "Both distinct accepted outputs are attributed to exact PERSON-TOY-NUR-001 using extraction and cache provenance, each once",
+        "Department and Person outcome metadata preserve supplied receiver IDs, acceptance scopes and controls; machine IDs stay out of readable prose",
+        "Nur's employee_memory artifact retains persistent operating context and adds latest weekly accepted outputs without scores, ratings, or performance rankings",
+        "Catalog handoff interval evidence may update under exact workflow_key catalog_handoff_v1; existing approved controls and unmeasured active/waiting time remain intact",
+        "The one-off vendor CSV conversion preserves its actual input/output signature and observed method in Project evidence; it does not become an approved SOP or duration baseline",
+        "The consequential authoritative-price decision is retained as open with Aisha's exact decision owner ID; no selected version or approval is invented",
+        "Promoted artifact claims cite immediate Project report destinations and retain resolvable frozen evidence provenance"
       ],
       "metadata": {
-        "title": "Long-term memory consolidation",
-        "notes": "Shows conservative Employee, SOP, Issue, and Decision memory updates without promoting every weekly observation.",
+        "title": "Provenance-grounded memory",
+        "notes": "Historical W35 fixtures have no exact extraction provenance; this W37 bundle supplies IDs explicitly.",
         "tags": [
           "skill",
-          "showcase"
+          "boundary"
         ]
       }
     },
     {
       "id": "next_week_carry_forward",
-      "prompt": "Initialize next week's Project Memory from unresolved attention at the end of this week.",
-      "expected_output": "Next-week Project Memory contains unresolved owned attention only and does not carry completed work forward.",
+      "prompt": "Use only the supplied local frozen fixtures. Write only weekly/extractions/2026-09-10T00:00:00Z.json with {week,evidence_kind,artifacts:[],blockers:[]}. Each artifact uses {type,path,title,frontmatter,sections:[{heading,items:[{text,sources:[{label,reference}],metadata?}]}]}. Artifact paths are proposed destinations, not files to write. Do not access providers, runtime, or write Markdown. Close 2026-W37 and initialize 2026-W38 Project Memory artifact data from unresolved attention.",
+      "expected_output": "Unresolved launch decision and bounded Retail evidence need carry forward; accepted outputs and healthy quiet state do not become fabricated open work.",
       "files": [
-        "evals/fixtures/weekly-inventory.json",
-        "evals/fixtures/project--cmt.md",
-        "evals/fixtures/project--ecom.md"
+        "evals/fixtures/unblocking/inventory.json",
+        "evals/fixtures/unblocking/project--toy-launch.md",
+        "evals/fixtures/unblocking/project--toy-retail.md",
+        "evals/fixtures/unblocking/project--toy-archive.md",
+        "evals/fixtures/unblocking/extraction--toy-launch.json",
+        "evals/fixtures/unblocking/extraction--toy-retail.json",
+        "evals/fixtures/unblocking/extraction--toy-archive.json",
+        "evals/fixtures/unblocking/sources--toy-launch.md",
+        "evals/fixtures/unblocking/sources--toy-retail.md",
+        "evals/fixtures/unblocking/sources--toy-archive.md",
+        "evals/fixtures/unblocking/person--nur-before.md",
+        "evals/fixtures/unblocking/sop--catalog-handoff-before.md"
       ],
       "assertions": [
-        "Every active Project receives one next-week Project Memory file",
-        "Unresolved attention retains its owner, condition, and source citation",
-        "Resolved work does not reappear in next-week attention",
-        "No parallel planning artifact is created"
+        "Each active Project has next_week_project_memory artifact data with a 2026-W38 destination",
+        "Launch carry-forward retains the price-version condition, evidenced Aisha decision ownership, Mei acceptance gate, and source references",
+        "The intervention prepares a two-version/two-SKU comparison and requests the absent margin inputs needed by Aisha; it is a proposal, not a claim of already prepared files or sent messages",
+        "Two ineffective reminders lead to an input/decision intervention rather than another generic status chase",
+        "Accepted batch A and accepted one-off conversion do not reappear as unresolved attention",
+        "Retail carry-forward does not invent a deadline, personal failure, or unsupported task owner; the quiet Project has no invented attention",
+        "No separate planning artifact is proposed or written",
+        "Each unresolved dependency is carried once, not restated across Problems, Decisions and Carry-forward sections"
       ],
       "metadata": {
-        "title": "Next-week carry-forward",
-        "notes": "Shows weekly closure becoming a clean starting point for the following Daily cycle.",
+        "title": "Unblocking carry-forward",
+        "notes": "Uses observed reminder failure and explicit decision authority to judge the next intervention.",
         "tags": [
           "skill",
           "showcase"
@@ -78,21 +191,31 @@
     },
     {
       "id": "incomplete_project_set_blocks_rollup",
-      "prompt": "Close the week when one expected active Project Memory file is missing.",
-      "expected_output": "The missing Project is reported and dependent Department and Company outputs remain blocked without long-term memory changes.",
+      "prompt": "Use only the supplied local frozen fixtures. Write only weekly/extractions/2026-09-10T00:00:00Z.json with {week,evidence_kind,artifacts:[],blockers:[]}. Each artifact uses {type,path,title,frontmatter,sections:[{heading,items:[{text,sources:[{label,reference}],metadata?}]}]}. Artifact paths are proposed destinations, not files to write. Do not access providers, runtime, or write Markdown. Close the week using inventory-missing-project.json instead of inventory.json. The declared Reference Catalog memory path is missing; do not substitute another file.",
+      "expected_output": "Named missing-Project blocker with no dependent final rollup, distribution, or long-term memory promotion.",
       "files": [
-        "evals/fixtures/weekly-inventory.json",
-        "evals/fixtures/project--cmt.md"
+        "evals/fixtures/unblocking/inventory-missing-project.json",
+        "evals/fixtures/unblocking/project--toy-launch.md",
+        "evals/fixtures/unblocking/project--toy-retail.md",
+        "evals/fixtures/unblocking/extraction--toy-launch.json",
+        "evals/fixtures/unblocking/extraction--toy-retail.json",
+        "evals/fixtures/unblocking/extraction--toy-archive.json",
+        "evals/fixtures/unblocking/sources--toy-launch.md",
+        "evals/fixtures/unblocking/sources--toy-retail.md",
+        "evals/fixtures/unblocking/sources--toy-archive.md",
+        "evals/fixtures/unblocking/person--nur-before.md",
+        "evals/fixtures/unblocking/sop--catalog-handoff-before.md"
       ],
       "assertions": [
-        "The missing Project is named",
-        "No final Company report is written",
-        "No long-term memory artifact changes",
-        "No provider effect is attempted"
+        "The JSON blockers name PROJ-TOY-ARCHIVE and the missing inventory-declared memory path",
+        "No final Department, Company, or executive_distribution artifact is proposed for the incomplete chain",
+        "No employee_memory, sop_memory, issue_memory, or decision_memory promotion artifact appears",
+        "No Markdown file or provider effect is attempted",
+        "The run does not silently recover the missing memory using its extraction/cache or claim a complete frozen set"
       ],
       "metadata": {
-        "title": "Incomplete Project set blocks rollup",
-        "notes": "Protects the completeness boundary so partial weekly evidence cannot appear as a final Company result.",
+        "title": "Missing Project blocks promotions",
+        "notes": "Derived inventory variant; all available evidence is identical to the complete case.",
         "tags": [
           "skill",
           "boundary"
@@ -100,27 +223,26 @@
       }
     },
     {
-      "id": "conversation_weekly_promotion",
-      "prompt": "Produce the weekly report set from the complete conversation-week inventory. Review conversation evidence conservatively.",
-      "expected_output": "Reports preserve the disputed completion and partial collection; conversation-only claims do not become accepted delivery or employee ratings.",
+      "id": "weekly_conversation_context_rollup",
+      "prompt": "Close 2026-W35 from the supplied Project memories and frozen inventory.",
+      "expected_output": "Weekly reporting uses qualified conversation evidence with visible partial coverage while preserving independent Project facts and excluding private raw paths.",
       "files": [
         "evals/fixtures/conversation-week/weekly-inventory.json",
         "evals/fixtures/conversation-week/project--cmt.md",
         "evals/fixtures/conversation-week/project--ecom.md"
       ],
       "assertions": [
-        "Every active Project remains represented in the report set despite optional partial conversation coverage",
-        "The company report preserves the qualification that the credential blocker is member-reported and conflicts with tracker Done status",
-        "No conversation-only accepted output is added to Employee Memory",
-        "No employee rating or approved SOP baseline is inferred from the assistant reply",
-        "Reports cite Project Memory without copying raw private conversation excerpts",
-        "No provider action is attempted"
+        "Both inventory Projects appear in the Operations and Company coverage",
+        "CMT reports the credential blocker as a member-reported, unresolved contradiction rather than accepted completion",
+        "Partial selected-chat coverage remains visible and is not generalized to the member or company account",
+        "The assistant claim does not become delivery proof, employee performance judgment, accepted decision, or authorized action",
+        "Reports use immediate memory citations and contain no raw conversation body dump, private intake path, or source repository path"
       ],
       "metadata": {
-        "title": "Conversation evidence in weekly reports",
-        "notes": "Checks that weekly rollups preserve chat uncertainty and private-source boundaries.",
+        "title": "Qualified conversation context in Weekly",
         "tags": [
           "skill",
+          "conversation",
           "boundary"
         ]
       }

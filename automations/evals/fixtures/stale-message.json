@@ -1,0 +1,9 @@
+{
+  "evidence_kind":"synthetic",
+  "project_id":"PROJ-TOY-RESILIENCE",
+  "frozen_work":{"work_id":"WORK-TOY-APPROVE","provider_record_id":"WORK-TOY-APPROVE","source_provider":"notion","project_id":"PROJ-TOY-RESILIENCE","revision":"v1","status":"Blocked","body":"Awaiting Alex's export approval."},
+  "message":{"type":"progress_followup","work_id":"WORK-TOY-APPROVE","source_provider":"notion","provider_record_id":"WORK-TOY-APPROVE","source_reference":"stale-message.json#frozen_work","body":"Alex, can you confirm whether export approval is ready?"},
+  "current_readback":{"work_id":"WORK-TOY-APPROVE","provider_record_id":"WORK-TOY-APPROVE","source_provider":"notion","project_id":"PROJ-TOY-RESILIENCE","revision":"v2","status":"Done","body":"Alex approved the export after the collection snapshot.","comments":[{"id":"COMMENT-TOY-NEW","author":"Alex Rivera","body":"Approved at 10:00; this question is answered."}]},
+  "readback_failed_variant":{"error":"permission_denied"},
+  "render_failed_variant":{"memory_render_status":"blocked_conflict","current_readback":{"work_id":"WORK-TOY-APPROVE","provider_record_id":"WORK-TOY-APPROVE","source_provider":"notion","project_id":"PROJ-TOY-RESILIENCE","revision":"v1","status":"Blocked","body":"Awaiting Alex's export approval.","comments":[]}}
+}

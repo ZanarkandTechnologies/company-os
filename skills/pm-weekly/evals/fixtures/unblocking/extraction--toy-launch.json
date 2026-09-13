@@ -1,0 +1,144 @@
+{
+  "project_id": "PROJ-TOY-LAUNCH",
+  "project_name": "AGI Toy Shop — Launch",
+  "week": "2026-W37",
+  "evidence_kind": "synthetic",
+  "memory_action": "update",
+  "memory": {
+    "progress": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "outcomes": {
+      "status": "populated",
+      "items": [
+        {
+          "text": "Nur's catalog-ready-A.csv was accepted by Mei with complete product fields and an exception list.",
+          "sources": [
+            {
+              "label": "acceptance",
+              "reference": "sources--toy-launch.md#acceptance"
+            }
+          ],
+          "metadata": {
+            "work_id": "WORK-TOY-CATALOG-A",
+            "person_id": "PERSON-TOY-NUR-001",
+            "receiver_person_id": "PERSON-TOY-MEI-002",
+            "workflow_key": "catalog_handoff_v1",
+            "acceptance_scope": "12 product rows; complete fields and exception list",
+            "acceptance_controls": [
+              "complete product-data package",
+              "receiver acknowledgment",
+              "exception list"
+            ]
+          }
+        },
+        {
+          "text": "Nur converted vendor-september.csv to vendor-review.xlsx and exceptions.csv; Mei accepted row counts and the duplicate-SKU exception list.",
+          "sources": [
+            {
+              "label": "conversion",
+              "reference": "sources--toy-launch.md#conversion"
+            }
+          ],
+          "metadata": {
+            "work_id": "WORK-TOY-CONVERT-ONE",
+            "person_id": "PERSON-TOY-NUR-001",
+            "receiver_person_id": "PERSON-TOY-MEI-002",
+            "workflow_key": "vendor_csv_to_review_sheet_v1",
+            "acceptance_scope": "review sheet row counts and duplicate-SKU exception list"
+          }
+        }
+      ],
+      "reason": null
+    },
+    "documentation_questions": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "problems": {
+      "status": "populated",
+      "items": [
+        {
+          "text": "Batch B publication is blocked by conflicting prices in product-price-v3.csv and finance-price-v4.csv. Two reminders to Nur left the source decision unresolved. Aisha owns the choice; Mei verifies approved exception rows before publication.",
+          "sources": [
+            {
+              "label": "input-conflict",
+              "reference": "sources--toy-launch.md#input-conflict"
+            }
+          ],
+          "metadata": {
+            "work_id": "WORK-TOY-PUBLISH-B",
+            "person_id": "PERSON-TOY-NUR-001",
+            "decision_owner_person_id": "PERSON-TOY-AISHA-003",
+            "status": "blocked"
+          }
+        }
+      ],
+      "reason": null
+    },
+    "decisions": {
+      "status": "populated",
+      "items": [
+        {
+          "text": "Aisha must choose the authoritative price version before batch B can publish; she requested both versions, affected SKUs, and margin impact. The decision remains open.",
+          "sources": [
+            {
+              "label": "decision",
+              "reference": "sources--toy-launch.md#decision"
+            }
+          ],
+          "metadata": {
+            "decision_id": "DECISION-TOY-PRICE-01",
+            "decision_owner_person_id": "PERSON-TOY-AISHA-003",
+            "status": "open"
+          }
+        }
+      ],
+      "reason": null
+    },
+    "sop_signals": {
+      "status": "populated",
+      "items": [
+        {
+          "text": "vendor_csv_to_review_sheet(vendor-september.csv) => vendor-review.xlsx + exceptions.csv: map by SKU, list duplicates, check row counts with Mei. One accepted observation; no recorded duration or approved standing SOP.",
+          "sources": [
+            {
+              "label": "conversion",
+              "reference": "sources--toy-launch.md#conversion"
+            }
+          ],
+          "metadata": {
+            "work_id": "WORK-TOY-CONVERT-ONE",
+            "workflow_key": "vendor_csv_to_review_sheet_v1"
+          }
+        }
+      ],
+      "reason": null
+    },
+    "carry_forward": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "evidence_limitations": {
+      "status": "populated",
+      "items": [
+        {
+          "text": "The requested margin inputs are absent; Aisha's price decision is not recorded.",
+          "sources": [
+            {
+              "label": "decision",
+              "reference": "sources--toy-launch.md#decision"
+            }
+          ]
+        }
+      ],
+      "reason": null
+    }
+  },
+  "messages": [],
+  "work_reviews": []
+}

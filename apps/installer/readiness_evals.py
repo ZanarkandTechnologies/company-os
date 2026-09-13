@@ -575,7 +575,7 @@ def run_readiness_evals(
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,
         "status": status,
-        "profile": setup_runtime.PROFILE_NAME,
+        "profile": setup_runtime.profile_name(profile_home),
         "configuration_sha256": provider_catalog.configuration_hash(bindings),
         "readiness_sha256": provider_catalog.readiness_hash(bindings),
         "started_at": started,

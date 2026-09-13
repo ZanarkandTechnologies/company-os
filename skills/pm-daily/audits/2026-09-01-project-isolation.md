@@ -9,7 +9,6 @@ before_ref: skills/pm-daily/SKILL.md
 after_ref: skills/pm-daily/SKILL.md
 reasoning_basis: first_principles
 proof_artifacts:
-  - tests/contracts/test_company_os.py
   - skills/pm-daily/evals/evals.json
 eval_required: yes
 ---
@@ -39,5 +38,5 @@ eval_required: yes
 
 ## Proof and follow-up
 
-- Contract tests, eval lint, query lint, and full repository tests are required.
+- The owning skill eval and automation-boundary eval are required.
 - Operate one Daily run and verify disjoint changed paths plus action deduplication.

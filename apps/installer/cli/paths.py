@@ -8,8 +8,6 @@ from apps.installer import runtime
 
 
 ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_TEMPLATE = ROOT / "workspace.hermes.template.md"
-DEFAULT_WORKSPACE = ROOT / "workspace.hermes.md"
 
 
 def profile_home(value: Path | None) -> Path:

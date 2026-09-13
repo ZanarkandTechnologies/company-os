@@ -1,0 +1,24 @@
+{
+  "week": "2026-W35",
+  "projects": [
+    {
+      "project_id": "PRJ-ALPHA",
+      "provider_id": "notion-project-alpha",
+      "department_id": "DEPT-OPS",
+      "source_url": "https://example.invalid/projects/alpha",
+      "source_revision": "rev-project-alpha-3",
+      "memory_path": "fixtures/weekly-project-memory-alpha.md",
+      "memory_sha256": "f58589ba43d4edd1ea5c6a5e12d2ec46c922d959351a6efd474478de3aece004"
+    },
+    {
+      "project_id": "PRJ-BETA",
+      "provider_id": "notion-project-beta",
+      "department_id": "DEPT-TECH",
+      "source_url": "https://example.invalid/projects/beta",
+      "source_revision": "rev-project-beta-2",
+      "memory_path": "fixtures/weekly-project-memory-beta.md",
+      "memory_sha256": "6d19d385ddb77a129058ee641369826640c44430b67dd8fe377cc2d2467633a2"
+    }
+  ],
+  "blockers": []
+}

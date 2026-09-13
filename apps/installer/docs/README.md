@@ -17,14 +17,14 @@ This directory documents what Company OS setup configures and supports. The oper
 Setup asks how the Company OS should operate, renders those answers directly
 into self-contained automation contracts, installs them, and proves the
 required connections without inventing authority. See
-[the feature-first design](../design.md).
+[the generation contract](../../../docs/features/prompt-generation.md).
 
 ## Configuration model
 
 ```text
 explained feature questions
           -> private config/setup-answers.json
-          -> named automation template slots
+          -> prompt and skill templates
           -> hardcoded Daily and Weekly prompts
 ```
 
@@ -96,7 +96,7 @@ Setup copies only distribution-owned files and preserves unknown profile files. 
 ## Current support boundary
 
 - Windows installation is documented and operated through [customer setup](customer-setup.md); this directory does not duplicate that runbook.
-- Every feature question includes an explainer, two presets, Custom, and Back.
+- Choice questions use the declared options and inline fields; identity fields remain editable text.
 - Local artifacts are always supported; Weekly questions expose per-artifact destinations.
 - Provider connections are derived from the selected automation behavior.
 - Doctor is analysis-only. Scheduled Daily and Weekly jobs apply authorized effects directly through native skills and MCPs.

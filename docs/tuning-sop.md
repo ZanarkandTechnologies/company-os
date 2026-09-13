@@ -7,7 +7,7 @@ updated_at: 2026-09-01
 system_id: SYS-0001
 refs:
   - operator-guide.md
-  - autonomous-testing.md
+  - evaluation.md
   - ../README.md
   - ../templates/README.md
   - ../skills/pm-daily/SKILL.md
@@ -100,19 +100,16 @@ Never weaken an assertion or overwrite an expected file merely to make a failed
 check pass. If the new behavior cannot be distinguished from the old behavior
 by an assertion or expected artifact, the tuning change is not yet proven.
 
-### 4. Run safe local checks
+### 4. Run the owning eval
 
-From the repository root, run:
+When collection or normalization changed, update and inspect the owning
+automation case and expected snapshot. Its runner is not wired yet, so do not
+claim an automation verdict. Run the PM Daily or PM Weekly skill eval when
+analysis or output behavior changed. Both use synthetic inputs and make no
+provider writes. Do not add a test as a substitute; code test suites are
+temporarily banned by the project policy.
 
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 apps/installer/validate_context.py --context workspace.hermes.md
-```
-
-Both commands must exit successfully, and context validation must print
-`context_valid=true`. These checks are offline and make no provider writes.
-
-If an authorized private test profile is available, a maintainer may also run
+If an authorized private evaluation profile is available, a maintainer may also run
 Daily or Weekly in analysis-only mode:
 
 ```bash
@@ -218,10 +215,10 @@ installation health, stop tuning content and use the maintenance menu in the
 
 - A change requires Python, provider code, credentials, or a new external write.
 - The desired behavior crosses Daily, Weekly, workspace authority, and provider routing.
-- Tests fail outside the files intentionally changed.
+- An eval fails outside the behavior intentionally changed.
 - A safe synthetic example cannot reproduce the problem.
 - Reverting and reinstalling the reviewed source does not restore behavior.
 
 Grounding: current repository ownership, PM skill boundaries, template layout,
-distribution allowlist, installer update path, and autonomous-testing contract.
+distribution allowlist, installer update path, and evaluation contract.
 No external source is required for this SOP.

@@ -1,6 +1,6 @@
 ---
 template_id: company-os-weekly-report
-template_version: "1.0.0"
+template_version: "2.1.0"
 name: "{{PROJECT_NAME}} — Week of {{WEEK_START}}"
 report_type: "Project"
 project: "{{PROJECT}}"
@@ -15,83 +15,77 @@ source_report_ids: "{{SOURCE_REPORT_IDS}}"
 
 # {{PROJECT_NAME}} — Week of {{WEEK_START}}
 
+<!-- Step 4 renders JSON items as concise sourced bullets, not tables.
+Retain supplied frontmatter and these headings in order. Empty items render
+None. Omit the final optional health heading when its section is absent.
+Use readable labels; retain exact IDs in metadata or source destinations. -->
+
 ## Summary
 
-<!-- Exactly three evidence-backed sentences: material change, highest-leverage
-attention, and next priority. No raw activity log. -->
-
+<!-- Up to three short bullets: material change, important attention, next priority. -->
 {{SUMMARY}}
 
 ## Outcomes and open attention
 
-| Outcome or attention | Current state | Evidence | Next owner action |
-| --- | --- | --- | --- |
-{{OUTCOME_ROWS}}
+<!-- Result or unresolved outcome → current evidence → needed next action.
+Reference accepted outputs below instead of repeating them. -->
+{{OUTCOMES_AND_OPEN_ATTENTION}}
+
+## People progress
+
+<!-- Group by readable Person name. Show evidenced change, current open work,
+blocker and next action for everyone in the reporting scope, not only people
+with accepted outputs. Unknown progress is insufficient evidence with its reason
+and smallest missing update, not inactivity or poor performance. Keep this a
+status summary; accepted artifact details belong below. No ratings. -->
+{{PEOPLE_PROGRESS}}
 
 ## Accepted outputs by employee
 
-<!-- Include every accepted artifact-producing outcome in the evidence window,
-not only actions needing management attention. Preserve exact Person, Work,
-artifact, receiver acceptance, workflow key, and sourced active/wait time. -->
+<!-- One bullet per deduplicated accepted Work/artifact: Person → output and
+result → receiver acceptance source. Keep exact identity and workflow
+provenance in metadata. No employee ratings or timing columns. -->
+{{ACCEPTED_OUTPUTS}}
 
-| Employee | Work | Accepted output and result | Workflow | Active / wait time | Acceptance evidence |
-| --- | --- | --- | --- | --- | --- |
-{{ACCEPTED_OUTPUT_ROWS}}
+## Unblocking work
 
-## Employee actions
-
-<!-- Track evidence-backed employee actions or commitments that materially
-affect this Project. Use the canonical Person label or link, state the expected
-result, distinguish completed, progressing, blocked, missed, or unverified,
-and name the next follow-up. Do not infer intent, personality, or a performance
-rating from activity alone. The section may be empty when no material employee
-action is evidenced in the reporting window.
-
-GOLDEN EXAMPLE — replace every fact below.
-| Aisha (PERSON-AISHA) | Sign the corrected construction pack | One approved measurement source before sample recheck | Blocked; approver is still missing | [TASK-101](task://TASK-101) | 2026-08-27 | Aisha names the approver; Nur rechecks within one working day |
-END GOLDEN EXAMPLE -->
-
-| Employee | Action or commitment | Expected result | Current state | Evidence | Due or review date | Next follow-up |
-| --- | --- | --- | --- | --- | --- | --- |
-{{EMPLOYEE_ACTION_ROWS}}
+<!-- Dependency or known cause → impact → existing attempts → smallest proposed
+intervention beyond another reminder → supplied owner, if known → completion
+signal. Keep unknown causes explicit.
+Do not repeat accepted outputs or imply proposed actions were executed. -->
+{{UNBLOCKING_WORK}}
 
 ## Problems and inefficiencies
 
-<!-- Combine grounded problems, inefficiencies, risks, blockers, and cost
-consequences. Preserve the affected workflow step, dated baseline, impact,
-recurrence/volume, time/wait loss, cost formula or explicit measurement gap,
-confidence, next proof, and source links.
-
-GOLDEN EXAMPLE — replace every fact below.
-| Supplier updates arrive in three incompatible formats | Repeated manual remapping blocks the five-store comparison | MYR 300 over plan from recorded values | Confirm one import map by 2026-08-27 | [TASK-105](task://TASK-105) |
-END GOLDEN EXAMPLE -->
-
-| Workflow / affected step | Problem definition | Baseline window and volume | Time / wait loss | Cost consequence and formula | Confidence / measurement gaps | Next proof / intervention | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-{{PROBLEM_OPPORTUNITY_ROWS}}
+<!-- Problem and affected workflow → evidenced consequence → bounded intervention
+and success signal. Include recurrence or measured cost only when sourced;
+keep material measurement gaps explicit. -->
+{{PROBLEMS_AND_INEFFICIENCIES}}
 
 ## Decisions
 
-{{DECISIONS_VIEW_OR_LIST}}
+<!-- Consequential choice → real tradeoff and rationale → consequence or review
+trigger → source. Preserve proposed versus approved state. Routine choices do
+not become durable Decision records. -->
+{{DECISIONS}}
 
 ## SOPs
 
-<!-- Staged Daily candidates are clearly marked `Proposed` until Weekly
-finalization verifies recurrence, owner, and proof. Do not mistake a candidate
-for an adopted procedure. -->
-
-{{SOPS_VIEW_OR_LIST}}
+<!-- Recurrent comparable accepted work: skill(input files) => output files;
+receiver/controls and proof → approved baseline → proposed improvement test.
+Preserve baseline approval; no forced timing comparison. -->
+{{SOPS}}
 
 ## Next-week priorities
 
-<!-- This is the report's handoff, not a second live plan. Weekly updates the
-canonical Project's This week's attention checklist separately. -->
+<!-- Unresolved priority → smallest next action → supplied owner, if known →
+observable completion signal. This is a handoff, not a duplicate live plan. -->
+{{NEXT_WEEK_PRIORITIES}}
 
-{{NEXT_WEEK_HANDOFF}}
+## System usefulness and gaps
 
-## Automation receipt
-
-- `evidence_window:` {{START_TIMESTAMP}}..{{END_TIMESTAMP}}
-- `sources_checked:` {{Stable source names or locators}}
-- `source_gaps:` {{Missing or stale sources, or none}}
-- `last_successful_daily_receipt:` {{Receipt locator}}
+<!-- Optional final footer: omit the entire section without a material snapshot
+collection or evidence limitation. At most one concise bullet per affected Project:
+issue → consequence → fix. Unknown coverage is explicit when material.
+Sparse activity alone is not a system failure. -->
+{{SYSTEM_USEFULNESS_AND_GAPS}}

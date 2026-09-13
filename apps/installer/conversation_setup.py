@@ -45,6 +45,17 @@ def enabled_sources(answer: str) -> tuple[str, ...]:
     return tuple(sources)
 
 
+def enabled_sources_for_state(state: Any) -> tuple[str, ...]:
+    """Resolve generated-installer selections while retaining v1 answer migration."""
+    selected = set(state.selections.get("daily.context_sources", ()))
+    sources: list[str] = []
+    if "chatgpt_conversations" in selected:
+        sources.append("chatgpt_manual")
+    if "codex_conversations" in selected:
+        sources.extend(("codex_local", "codex_manual"))
+    return tuple(sources) or enabled_sources(state.answers.get("weekly.conversations", ""))
+
+
 def default_intake_root(profile_home: Path) -> Path:
     if os.name == "nt" and profile_home.anchor:
         return Path(profile_home.anchor) / "CompanyOSPrivate" / profile_home.name / "conversations"

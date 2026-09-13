@@ -1,0 +1,13 @@
+name: discord-context
+label: Discord Context
+kind: backend
+version: 1.1.1
+description: Read-only Discord channel and message-history tools for Company OS automations.
+author: Zanarkand Technologies
+provides_tools:
+  - discord_context_read
+required_env:
+  - name: DISCORD_BOT_TOKEN
+    description: Discord bot token already owned by the Hermes gateway profile
+    prompt: Discord bot token
+    password: true

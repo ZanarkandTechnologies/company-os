@@ -155,7 +155,7 @@ schema or second prose specification between them.
 | US-003 | Use Notion without a local adapter stack. | Interactive mode uses official hosted MCP and bounded tools; receipts separate MCP health from webhook health; headless/event routes are explicit. |
 | US-004 | Tune behavior through output templates. | One representative template and its skill-owned file eval fail clearly when behavior drifts. |
 | US-005 | Verify the whole installation. | Static health, installed skill packages, live probes, and operated eval evidence remain distinct; skipped probes never pass; receipts contain no secrets or private records. |
-| US-006 | Learn and recover without tribal knowledge. | A new operator follows the tested path without reading source or legacy pages; docs QA runs every documented command and receipt. |
+| US-006 | Learn and recover without tribal knowledge. | A new operator follows the operated path without reading source or legacy pages; docs QA runs every documented command and inspects its receipt. |
 | US-007 | Track weekly delivery without employee self-scoring. | PM Daily produces grounded Project Memory and drafts according to its owned skill evals; missing evidence is not converted into effort or performance claims. |
 | US-008 | Consolidate weekly evidence into persistent entity memory. | PM Weekly produces reports, qualified memory updates, and carry-forward files according to its owned skill evals. |
 
@@ -209,10 +209,10 @@ schema or second prose specification between them.
 | --- | --- |
 | Supported topology | Fresh install and idempotent rerun on one Windows path and one persistent Docker path, with no undocumented repair. |
 | Honest health | `ready | partial | blocked` receipt; skipped or unauthorized probes cannot appear healthy. |
-| Safe update | Tests prove secrets stay profile-local, unknown files survive, and only allowlisted desired state changes. |
+| Safe update | Operated eval evidence shows secrets stay profile-local, unknown files survive, and only allowlisted desired state changes. |
 | Template tuning | Skill eval covers the template, golden file, and expected content assertions. |
 | Operating memory | Daily/Weekly evals prove stable-ID reconciliation, documentation branches, frozen projection input, carry-forward, and failed-promotion recovery. |
-| Provider access | One official Notion MCP OAuth/read probe; webhook health tested separately. |
+| Provider access | One official Notion MCP OAuth/read probe; webhook health evaluated separately. |
 
 Record cold-install and warm static-verify durations. Do not set a performance
 target until the topology PoC produces a representative baseline.
@@ -225,7 +225,7 @@ target until the topology PoC produces a representative baseline.
   WSL2 or Docker if the PoC proves and documents that route.
 - Reuse Hermes primitives before adding product-specific code.
 - The setup command may inspect and reconcile declared source-owned state and
-  run bounded tests. It may not grant Notion access, complete OAuth consent,
+  run bounded evals. It may not grant Notion access, complete OAuth consent,
   enable production writes, expose a public endpoint, spend money, or delete
   user-owned state.
 - Plan, real-machine QA, deploy/publish, spend, and destructive migration each

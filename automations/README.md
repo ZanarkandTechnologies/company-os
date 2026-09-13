@@ -9,7 +9,10 @@ and outputs.
 | --- | --- |
 | Daily operating update | `daily-operating-update.md` |
 | Weekly operating review | `weekly-operating-review.md` |
-| Weekly meeting ticket | `weekly-meeting-ticket.md` |
+
+These are the only active Company OS prompts during stabilization. The former
+weekly meeting-ticket job is deferred together with installer orchestration; it
+is not part of the two-prompt control loop.
 
 Extraction behavior and proof live with their owners:
 
@@ -26,11 +29,13 @@ committed here.
 
 Hermes reads the cadence contract and configured workspace, fetches the bounded
 snapshot, then runs the owning skill against the current local files and
-templates. The skill writes artifacts directly. The automation applies
-authorized provider effects through configured skills and MCPs. Safety checks stay at the effect boundary:
-exact destination, explicit authority, read-before-write, idempotency, and a
-truthful receipt. There is no Python preparation, handoff, delivery-plan, or
-provider-executor layer.
+templates. The skill writes JSON; the final stage renders reports and memory
+before applying authorized provider effects. That final stage is
+enabled by being present and disabled by being absent; there is no separate
+runtime switch. A future installer-owned generator will persist answers
+separately and emit only the stages, bindings, and destinations they enable.
+There is no Python preparation, handoff, delivery plan, or provider-executor
+layer.
 
 This layout cleanup changes repository source only. The workspace setup process
 copies an allowlist and never deletes runtime files. Removing stale files from a

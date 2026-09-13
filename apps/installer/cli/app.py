@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -10,10 +11,10 @@ from apps.installer import runtime
 from apps.installer.cli.flows.connections import certify_command
 from apps.installer.cli.flows.lifecycle import install_command, launch_command, update_command
 from apps.installer.cli.flows.verification import verify_command
-from apps.installer.cli.flows.workspace import configure_workspace
 from apps.installer.cli.flows.features import configure_features
-from apps.installer.cli.paths import DEFAULT_TEMPLATE, DEFAULT_WORKSPACE, profile_home
+from apps.installer.cli.paths import profile_home
 from apps.installer.cli.ui import CONSOLE
+from apps.installer.feature_setup import FeatureSetupError
 
 
 DESCRIPTION = (
@@ -28,13 +29,20 @@ def parser() -> argparse.ArgumentParser:
     command = argparse.ArgumentParser(description=DESCRIPTION)
     subcommands = command.add_subparsers(dest="command")
 
-    for name in ("init", "configure"):
-        workspace = subcommands.add_parser(name)
-        workspace.add_argument("--workspace", type=Path, default=DEFAULT_WORKSPACE)
-        workspace.add_argument("--template", type=Path, default=DEFAULT_TEMPLATE)
-
     features = subcommands.add_parser("features")
     features.add_argument("--root", type=Path, default=Path.cwd())
+    features.add_argument("--output-dir", type=Path, help="Folder for generated files; answers remain under --root/config")
+    features.add_argument("--import-answers", type=Path, help="Explicitly review/import a profile answer file; never modifies the source file")
+
+    generate = subcommands.add_parser("generate", help="Preview or save template-generated packages")
+    generate.add_argument("--root", type=Path, default=Path.cwd())
+    generate.add_argument("--config", type=Path)
+    generate.add_argument("--output-dir", type=Path, help="Folder for generated files; defaults to --root")
+    generate.add_argument("--apply", action="store_true")
+    generate.add_argument("--adopt", action="store_true", help="Explicitly replace manually edited generated files")
+
+    questions = subcommands.add_parser("questions", help="Show the questionnaire from questions.json")
+    questions.add_argument("--root", type=Path, default=Path.cwd())
 
     launch = subcommands.add_parser("launch")
     launch.add_argument("--profile-home", type=Path)
@@ -80,6 +88,7 @@ def parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--profile-home", type=Path)
     evaluate.add_argument("--timeout", type=int, default=900)
     evaluate.add_argument("--open", action="store_true")
+    evaluate.add_argument("--case", action="append", dest="eval_ids", help="Run one named skill eval; repeat to select more cases")
 
     open_dossier = doctor_modes.add_parser("open")
     open_dossier.add_argument("--profile-home", type=Path)
@@ -109,14 +118,26 @@ def main(arguments: list[str] | None = None) -> int:
         selected_arguments = arguments if arguments is not None else (sys.argv[1:] or ["launch"])
         args = parser().parse_args(selected_arguments)
         selected = args.command
-        if selected in {"init", "configure"}:
-            return configure_workspace(
-                selected,
-                args.workspace.expanduser().resolve(),
-                args.template.expanduser().resolve(),
-            )
         if selected == "features":
-            return configure_features(args.root.expanduser().resolve())
+            return configure_features(args.root.expanduser().resolve(), import_answers=args.import_answers.expanduser().resolve() if args.import_answers else None,
+                                      output_dir=args.output_dir.expanduser().resolve() if args.output_dir else None)
+        if selected == "questions":
+            from apps.installer import prompt_generation
+            print(json.dumps(prompt_generation.question_list(args.root.expanduser().resolve()), indent=2, ensure_ascii=False))
+            return 0
+        if selected == "generate":
+            from apps.installer import prompt_generation
+            root = args.root.expanduser().resolve()
+            output = args.output_dir.expanduser().resolve() if args.output_dir else root
+            config = args.config.expanduser().resolve() if args.config else root / "config" / "setup-answers.json"
+            document = prompt_generation.load_document(config)
+            bundle = prompt_generation.render_bundle(root, document)
+            expected = {name: (output / name).read_text(encoding="utf-8") if (output / name).exists() else None for name in bundle}
+            CONSOLE.print(prompt_generation.preview(output, bundle) or "No generated changes.", markup=False)
+            if args.apply:
+                prompt_generation.apply_bundle(output, config, document, bundle, adopt=args.adopt, expected=expected, source_root=root)
+                CONSOLE.print(f"Generated {len(bundle)} files; runtime installation is separate.")
+            return 0
         if selected == "launch":
             return launch_command(args)
         if selected == "install":
@@ -166,6 +187,9 @@ def main(arguments: list[str] | None = None) -> int:
             runtime.rollback_ngrok_update(profile_home(args.profile_home))
             return 0
         return 2
+    except FeatureSetupError as error:
+        CONSOLE.print(str(error), style="red", markup=False)
+        return 1
     except (KeyboardInterrupt, EOFError):
         CONSOLE.print(
             "\n[yellow]Stopped safely. No additional setup changes were made.[/yellow]"

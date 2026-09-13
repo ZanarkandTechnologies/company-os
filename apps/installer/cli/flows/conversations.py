@@ -9,7 +9,7 @@ from rich.panel import Panel
 from apps.installer import runtime
 from apps.installer.conversation_setup import (
     ENV_NAME, ConversationSetupError, default_intake_root,
-    discover_codex_session_roots, enabled_sources, load_policy_if_present,
+    discover_codex_session_roots, enabled_sources_for_state, load_policy_if_present,
     save_policy, test_policy,
 )
 from apps.installer.feature_setup import SetupState
@@ -35,7 +35,7 @@ def _binding_summary(projects: dict) -> str:
 
 
 def configure_conversations(profile_home: Path, state: SetupState, *, non_interactive: bool = False) -> None:
-    sources = enabled_sources(state.answers.get("weekly.conversations", ""))
+    sources = enabled_sources_for_state(state)
     if not sources:
         CONSOLE.print("[dim]Work conversations are disabled; saved private mappings will not be read.[/dim]")
         return
@@ -109,7 +109,7 @@ def configure_command(profile_home: Path) -> int:
     """Open only the conversation mapping step for an installed profile."""
     try:
         state = load_state(profile_home / "config" / "setup-answers.json")
-        if not enabled_sources(state.answers.get("weekly.conversations", "")):
+        if not enabled_sources_for_state(state):
             CONSOLE.print(Panel.fit(
                 "[bold yellow]Work conversations are disabled[/bold yellow]\n"
                 "Choose Update Company OS features first and enable a supported conversation source.",
@@ -130,7 +130,7 @@ def status_command(profile_home: Path, *, test: bool = False) -> int:
     """Show redacted mappings and optionally test current-week availability."""
     try:
         state = load_state(profile_home / "config" / "setup-answers.json")
-        sources = enabled_sources(state.answers.get("weekly.conversations", ""))
+        sources = enabled_sources_for_state(state)
         if not sources:
             CONSOLE.print("[yellow]Work conversations are disabled.[/yellow]")
             return 1

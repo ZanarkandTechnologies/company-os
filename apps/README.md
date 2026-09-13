@@ -1,6 +1,7 @@
 # Applications
 
-User-facing and runtime applications live here with their schemas and tests.
+User-facing and runtime applications live here with their schemas and operated
+eval surfaces.
 
 - `company_os/`: Daily/Weekly automation harness and delivery runtime.
 - `doctor/`: read-only operator diagnostics and feature readiness.

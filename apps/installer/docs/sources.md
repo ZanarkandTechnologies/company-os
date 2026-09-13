@@ -22,13 +22,19 @@ These roles exist in the workspace template and are selectable today:
 | Role | What it owns | Providers | Requirement |
 | --- | --- | --- | --- |
 | `projects` | Active Projects, status, current plan, and Department/Area relationships | Notion, Linear | Core setup and Doctor source |
-| `tasks` | Current Work: Tasks, Features, Issues, and reviewable completed work | Notion, Linear | Core setup and Doctor source |
+| `tasks` | Current Work: Tasks, Features, Issues, and reviewable completed work | Notion, Linear, Multica | Core setup and Doctor source |
 | `people` | Shared identity, role, and stable person references | Notion | Optional globally; required for employee performance reporting |
 | `sops` | Approved source SOPs and operating procedures | Notion | Optional process evidence |
 | `reports` | Historical company and department reports | Notion | Optional reporting evidence |
 | `operator_email` | Isolated operator inbox used for connection certification | Gmail through Composio | Optional certification surface, not company memory |
 
 The lean setup selects Projects and Work. Add People when Weekly employee reporting is expected. Skipped roles remain visibly unconfigured and can be added by rerunning workspace setup.
+
+Projects and Work are multi-select questions. Every selected option receives its
+own text field for an exact source target and any provider-specific filters. A
+cross-provider Project-matching rule belongs in the rendered automation
+configuration, never in Notion fields. Records retain source-qualified stable
+IDs and are not merged by title similarity.
 
 ## Analysis input expectations
 
@@ -75,6 +81,7 @@ Setup’s provider catalog defines how each selected binding is tested:
 | Projects → Notion | Fetch source; create, read back, and archive one isolated private page | Reversible; confirmation required |
 | Projects → Linear | Fetch team/source; create, read back, and leave one isolated issue non-active | Reversible; confirmation required |
 | Work → Notion or Linear | Fetch and describe configured structure and populated/empty state | Read-only |
+| Work → Multica | Fetch one bounded issue page through the installed Multica plugin and verify structured IDs and Project fields | Read-only |
 | People → Notion | Fetch identity, visible properties, and populated/empty state | Read-only |
 | SOPs → Notion | Fetch source and return one grounded process observation | Read-only |
 | Reports → Notion | Fetch source and return one grounded report observation | Read-only |

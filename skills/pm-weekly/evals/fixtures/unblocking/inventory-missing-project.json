@@ -1,0 +1,13 @@
+{
+  "company": "AGI Toy Shop",
+  "week": "2026-W37",
+  "next_week": "2026-W38",
+  "run_id": "2026-09-10T00:00:00Z",
+  "evidence_kind": "synthetic",
+  "active_projects": [
+    {"id":"PROJ-TOY-LAUNCH","department":"Operations","department_id":"DEPT-TOY-OPS","memory_file":"project--toy-launch.md"},
+    {"id":"PROJ-TOY-RETAIL","department":"Operations","department_id":"DEPT-TOY-OPS","memory_file":"project--toy-retail.md"},
+    {"id":"PROJ-TOY-ARCHIVE","department":"Operations","department_id":"DEPT-TOY-OPS","memory_file":"project--toy-archive-unavailable.md"}
+  ],
+  "existing_memory": ["person--nur-before.md","sop--catalog-handoff-before.md"]
+}

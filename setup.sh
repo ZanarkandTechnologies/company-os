@@ -59,7 +59,7 @@ case "$action" in
   11) start_runtime && run_setup verify; result=$? ;;
   13)
     start_runtime || exit 2
-    nohup "$HERMES_PYTHON" "$COMPANY_OS_PROFILE_HOME/apps/installer/dashboard.py" \
+    nohup hermes dashboard --isolated --host 127.0.0.1 --port 9119 --no-open \
       >"$COMPANY_OS_PROFILE_HOME/logs/setup-dashboard.log" 2>&1 &
     open "http://localhost:9119"
     exit 0

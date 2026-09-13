@@ -1,0 +1,61 @@
+{
+  "project_id": "PROJ-TOY-ARCHIVE",
+  "project_name": "AGI Toy Shop — Reference Catalog",
+  "week": "2026-W37",
+  "evidence_kind": "synthetic",
+  "memory_action": "update",
+  "memory": {
+    "progress": {
+      "status": "populated",
+      "items": [
+        {
+          "text": "The reference catalog remains in its approved observation period; the next check is September 21 and no work is due this interval.",
+          "sources": [
+            {
+              "label": "plan",
+              "reference": "sources--toy-archive.md#plan"
+            }
+          ]
+        }
+      ],
+      "reason": null
+    },
+    "outcomes": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "documentation_questions": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "problems": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "decisions": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "sop_signals": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "carry_forward": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "evidence_limitations": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    }
+  },
+  "messages": [],
+  "work_reviews": []
+}

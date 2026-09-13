@@ -1,6 +1,6 @@
 ---
 template_id: company-os-person
-template_version: "0.5.0"
+template_version: "0.6.0"
 name: "{{PERSON_NAME}}"
 person_id: "{{PERSON_ID}}"
 department: "{{DEPARTMENT}}"
@@ -52,11 +52,12 @@ END GOLDEN EXAMPLE -->
 
 ## Latest weekly evidence
 
-<!-- Short-term interval context. Weekly replaces this section with every
-accepted artifact-producing outcome for this Person plus material unresolved
-actions, deduplicated by Work and artifact. Preserve source links, receiver
-acceptance, workflow key, and sourced active/wait time for comparison against
-persistent memory. Open, stale, or question-pending Work remains weekly context
-rather than a durable claim. -->
+<!-- Weekly replaces this section with accepted outputs and material blockers.
+- Deduplicate by Work and artifact; preserve source links and acceptance scope.
+- State the dependency, attempted remedy and smallest proposed unblocking action.
+- Use a supplied decision owner and observable completion signal; do not invent authority.
+- Keep open Work as interval context, not a durable claim about the person.
+- Do not rank people or compare individual task speed against a baseline.
+-->
 
 {{LATEST_WEEKLY_EVIDENCE}}

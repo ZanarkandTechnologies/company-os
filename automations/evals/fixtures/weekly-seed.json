@@ -1,0 +1,29 @@
+{
+  "week": "2026-W35",
+  "projects": [
+    {
+      "provider_id": "notion-project-alpha",
+      "project_id": "PRJ-ALPHA",
+      "status": "Active",
+      "department_id": "DEPT-OPS",
+      "url": "https://example.invalid/projects/alpha",
+      "revision": "rev-project-alpha-3"
+    },
+    {
+      "provider_id": "notion-project-beta",
+      "project_id": "PRJ-BETA",
+      "status": "Active",
+      "department_id": "DEPT-TECH",
+      "url": "https://example.invalid/projects/beta",
+      "revision": "rev-project-beta-2"
+    },
+    {
+      "provider_id": "notion-project-archive",
+      "project_id": "PRJ-ARCHIVE",
+      "status": "Inactive",
+      "department_id": "DEPT-OPS",
+      "url": "https://example.invalid/projects/archive",
+      "revision": "rev-project-archive-1"
+    }
+  ]
+}

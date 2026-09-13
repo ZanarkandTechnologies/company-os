@@ -1,0 +1,1727 @@
+[
+  {
+    "id": "company.name",
+    "label": "Company name",
+    "kind": "text",
+    "order": 0,
+    "required": true,
+    "help": "What name should appear in reports and automation titles?\nExample: Acme Studio. Use the company name, not a client or Project name."
+  },
+  {
+    "id": "company.description",
+    "label": "Company operating context",
+    "kind": "text",
+    "order": 1,
+    "required": true,
+    "help": "What does your company do, who does it serve, and how does your team work?\nInclude your main services and useful operating context.\nExample: An AI lab building client software; development is tracked in Multica, admin work in Notion, and discussions in Discord."
+  },
+  {
+    "id": "company.timezone",
+    "label": "Company timezone",
+    "kind": "timezone",
+    "order": 2,
+    "required": true,
+    "default": "UTC",
+    "help": "Which timezone should define company days and reporting weeks?\nChoose where your team plans its work. Example: Asia/Kuala_Lumpur."
+  },
+  {
+    "id": "organization.grouping",
+    "label": "Group daily context by",
+    "kind": "select",
+    "order": 3,
+    "required": true,
+    "options": [
+      {
+        "id": "project",
+        "label": "Project",
+        "render": "Project",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "department",
+        "label": "Department",
+        "render": "Department",
+        "fields": [],
+        "providers": []
+      }
+    ],
+    "default": "project",
+    "help": "Should each context snapshot cover one Project or a whole Department?\nChoose Project for isolated client/product work; Department when people and work routinely span Projects. Only the chosen mode appears in generated skills."
+  },
+  {
+    "id": "organization.matching",
+    "label": "How should projects match across platforms?",
+    "kind": "select",
+    "order": 4,
+    "required": true,
+    "default": "ids_then_names",
+    "options": [
+      {
+        "id": "ids_then_names",
+        "label": "Notion is canonical; IDs, then exact names (Recommended)",
+        "render": "- Use the configured Notion Projects inventory as canonical.\n- Match other platforms by stored IDs first; otherwise require one unique normalized exact Project name. Retain resolved IDs in the cache.\n- Assign Work through its exact Project relation or Project URL. Use the configured Department relation for report membership.\n- Report missing, conflicting or ambiguous matches; do not guess or create resources.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "ids_only",
+        "label": "Notion is canonical; explicit IDs and relations only",
+        "render": "- Use the configured Notion Projects inventory as canonical.\n- Match other platforms only through explicitly configured IDs. Assign Work through its exact Project relation or Project URL.\n- Use the configured Department relation for report membership.\n- Report missing, conflicting or ambiguous mappings; never infer matches from names or create resources.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "custom",
+        "label": "Custom matching instructions",
+        "render": "{input}",
+        "fields": [
+          {
+            "id": "input",
+            "label": "Instructions",
+            "required": true
+          }
+        ],
+        "providers": []
+      }
+    ],
+    "help": "Choose how Notion Projects, Multica boards and Discord conversations refer to the same project.\nRecommended: use stored IDs where available, then one unique matching name. Choose Custom to name a different canonical source or mapping rule; type directly on that row."
+  },
+  {
+    "id": "automation.propagation",
+    "label": "Which cadences may propagate authorized outputs?",
+    "kind": "select",
+    "order": 5,
+    "required": true,
+    "options": [
+      {
+        "id": "none",
+        "label": "Neither",
+        "render": "",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "daily",
+        "label": "Daily",
+        "render": "",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "weekly",
+        "label": "Weekly",
+        "render": "",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "both",
+        "label": "Both",
+        "render": "",
+        "fields": [],
+        "providers": []
+      }
+    ],
+    "default": "none",
+    "help": "May Daily or Weekly apply their outputs to external services?\nNeither keeps all results local. Daily enables configured follow-ups; Weekly enables configured report/memory sync and delivery. Selecting a cadence does not choose its destinations."
+  },
+  {
+    "id": "daily.projects",
+    "label": "Authoritative operating inventory",
+    "kind": "multi",
+    "order": 10,
+    "required": true,
+    "options": [
+      {
+        "id": "notion",
+        "label": "Notion",
+        "render": "| Notion | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "Hosted Notion OAuth MCP: notion-fetch and query tools"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read the full active inventory, exact identity, current status and reporting Department relations; paginate and recursively read relevant page content."
+          }
+        ],
+        "providers": [
+          "notion"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom inventory",
+        "render": "| Custom inventory ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": ""
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read the complete authorized inventory and exact identities, statuses and hierarchy."
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where is your authoritative Project or Department list?\nAdd its URL/ID, the read tool, and instructions for active items, hierarchy and relevant page content.\nExample: A Notion Projects database, including its Client and Department relations."
+  },
+  {
+    "id": "daily.work",
+    "label": "Work sources",
+    "kind": "multi",
+    "order": 11,
+    "required": false,
+    "options": [
+      {
+        "id": "project_local_notion",
+        "label": "Project-local Notion",
+        "render": "| Project-local Notion | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "Hosted Notion OAuth MCP"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read related Work, bodies and comments; use exact membership relations."
+          }
+        ],
+        "providers": [
+          "notion"
+        ]
+      },
+      {
+        "id": "shared_notion",
+        "label": "Shared Notion database",
+        "render": "| Shared Notion database | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "Hosted Notion OAuth MCP"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Filter Work by exact membership; paginate bodies, comments and relevant attachments."
+          }
+        ],
+        "providers": [
+          "notion"
+        ]
+      },
+      {
+        "id": "multica",
+        "label": "Multica",
+        "render": "| Multica | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "multica_list_projects, multica_list_issues, multica_get_issue, multica_list_comments"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Discover boards and exact membership; paginate issue lists with limit/offset; read details and full comments once; report unsupported attachments."
+          }
+        ],
+        "providers": [
+          "multica"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom Work",
+        "render": "| Custom Work ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": ""
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read relevant Work details and comments with exact membership and full pagination."
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where are tasks or issues tracked?\nSelect every relevant source. For each, provide the target, read tool, and exact relation to a Project/Department.\nExample: Multica for development issues plus Notion for admin tasks. Add another entry for independently configured scopes."
+  },
+  {
+    "id": "daily.meetings",
+    "label": "Meeting sources",
+    "kind": "multi",
+    "order": 12,
+    "required": false,
+    "options": [
+      {
+        "id": "inside_work",
+        "label": "Meetings inside Work",
+        "render": "| Meetings inside Work | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "Same configured Work read tools"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Select meeting records from configured Work; use occurrence dates and change timestamps; do not fetch records twice."
+          }
+        ],
+        "providers": []
+      },
+      {
+        "id": "notion",
+        "label": "Separate Notion meetings",
+        "render": "| Separate Notion meetings | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "Hosted Notion OAuth MCP"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read related meetings, bodies, notes and relevant attachments; preserve occurrence dates and update timestamps."
+          }
+        ],
+        "providers": [
+          "notion"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom meetings",
+        "render": "| Custom meetings ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": ""
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read related meeting context and exact occurrence times."
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where can the system read meeting notes and decisions?\nChoose Inside Work when notes are already in your configured task source; otherwise add the notes database or another source. Explain how notes link to the operating unit. Leave empty if none."
+  },
+  {
+    "id": "daily.people",
+    "label": "People, identity and roster sources",
+    "kind": "multi",
+    "order": 13,
+    "required": false,
+    "options": [
+      {
+        "id": "notion",
+        "label": "Notion People",
+        "render": "| Notion People | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "Hosted Notion OAuth MCP"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read verified names, exact identities, reporting roster and optional approved contacts; missing contacts do not imply no workers."
+          }
+        ],
+        "providers": [
+          "notion"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom People",
+        "render": "| Custom People ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": ""
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read identity and roster evidence; no direct-contact authority is implied."
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Is there a directory for names, roles and contact details?\nProvide its location and read instructions, or leave empty to use people named in Work and conversations. Reading contact details does not authorize messaging."
+  },
+  {
+    "id": "daily.context_sources",
+    "label": "Additional context sources",
+    "kind": "multi",
+    "order": 14,
+    "required": false,
+    "options": [
+      {
+        "id": "discord",
+        "label": "Discord",
+        "render": "| Discord | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "discord_context_read"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Discover active and archived threads; page messages backward using oldest ID as before until window start or history end; retain only in-window messages and explicitly linked context."
+          }
+        ],
+        "providers": [
+          "discord"
+        ]
+      },
+      {
+        "id": "chatgpt_conversations",
+        "label": "Selected ChatGPT conversations",
+        "render": "| Selected ChatGPT conversations | conversation_read_project_week | Operator-configured private intake policy | Read only authorized chatgpt_manual bindings for the current ISO week; preserve member attribution, timestamps, coverage and source digests. |",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "codex_conversations",
+        "label": "Local Codex conversations",
+        "render": "| Local Codex conversations | conversation_read_project_week | Operator-configured private intake policy | Read only authorized codex_local or codex_manual bindings for the current ISO week; preserve member attribution, timestamps, coverage and source digests. |",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "crm",
+        "label": "CRM",
+        "render": "| CRM | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": "Hosted Notion OAuth MCP"
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Follow only clients explicitly related to the operating inventory and relevant notes."
+          }
+        ],
+        "providers": [
+          "notion"
+        ]
+      },
+      {
+        "id": "calendar",
+        "label": "Calendar",
+        "render": "| Calendar ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": ""
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Fetch related events within the frozen interval and relevant linked context."
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      },
+      {
+        "id": "chats",
+        "label": "Chats",
+        "render": "| Chats ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": ""
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Read explicitly scoped conversations within the frozen interval; preserve authors and timestamps."
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      },
+      {
+        "id": "custom",
+        "label": "Custom context",
+        "render": "| Custom context ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Read tool or profile reference",
+            "required": true,
+            "default": ""
+          },
+          {
+            "id": "target",
+            "label": "Exact source target",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Fetching, filters and relation instructions",
+            "required": true,
+            "default": "Fetch only related context inside configured boundaries."
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "What other evidence should Daily read: discussions, CRM, calendars or saved chats?\nFor each entry name the existing read tool, exact scope and fetch instructions.\nExample: A Discord Projects forum, including active/archived threads and in-window messages. Never enter tokens here.\nFor work conversations, setup continues with private Project/member mappings and a redacted collection test."
+  },
+  {
+    "id": "daily.existing_memory",
+    "label": "Local memory location",
+    "kind": "select",
+    "order": 15,
+    "required": true,
+    "options": [
+      {
+        "id": "default",
+        "label": "Default local location",
+        "render": "Default selected-mode weekly memory location.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "custom",
+        "label": "Custom local path",
+        "render": "{pattern}",
+        "fields": [
+          {
+            "id": "pattern",
+            "label": "Workspace-relative pattern containing <week> and <unit-id>",
+            "required": true,
+            "validation": "memory_pattern"
+          }
+        ],
+        "providers": []
+      }
+    ],
+    "default": "default",
+    "help": "Where should the generated prompts read and write weekly operating memory?\nDefault uses weeks/<week>/<mode>-memory/. A custom workspace-relative .md pattern must contain <week> and <unit-id> so units and weeks cannot overwrite each other."
+  },
+  {
+    "id": "memory.decisions",
+    "label": "Decision detail",
+    "kind": "select",
+    "order": 20,
+    "required": true,
+    "options": [
+      {
+        "id": "standard",
+        "label": "Standard",
+        "render": "Retain context, explicit choice, alternatives, rationale and outcome when evidenced.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "lightweight",
+        "label": "Lightweight",
+        "render": "Retain the explicit choice, reason and outcome when evidenced.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "custom",
+        "label": "Custom instructions",
+        "render": "{instructions}",
+        "fields": [
+          {
+            "id": "instructions",
+            "label": "Custom instructions",
+            "required": true
+          }
+        ],
+        "providers": []
+      }
+    ],
+    "default": "standard",
+    "help": "How much detail should an evidenced decision retain?\nStandard includes context, alternatives, rationale and outcome; Lightweight keeps choice, reason and outcome. Custom adds your preferences. Routine updates still do not qualify as decisions."
+  },
+  {
+    "id": "memory.employees",
+    "label": "People evidence focus",
+    "kind": "select",
+    "order": 21,
+    "required": true,
+    "options": [
+      {
+        "id": "contributions",
+        "label": "Contributions and unblocking",
+        "render": "Focus on contributions, dependencies, attempted solutions and useful unblocking interventions.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "delivery",
+        "label": "Delivery and commitments",
+        "render": "Focus on evidenced completed work, open commitments and blockers.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "custom",
+        "label": "Custom instructions",
+        "render": "{instructions}",
+        "fields": [
+          {
+            "id": "instructions",
+            "label": "Custom instructions",
+            "required": true
+          }
+        ],
+        "providers": []
+      }
+    ],
+    "default": "contributions",
+    "help": "What should People progress emphasize?\nContributions and unblocking includes dependencies and useful interventions; Delivery focuses on completed work, commitments and blockers. No option authorizes invented performance ratings."
+  },
+  {
+    "id": "memory.sops",
+    "label": "SOP evidence focus",
+    "kind": "select",
+    "order": 22,
+    "required": true,
+    "options": [
+      {
+        "id": "procedure",
+        "label": "Procedure capture",
+        "render": "Retain evidenced file inputs, observed method, output files and acceptance controls.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "baseline",
+        "label": "Approved-baseline comparison",
+        "render": "Compare equivalent accepted work only against a supplied approved baseline; retain supported differences without ratings or invented timings.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "custom",
+        "label": "Custom instructions",
+        "render": "{instructions}",
+        "fields": [
+          {
+            "id": "instructions",
+            "label": "Custom instructions",
+            "required": true
+          }
+        ],
+        "providers": []
+      }
+    ],
+    "default": "procedure",
+    "help": "Should reusable workflows be captured, or compared with an existing approved baseline?\nChoose Procedure capture unless you have baselines to supply. SOP evidence still needs input files, an observed method and output files."
+  },
+  {
+    "id": "daily.staleness",
+    "label": "Stale-work trigger",
+    "kind": "select",
+    "order": 23,
+    "required": true,
+    "options": [
+      {
+        "id": "standard",
+        "label": "Seven days",
+        "render": "Establish staleness from timestamps showing no meaningful update for seven days, not absent fetched messages alone.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "age",
+        "label": "Custom age",
+        "render": "Establish staleness from timestamps showing no meaningful update for {days} days, not absent fetched messages alone.",
+        "fields": [
+          {
+            "id": "days",
+            "label": "Positive number of days",
+            "required": true,
+            "default": "7",
+            "validation": "positive_integer"
+          }
+        ],
+        "providers": []
+      },
+      {
+        "id": "custom",
+        "label": "Custom stale-work conditions",
+        "render": "{instructions}",
+        "fields": [
+          {
+            "id": "instructions",
+            "label": "Custom stale-work conditions",
+            "required": true
+          }
+        ],
+        "providers": []
+      }
+    ],
+    "default": "standard",
+    "help": "When should a lack of meaningful updates trigger a follow-up?\nStandard is seven days; Age threshold lets you enter another number. Overdue or blocked Work can need attention sooner. Incomplete collection alone never proves staleness."
+  },
+  {
+    "id": "daily.documentation_quality",
+    "label": "Documentation criteria",
+    "kind": "select",
+    "order": 24,
+    "required": true,
+    "options": [
+      {
+        "id": "standard",
+        "label": "Consequential missing evidence",
+        "render": "Request missing outcome, evidence, rationale or next action only when it materially affects a supported conclusion.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "evidence",
+        "label": "Outcome and verification",
+        "render": "Request only a missing claimed result or its verification evidence when consequential.",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "custom",
+        "label": "Custom instructions",
+        "render": "{instructions}",
+        "fields": [
+          {
+            "id": "instructions",
+            "label": "Custom instructions",
+            "required": true
+          }
+        ],
+        "providers": []
+      }
+    ],
+    "default": "standard",
+    "help": "What missing information warrants asking the Work owner a question?\nStandard covers consequential missing results, evidence, rationale or next actions. Evidence only narrows this to claimed results and verification. Avoid requesting cosmetic fields."
+  },
+  {
+    "id": "daily.progress_route",
+    "label": "Progress follow-up destinations",
+    "kind": "multi",
+    "order": 30,
+    "required": false,
+    "options": [
+      {
+        "id": "work_comment",
+        "label": "Exact Work comment",
+        "render": "| Exact Work comment | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "target_kind": "record_rule"
+      },
+      {
+        "id": "gmail",
+        "label": "Gmail",
+        "render": "| Gmail | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "gmail"
+        ]
+      },
+      {
+        "id": "telegram",
+        "label": "Telegram",
+        "render": "| Telegram | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "telegram"
+        ]
+      },
+      {
+        "id": "whatsapp",
+        "label": "WhatsApp",
+        "render": "| WhatsApp | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "whatsapp"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where should necessary progress questions go?\nLeave empty for no external follow-ups. Exact Work comment uses the original task/issue; other routes need an exact recipient rule and existing tool. Used only when Daily propagation is enabled."
+  },
+  {
+    "id": "daily.documentation_route",
+    "label": "Documentation request destinations",
+    "kind": "multi",
+    "order": 31,
+    "required": false,
+    "options": [
+      {
+        "id": "work_comment",
+        "label": "Exact Work comment",
+        "render": "| Exact Work comment | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "target_kind": "record_rule"
+      },
+      {
+        "id": "gmail",
+        "label": "Gmail",
+        "render": "| Gmail | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "gmail"
+        ]
+      },
+      {
+        "id": "telegram",
+        "label": "Telegram",
+        "render": "| Telegram | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "telegram"
+        ]
+      },
+      {
+        "id": "whatsapp",
+        "label": "WhatsApp",
+        "render": "| WhatsApp | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "whatsapp"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where should requests for missing outcome/evidence be delivered?\nUsually use a comment on the exact Work record. Specify the tool, destination rule and any limits; leave empty to keep proposals local. Used only when Daily propagation is enabled."
+  },
+  {
+    "id": "weekly.reports_destination",
+    "label": "Report storage",
+    "kind": "multi",
+    "order": 40,
+    "required": false,
+    "options": [
+      {
+        "id": "google_drive",
+        "label": "Private Google Drive",
+        "render": "| Private Google Drive | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "google_drive"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Should finalized reports also be copied outside the local workspace?\nLeave empty for local-only. Otherwise name a private folder or exact destination and its write/read-back tool. Used only when Weekly propagation is enabled."
+  },
+  {
+    "id": "weekly.sops_destination",
+    "label": "Approved SOP storage",
+    "kind": "multi",
+    "order": 41,
+    "required": false,
+    "options": [
+      {
+        "id": "google_drive",
+        "label": "Private Google Drive",
+        "render": "| Private Google Drive | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "google_drive"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where should approved SOP memory be copied?\nLeave empty for local-only, or specify a destination and tool. Proposed procedures and unapproved baselines stay local."
+  },
+  {
+    "id": "weekly.employee_memory_destination",
+    "label": "Private Person memory storage",
+    "kind": "multi",
+    "order": 42,
+    "required": false,
+    "options": [
+      {
+        "id": "google_drive",
+        "label": "Private Google Drive",
+        "render": "| Private Google Drive | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "google_drive"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where should private Person memory be copied?\nLeave empty for local-only. Any external destination must be private—not the public People directory. Specify the exact location and authorized tool."
+  },
+  {
+    "id": "weekly.decisions_destination",
+    "label": "Promoted decision storage",
+    "kind": "multi",
+    "order": 43,
+    "required": false,
+    "options": [
+      {
+        "id": "google_drive",
+        "label": "Private Google Drive",
+        "render": "| Private Google Drive | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "google_drive"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where should promoted final decisions be copied?\nLeave empty for local-only, or specify an exact destination and tool. Unapproved proposals remain local."
+  },
+  {
+    "id": "weekly.other_memory_destination",
+    "label": "Private issue memory storage",
+    "kind": "multi",
+    "order": 44,
+    "required": false,
+    "options": [
+      {
+        "id": "google_drive",
+        "label": "Private Google Drive",
+        "render": "| Private Google Drive | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "google_drive"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Where should private issue memory be copied?\nThis means recurring operating problems, not every task. Leave empty for local-only or specify a private destination and tool."
+  },
+  {
+    "id": "weekly.project_memory_destination",
+    "label": "Operating memory selected-section sync",
+    "kind": "multi",
+    "order": 45,
+    "required": false,
+    "options": [
+      {
+        "id": "notion",
+        "label": "Exact bound Notion record",
+        "render": "| Exact bound Notion record | {access} | {target} | {sections} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "sections",
+            "label": "Comma-separated exact memory section headings to sync",
+            "required": true,
+            "validation": "sync_sections",
+            "allowed_values": [
+              "Progress",
+              "Completed outcomes and artifacts",
+              "Documentation questions",
+              "Problems and inefficiencies",
+              "Decisions",
+              "Workflow and SOP signals",
+              "Carry-forward items",
+              "Evidence limitations"
+            ]
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "notion"
+        ],
+        "target_kind": "record_rule"
+      },
+      {
+        "id": "custom",
+        "label": "Custom destination",
+        "render": "| Custom destination ({provider}) | {access} | {target} | {sections} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "sections",
+            "label": "Comma-separated exact memory section headings to sync",
+            "required": true,
+            "validation": "sync_sections",
+            "allowed_values": [
+              "Progress",
+              "Completed outcomes and artifacts",
+              "Documentation questions",
+              "Problems and inefficiencies",
+              "Decisions",
+              "Workflow and SOP signals",
+              "Carry-forward items",
+              "Evidence limitations"
+            ]
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Should next-week operating memory sync back to its source records?\nSpecify the exact record-matching rule, write/read-back tool and allowed section names. Only those sections may change; unrelated content is preserved. Leave empty for local-only."
+  },
+  {
+    "id": "weekly.report_recipients",
+    "label": "Executive report recipients",
+    "kind": "multi",
+    "order": 46,
+    "required": false,
+    "options": [
+      {
+        "id": "discord",
+        "label": "Discord owner channel",
+        "render": "| Discord owner channel | discord_send_message and discord_get_channel | Setup-configured private owner channel | Send the completed executive report only to the exact approved channel; require current-channel read-back and preserve the provider message receipt. |",
+        "fields": [],
+        "providers": [
+          "discord"
+        ]
+      },
+      {
+        "id": "gmail",
+        "label": "Gmail",
+        "render": "| Gmail | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "gmail"
+        ]
+      },
+      {
+        "id": "telegram",
+        "label": "Telegram",
+        "render": "| Telegram | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "telegram"
+        ]
+      },
+      {
+        "id": "whatsapp",
+        "label": "WhatsApp",
+        "render": "| WhatsApp | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [
+          "whatsapp"
+        ]
+      },
+      {
+        "id": "custom",
+        "label": "Custom delivery",
+        "render": "| Custom delivery ({provider}) | {access} | {target} | {instructions} |",
+        "fields": [
+          {
+            "id": "provider",
+            "label": "Provider ID matching the configured tool/profile; use local for local access",
+            "required": true,
+            "validation": "provider_id"
+          },
+          {
+            "id": "access",
+            "label": "Authorized write/read-back tool",
+            "required": true
+          },
+          {
+            "id": "target",
+            "label": "Exact destination or bound source-record rule",
+            "required": true
+          },
+          {
+            "id": "instructions",
+            "label": "Owned sections, routing and delivery instructions",
+            "required": true
+          }
+        ],
+        "providers": [],
+        "providers_from": "provider"
+      }
+    ],
+    "default": [],
+    "help": "Who should receive the completed executive report, and through which service?\nAdd an exact recipient and delivery instructions per entry, or leave empty to send nothing. This is separate from report storage and requires Weekly propagation."
+  }
+]

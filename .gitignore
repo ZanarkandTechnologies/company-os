@@ -25,6 +25,9 @@ tickets/**/artifacts/
 # A live workspace context never belongs at the source root
 /.hermes.md
 /config/setup-answers.json
+/config/setup-answers.draft.json
+/config/generation-backups/
+/config/generation-incomplete
 
 # Tooling output
 __pycache__/

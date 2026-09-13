@@ -1,12 +1,14 @@
 name: multica
 label: Multica Tasks
 kind: backend
-version: 1.0.0
+version: 1.1.0
 description: Host-side Multica task tools for Company OS automations.
 author: Zanarkand Technologies
 provides_tools:
   - multica_list_projects
   - multica_list_issues
+  - multica_get_issue
+  - multica_list_comments
   - multica_create_issue
 optional_env:
   - name: MULTICA_BIN

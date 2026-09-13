@@ -1,7 +1,8 @@
 # Work conversation context — pilot
 
 Company OS can include selected ChatGPT conversations and retained local Codex
-messages in its weekly project review. The feature starts disabled. It does not
+messages in its Daily Project context so Weekly can use the resulting Project
+Memory. The feature starts disabled. It does not
 provide company-wide access to personal ChatGPT accounts or Codex cloud history.
 
 ## Choose a source
@@ -19,8 +20,9 @@ tokens, browser scraping, telemetry or model API calls are needed by this plugin
 
 ## Configure a private intake
 
-For normal installation, double-click `setup.cmd`, enable **Weekly · Work
-conversations**, and complete the **Connect work conversations** step. The
+For normal installation, double-click `setup.cmd`, select ChatGPT and/or Codex
+under **Daily · Other context sources**, and complete the **Connect work
+conversations** step. The
 wizard creates private profile storage, asks for Project/member mappings,
 detects local Codex session folders, saves the Hermes environment setting, and
 offers a redacted current-week test. Rerun `setup.cmd` and choose **Update
@@ -206,15 +208,14 @@ replacement of the withdrawal bundle.
 ## Offline verification
 
 ```text
-python -m unittest discover -s plugins/conversation_context/tests -p test_*.py -v
-python -m unittest discover -s tests -p test_*.py -v
-python apps/installer/validate_context.py --context workspace.hermes.md
+python -m plugins.conversation_context validate --root D:/CompanyOSPrivate/conversations --project PROJ-CMT --week 2026-W35
+python -c "from pathlib import Path; from apps.installer.prompt_generation import discover; discover(Path('.')); print('prompt discovery valid')"
+git diff --check
 ```
 
 Synthetic skill scenarios live in the existing PM Daily and PM Weekly eval
-packages. Deterministic tests prove the input boundaries, not the quality of
-Hermes reasoning. Run the existing isolated Hermes eval lane before a live
-pilot, then compare the same Project evidence with and without conversations.
+packages. Run the isolated Hermes eval lane before a live pilot, then compare
+the same Project evidence with and without conversations.
 
 If the system temporary directory is itself inside a Git checkout (for example,
 a home-directory dotfiles repository), point TEMP/TMP at an isolated directory

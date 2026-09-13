@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -16,7 +17,8 @@ from rich.table import Table
 
 from apps.installer import provider_catalog as catalog_api
 from apps.installer import runtime
-from apps.installer.feature_setup import FeatureSetupError, load_state, render_files, selected_bindings, with_optional_defaults
+from apps.installer.feature_setup import FeatureSetupError, load_state, selected_bindings, write_batch
+from apps.installer.prompt_generation import generate
 from apps.installer.provider_catalog import CatalogError
 from apps.installer.cli.flows.connections import (
     _certify_with_recovery,
@@ -41,6 +43,53 @@ LAUNCH_DOSSIER = 17
 LAUNCH_CONVERSATIONS = 18
 FRESH_START_MARKER = ".company-os-fresh-start"
 DISTRIBUTION_SOURCE_ENV = "COMPANY_OS_DISTRIBUTION_SOURCE"
+
+
+def _configuration_source(profile_home: Path) -> Path:
+    """Resolve an explicit checkout, never the installed answer snapshot."""
+    explicit = os.environ.get(DISTRIBUTION_SOURCE_ENV)
+    if explicit:
+        source = Path(explicit).expanduser().resolve()
+    elif ROOT.resolve() != profile_home.resolve():
+        source = ROOT.resolve()
+    else:
+        manifest = profile_home / "distribution.yaml"
+        content = manifest.read_text(encoding="utf-8") if manifest.is_file() else ""
+        match = re.search(r"^source:\s*(.+?)\s*$", content, re.MULTILINE)
+        if not match:
+            raise FeatureSetupError("Run setup from the source checkout or set COMPANY_OS_DISTRIBUTION_SOURCE to it.")
+        value = match.group(1)
+        if value.startswith('"'):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError as error:
+                raise FeatureSetupError("Distribution source metadata is invalid; set COMPANY_OS_DISTRIBUTION_SOURCE explicitly.") from error
+        elif value.startswith("'") and value.endswith("'"):
+            value = value[1:-1].replace("''", "'")
+        source = Path(value).expanduser().resolve()
+    manifest = source / "distribution.yaml"
+    if (
+        source == profile_home.resolve()
+        or not (source / "apps/installer/templates").is_dir()
+        or not manifest.is_file()
+        or re.search(r"^installed_at:", manifest.read_text(encoding="utf-8"), re.MULTILINE)
+    ):
+        raise FeatureSetupError("Source checkout unavailable. Run setup from an accessible checkout; installed profile answers are read-only snapshots.")
+    return source
+
+
+def _sync_configured_source(source: Path, profile_home: Path, *, non_interactive: bool = False) -> None:
+    """Install generated contracts and a derived, non-authoritative snapshot."""
+    conflicts = runtime.generated_install_conflicts(source, profile_home)
+    if conflicts:
+        CONSOLE.print("Installed files differ from their last generated versions:\n" + "\n".join(conflicts), markup=False)
+        if non_interactive or not confirm("Replace these installed edits with the reviewed source package?", default=False):
+            raise FeatureSetupError("installed_generated_edits_preserved")
+    runtime.install_or_update_distribution(source, profile_home, allow_generated_overwrite=bool(conflicts))
+    write_batch({
+        profile_home / relative: (source / relative).read_text(encoding="utf-8")
+        for relative in ("workspace.hermes.md", "config/setup-answers.json")
+    })
 
 
 def _run_profile_setup(
@@ -109,19 +158,19 @@ def _installation_state(profile_home: Path) -> str:
 
 
 def _fresh_start(profile_home: Path) -> int:
-    """Archive the incomplete profile and relaunch from a clean installed copy."""
+    """Archive the current profile and relaunch from a clean installed copy."""
+    source = _configuration_source(profile_home)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    backup = profile_home.with_name(f"{profile_home.name}.incomplete-{timestamp}")
+    backup = profile_home.with_name(f"{profile_home.name}.backup-{timestamp}")
     suffix = 1
     while backup.exists():
         backup = profile_home.with_name(
-            f"{profile_home.name}.incomplete-{timestamp}-{suffix}"
+            f"{profile_home.name}.backup-{timestamp}-{suffix}"
         )
         suffix += 1
 
     profile_home.rename(backup)
     try:
-        source = Path(os.environ.get(DISTRIBUTION_SOURCE_ENV, str(backup)))
         runtime.install_or_update_distribution(source, profile_home)
         (profile_home / "workspace.hermes.md").unlink(missing_ok=True)
         (profile_home / FRESH_START_MARKER).write_text(
@@ -136,7 +185,7 @@ def _fresh_start(profile_home: Path) -> int:
     CONSOLE.print(
         Panel.fit(
             "[bold green]Fresh setup ready[/bold green]\n"
-            f"The incomplete profile was preserved at:\n{backup}\n"
+            f"The previous profile was preserved at:\n{backup}\n"
             "Starting the workspace questions again.",
             border_style="green",
         )
@@ -170,10 +219,13 @@ def _workspace_update(profile_home: Path) -> int:
         )
     )
     try:
-        if configure_features(profile_home):
+        source = _configuration_source(profile_home)
+        if configure_features(source):
             CONSOLE.print("[yellow]Feature configuration was not changed.[/yellow]")
             return 1
-        state = load_state(profile_home / "config" / "setup-answers.json")
+        generate(source, apply=True)
+        _sync_configured_source(source, profile_home)
+        state = load_state(source / "config" / "setup-answers.json")
         from apps.installer.cli.flows.conversations import configure_conversations
 
         configure_conversations(profile_home, state)
@@ -194,14 +246,15 @@ def _workspace_update(profile_home: Path) -> int:
             state.provider_requirements,
             non_interactive=False,
         )
-        _configure_discord_if_needed(
+        _configure_messaging_tools_if_needed(
+            profile_home, state.provider_requirements
+        )
+        _configure_discord_delivery_if_needed(
             profile_home,
             state.provider_requirements,
             non_interactive=False,
         )
-        _configure_messaging_tools_if_needed(
-            profile_home, state.provider_requirements
-        )
+        _require_discord_context(profile_home, state.provider_requirements)
         runtime.approve_workspace_context(workspace)
         receipt = _run_profile_setup(
             profile_home,
@@ -222,11 +275,7 @@ def _workspace_update(profile_home: Path) -> int:
             )
         )
         return 0
-    except (
-        runtime.RuntimeSetupError,
-        FeatureSetupError,
-        CatalogError,
-    ) as error:
+    except (runtime.RuntimeSetupError, FeatureSetupError, CatalogError) as error:
         CONSOLE.print(
             Panel.fit(
                 "[bold red]Workspace update stopped safely[/bold red]\n"
@@ -264,12 +313,9 @@ def launch_command(args: argparse.Namespace) -> int:
         )
         action = choose(
             "Incomplete setup",
-            choices=["resume", "update-features", "start-over", "exit"],
+            choices=["resume", "start-over", "exit"],
             default="resume",
         )
-        if action == "update-features":
-            result = _workspace_update(profile_home)
-            return LAUNCH_STATIC_VERIFY if result == 0 else (0 if result == 1 else 2)
         if action == "start-over":
             if not confirm(
                 "Start over and preserve the current incomplete profile as a backup?",
@@ -298,11 +344,12 @@ def launch_command(args: argparse.Namespace) -> int:
     CONSOLE.print("  [cyan]7.[/cyan] Repair setup")
     CONSOLE.print("  [cyan]8.[/cyan] Open latest eval dossier")
     CONSOLE.print("  [cyan]9.[/cyan] Open dashboard")
-    CONSOLE.print("  [cyan]10.[/cyan] Exit")
-    CONSOLE.print("  [cyan]11.[/cyan] Manage work conversations")
+    CONSOLE.print("  [cyan]10.[/cyan] Start over from a preserved backup")
+    CONSOLE.print("  [cyan]11.[/cyan] Exit")
+    CONSOLE.print("  [cyan]12.[/cyan] Manage work conversations")
     choice = choose(
         "Select",
-        choices=[str(index) for index in range(1, 12)],
+        choices=[str(index) for index in range(1, 13)],
         default="1",
     )
     if choice == "1":
@@ -333,71 +380,45 @@ def launch_command(args: argparse.Namespace) -> int:
         return LAUNCH_DOSSIER
     if choice == "9":
         return LAUNCH_DASHBOARD
-    if choice == "11":
+    if choice == "10":
+        if not confirm(
+            "Start over and preserve the current profile as a timestamped backup?",
+            default=False,
+        ):
+            CONSOLE.print("[yellow]No setup changes were made.[/yellow]")
+            return 0
+        return _fresh_start(profile_home)
+    if choice == "12":
         return LAUNCH_CONVERSATIONS
     CONSOLE.print("[dim]No changes made.[/dim]")
     return 0
 
 
-def _bootstrap_installed_copy(
-    profile_home: Path,
-    command: str,
-    *,
-    non_interactive: bool = False,
-) -> int | None:
-    if ROOT.resolve() == profile_home.resolve():
-        return None
-    action = runtime.install_or_update_distribution(ROOT, profile_home)
-    installed_setup = profile_home / "setup.py"
-    if not installed_setup.is_file():
-        raise runtime.RuntimeSetupError("installed_setup_missing")
-    CONSOLE.print(f"[green]Distribution {action}.[/green] Continuing from the persistent profile…")
-    arguments = [
-        sys.executable,
-        str(installed_setup),
-        command,
-        "--profile-home",
-        str(profile_home),
-        "--installed",
-    ]
-    if non_interactive:
-        arguments.append("--non-interactive")
-    environment = runtime.profile_environment(profile_home)
-    environment[DISTRIBUTION_SOURCE_ENV] = str(ROOT.resolve())
-    return subprocess.run(
-        arguments,
-        check=False,
-        env=environment,
-    ).returncode
-
-
-def _prepare_workspace_configuration(*, non_interactive: bool) -> Path:
+def _prepare_workspace_configuration(*, source: Path, non_interactive: bool) -> Path:
     """Collect feature answers and render self-contained automation contracts."""
-    workspace = ROOT / "workspace.hermes.md"
-    answers = ROOT / "config" / "setup-answers.json"
+    workspace = source / "workspace.hermes.md"
+    answers = source / "config" / "setup-answers.json"
     if non_interactive and not answers.is_file():
         raise runtime.RuntimeSetupError("workspace_configuration_requires_input")
-    should_configure = not answers.is_file()
-    if answers.is_file() and not non_interactive:
+    migration_needed = False
+    if answers.is_file():
+        try:
+            saved = json.loads(answers.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise FeatureSetupError("Saved setup answers are unreadable; repair the source configuration before installation.") from error
+        migration_needed = isinstance(saved, dict) and saved.get("schema_version") == 4
+    if migration_needed and non_interactive:
+        raise FeatureSetupError("Schema 4 answers require interactive review. Run setup features from the source checkout first.")
+    should_configure = not answers.is_file() or migration_needed
+    if answers.is_file() and not migration_needed and not non_interactive:
         should_configure = confirm(
             "Review or change the existing Company OS feature setup?",
             default=False,
         )
-    if should_configure and configure_features(ROOT):
+    if should_configure and configure_features(source):
         raise runtime.RuntimeSetupError("workspace_configuration_cancelled")
     if not should_configure:
-        saved = with_optional_defaults(load_state(answers).answers)
-        render_files(
-            tuple(
-                ROOT / "automations" / name
-                for name in (
-                    "daily-operating-update.md",
-                    "weekly-operating-review.md",
-                    "weekly-meeting-ticket.md",
-                )
-            ),
-            saved,
-        )
+        generate(source, apply=True)
     return workspace
 
 
@@ -523,15 +544,23 @@ def _configure_whatsapp_if_needed(
         raise runtime.RuntimeSetupError("whatsapp_gateway_setup_incomplete")
 
 
-def _configure_discord_if_needed(
+def _configure_messaging_tools_if_needed(
     profile_home: Path,
     provider_requirements: dict[str, tuple[str, ...]],
+) -> None:
+    required = {provider for values in provider_requirements.values() for provider in values}
+    if {"telegram", "whatsapp"} & required:
+        runtime.configure_messaging_mcp(profile_home)
+
+
+def _configure_discord_delivery_if_needed(
+    profile_home: Path,
+    requirements: dict[str, tuple[str, ...]],
     *,
     non_interactive: bool,
 ) -> None:
-    """Configure the optional Discord owner-report route only when selected."""
-    required = {provider for values in provider_requirements.values() for provider in values}
-    if "discord" not in required:
+    """Configure the bounded owner channel only for Discord report delivery."""
+    if "discord" not in requirements.get("weekly.report_recipients", ()):
         return
     configured = {
         "DISCORD_BOT_TOKEN",
@@ -544,23 +573,23 @@ def _configure_discord_if_needed(
         raise runtime.RuntimeSetupError("discord_gateway_requires_input")
     from plugins.platforms.discord import onboarding
 
-    CONSOLE.print(
-        Panel.fit(
-            "[bold]Connect Discord[/bold]\n"
-            "Discord is optional and is limited to the private owner-report channel you choose.",
-            border_style="cyan",
-        )
-    )
+    CONSOLE.print(Panel.fit(
+        "[bold]Connect Discord owner delivery[/bold]\n"
+        "Choose the single private channel allowed to receive Company OS reports.",
+        border_style="cyan",
+    ))
     onboarding.configure_owner_route(profile_home)
 
 
-def _configure_messaging_tools_if_needed(
-    profile_home: Path,
-    provider_requirements: dict[str, tuple[str, ...]],
-) -> None:
-    required = {provider for values in provider_requirements.values() for provider in values}
-    if {"telegram", "whatsapp"} & required:
-        runtime.configure_messaging_mcp(profile_home)
+def _require_discord_context(profile_home: Path, requirements: dict[str, tuple[str, ...]]) -> None:
+    """Discord reads use the existing profile credential, not gateway send setup."""
+    if "discord" not in requirements.get("daily.context_sources", ()):
+        return
+    if not runtime.read_profile_secret(profile_home, "DISCORD_BOT_TOKEN"):
+        raise FeatureSetupError("Discord context requires DISCORD_BOT_TOKEN in this Hermes profile. Configure it with Hermes, then rerun setup; do not put it in template answers.")
+    if not (profile_home / "plugins" / "discord_context" / "__init__.py").is_file():
+        raise FeatureSetupError("Discord context plugin is missing from the installed profile; repair the distribution before continuing.")
+    CONSOLE.print("Discord read credential/plugin present. Channel permissions and history coverage still require read-only preflight.")
 
 
 def _install_profile(
@@ -591,19 +620,12 @@ def _install_profile(
 def install_command(args: argparse.Namespace) -> int:
     profile_home = resolve_profile_home(args.profile_home)
     try:
-        if not args.installed:
-            delegated = _bootstrap_installed_copy(
-                profile_home,
-                "install",
-                non_interactive=args.non_interactive,
-            )
-            if delegated is not None:
-                return delegated
-        profile_home.mkdir(parents=True, exist_ok=True)
+        source = _configuration_source(profile_home)
         workspace_config = _prepare_workspace_configuration(
+            source=source,
             non_interactive=args.non_interactive
         )
-        state = load_state(ROOT / "config" / "setup-answers.json")
+        state = load_state(source / "config" / "setup-answers.json")
         required_providers = {
             provider for values in state.provider_requirements.values() for provider in values
         }
@@ -633,12 +655,13 @@ def install_command(args: argparse.Namespace) -> int:
             )
             return 1
 
+        _sync_configured_source(source, profile_home, non_interactive=args.non_interactive)
+        workspace_config = profile_home / "workspace.hermes.md"
         from apps.installer.cli.flows.conversations import configure_conversations
 
         configure_conversations(
             profile_home, state, non_interactive=args.non_interactive
         )
-
         _configure_model(profile_home, non_interactive=args.non_interactive)
         _configure_connections(
             profile_home,
@@ -655,14 +678,15 @@ def install_command(args: argparse.Namespace) -> int:
             state.provider_requirements,
             non_interactive=args.non_interactive,
         )
-        _configure_discord_if_needed(
+        _configure_messaging_tools_if_needed(
+            profile_home, state.provider_requirements
+        )
+        _configure_discord_delivery_if_needed(
             profile_home,
             state.provider_requirements,
             non_interactive=args.non_interactive,
         )
-        _configure_messaging_tools_if_needed(
-            profile_home, state.provider_requirements
-        )
+        _require_discord_context(profile_home, state.provider_requirements)
         if webhook and not runtime.webhook_enabled(profile_home):
             from plugins.platforms.notion.onboarding import _configure_webhook
 
@@ -712,11 +736,7 @@ def install_command(args: argparse.Namespace) -> int:
             )
         )
         return 0 if connection_status in {"not_run", "passed"} else 2
-    except (
-        runtime.RuntimeSetupError,
-        FeatureSetupError,
-        CatalogError,
-    ) as error:
+    except (runtime.RuntimeSetupError, FeatureSetupError, CatalogError) as error:
         CONSOLE.print(
             Panel.fit(
                 "[bold red]Setup stopped safely[/bold red]\n"
@@ -730,35 +750,19 @@ def install_command(args: argparse.Namespace) -> int:
 def update_command(args: argparse.Namespace) -> int:
     profile_home = resolve_profile_home(args.profile_home)
     try:
-        answers_path = profile_home / "config" / "setup-answers.json"
-        if (
-            ROOT.resolve() != profile_home.resolve()
-            and (profile_home / "distribution.yaml").is_file()
-            and not answers_path.is_file()
-        ):
+        source = _configuration_source(profile_home)
+        answers_path = source / "config" / "setup-answers.json"
+        if not answers_path.is_file():
             raise runtime.RuntimeSetupError("feature_setup_migration_required")
-        if ROOT.resolve() != profile_home.resolve():
-            runtime.install_or_update_distribution(ROOT, profile_home)
-        multica = False
-        if answers_path.is_file():
-            state = load_state(answers_path)
-            saved = with_optional_defaults(state.answers)
-            multica = "multica" in {
-                provider
-                for values in state.provider_requirements.values()
-                for provider in values
-            }
-            render_files(
-                tuple(
-                    profile_home / "automations" / name
-                    for name in (
-                        "daily-operating-update.md",
-                        "weekly-operating-review.md",
-                        "weekly-meeting-ticket.md",
-                    )
-                ),
-                saved,
-            )
+        generate(source, apply=True)
+        state = load_state(answers_path)
+        multica = "multica" in {
+            provider
+            for values in state.provider_requirements.values()
+            for provider in values
+        }
+        _sync_configured_source(source, profile_home)
+        _require_discord_context(profile_home, state.provider_requirements)
         webhook = runtime.webhook_enabled(profile_home)
         receipt = _run_profile_setup(
             profile_home, webhook=webhook, multica=multica, apply=True

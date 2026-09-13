@@ -375,7 +375,7 @@ def run_connection_evals(
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,
         "status": status,
-        "profile": setup_runtime.PROFILE_NAME,
+        "profile": setup_runtime.profile_name(profile_home),
         "configuration_sha256": provider_catalog.configuration_hash(bindings),
         "started_at": started,
         "finished_at": time.time(),
@@ -433,7 +433,7 @@ def defer_connection_evals(
             "previous_run_id": previous_run_id,
             "deferred_reason": reason,
             "deferred_at": time.time(),
-            "profile": setup_runtime.PROFILE_NAME,
+            "profile": setup_runtime.profile_name(profile_home),
             "configuration_sha256": provider_catalog.configuration_hash(bindings),
         }
     )

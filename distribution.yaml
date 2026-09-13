@@ -17,17 +17,17 @@ distribution_owned:
   - distribution.yaml
   - setup.py
   - setup.cmd
-  - discord-setup.cmd
-  - discord-test.cmd
   - setup.sh
   - compose.yaml
   - apps/__init__.py
   - apps/doctor/__init__.py
   - apps/installer/__init__.py
-  - apps/installer/schemas
   - apps/installer/runtime.py
   - apps/installer/feature_setup.py
   - apps/installer/conversation_setup.py
+  - apps/installer/prompt_generation.py
+  - apps/installer/questions.json
+  - apps/installer/templates
   - apps/installer/cli
   - apps/installer/workspace.py
   - apps/installer/profile.py
@@ -39,8 +39,6 @@ distribution_owned:
   - apps/installer/prompts
   - apps/doctor/run.py
   - apps/doctor/evaluation.py
-  - apps/installer/dashboard.py
-  - apps/installer/schemas/workspace.py
   - apps/installer/providers
   - skills/pm-daily/SKILL.md
   - skills/pm-daily/templates
@@ -53,7 +51,6 @@ distribution_owned:
   - apps/eval_viewer/model.py
   - workspace.hermes.template.md
   - automations
-  - apps/installer/design.md
   - templates
   - plugins/platforms/notion/__init__.py
   - plugins/platforms/notion/adapter.py
@@ -62,18 +59,20 @@ distribution_owned:
   - plugins/platforms/notion/onboarding.py
   - plugins/platforms/notion/plugin.yaml
   - plugins/platforms/notion/protocol.py
-  - plugins/platforms/discord/__init__.py
-  - plugins/platforms/discord/adapter.py
-  - plugins/platforms/discord/api.py
-  - plugins/platforms/discord/onboarding.py
-  - plugins/platforms/discord/plugin.yaml
   - plugins/multica/__init__.py
   - plugins/multica/plugin.yaml
-  - plugins/conversation_context/__init__.py
+  - plugins/discord_context/__init__.py
+  - plugins/discord_context/plugin.yaml
   - plugins/__init__.py
+  - plugins/conversation_context/__init__.py
   - plugins/conversation_context/__main__.py
   - plugins/conversation_context/models.py
   - plugins/conversation_context/intake.py
   - plugins/conversation_context/codex.py
   - plugins/conversation_context/plugin.yaml
   - plugins/conversation_context/README.md
+  - plugins/platforms/discord/__init__.py
+  - plugins/platforms/discord/adapter.py
+  - plugins/platforms/discord/api.py
+  - plugins/platforms/discord/onboarding.py
+  - plugins/platforms/discord/plugin.yaml

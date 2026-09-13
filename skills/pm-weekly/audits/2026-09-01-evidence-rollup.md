@@ -9,7 +9,6 @@ before_ref: skills/pm-weekly/SKILL.md
 after_ref: skills/pm-weekly/SKILL.md
 reasoning_basis: first_principles
 proof_artifacts:
-  - tests/contracts/test_company_os.py
   - skills/pm-weekly/evals/evals.json
 eval_required: yes
 ---
@@ -40,6 +39,6 @@ eval_required: yes
 
 ## Proof and follow-up
 
-- Contract tests, eval lint, query lint, and full repository tests are required.
+- The owning skill eval and automation-boundary eval are required.
 - Operate one Weekly run containing comparable timed samples and inspect the
   Department ledger, Person evidence, SOP interval, and unchanged baseline.

@@ -1,6 +1,6 @@
 ---
 template_id: company-os-company-operating-rollup
-template_version: "0.7.0"
+template_version: "0.9.0"
 name: "Company OS — Week of {{WEEK_START}}"
 report_type: "Company"
 week_start: "{{WEEK_START}}"
@@ -13,67 +13,72 @@ source_report_ids: "{{AREA_REPORTS}}"
 
 # Company OS — Week of {{WEEK_START}}
 
+<!-- Step 4 renders JSON items as concise sourced bullets, not tables.
+Retain supplied frontmatter and these headings in order. Empty items render
+None. Omit the final optional health heading when its section is absent.
+Use readable labels; retain exact IDs in metadata or source destinations. -->
+
 ## Summary
 
-<!-- Exactly three evidence-backed sentences: material company change,
-highest-leverage attention, and next company priority. -->
-
+<!-- Up to three short bullets: material change, important attention, next priority. -->
 {{SUMMARY}}
 
-## Outcomes and open attention
+## Department executive summary
 
-| Area | Current result | Open attention | Next owner action | Source report |
-| --- | --- | --- | --- | --- |
-{{DEPARTMENT_RESULT_ROWS}}
+<!-- One concise named entry for EVERY Department: result/change, open attention,
+next priority and source report. Quiet or evidence-limited Departments remain
+visible with the supported state. Do not replace coverage with a merged narrative
+or a list of links. The Summary above prioritizes; this section covers all. -->
+{{DEPARTMENT_EXECUTIVE_SUMMARY}}
 
-## Employee actions
+## People progress
 
-<!-- Roll up only evidence-backed employee actions that require Company
-visibility because they cross Areas, gate a material company outcome, or need
-executive follow-up. Preserve the canonical Person label or link and source
-Area report. Do not infer intent, personality, or a performance rating. The
-section may be empty when no action needs Company visibility.
+<!-- One named group per in-scope Person across Departments: scope, evidenced
+progress, open work/blocker and next action, with Department report links.
+Include people without accepted outputs and explicit evidence gaps. Deduplicate
+exact identity while preserving different Project states. Do not repeat artifact
+lists or intervention detail; no ratings or unsupported personal conclusions. -->
+{{PEOPLE_PROGRESS}}
 
-GOLDEN EXAMPLE — replace every fact below.
-| Darren (PERSON-DARREN) | Prove the guest checkout path | Ecommerce | Unverified; failed order and trace are missing | [Area report](report://ECOM-W35) | 2026-08-29 | Ecommerce lead reviews the reproduced failure and passing order |
-END GOLDEN EXAMPLE -->
+## Unblocking work
 
-| Employee | Action or commitment | Area | Current state | Evidence / source report | Due or review date | Company follow-up |
-| --- | --- | --- | --- | --- | --- | --- |
-{{EMPLOYEE_ACTION_ROWS}}
+<!-- Dependency or known cause → impact → existing attempts → smallest proposed
+intervention beyond another reminder → supplied owner, if known → completion
+signal. Include only interventions requiring Company visibility.
+Do not repeat accepted outputs or imply proposed actions were executed. -->
+{{UNBLOCKING_WORK}}
 
 ## Problems and inefficiencies
 
-<!-- Company rows only when the problem crosses Areas or has a material
-shared impact. The proposed intervention stays bounded and testable.
-
-GOLDEN EXAMPLE — replace every fact below; it demonstrates useful detail.
-| Supplier evidence reaches Merchandising and CMT in incompatible formats | Merchandising, CMT | Two Area reports cite the same reconciliation delay | Draft one source-linked exception brief with a proposed common intake format | Trial for the next two reviews; success = both leads identify a variance decision in under 10 minutes. |
-END GOLDEN EXAMPLE -->
-
-| Problem | Areas / workflows | Evidence and recurrence | Quantified baseline or measurement gap | Confidence | Narrow intervention | First test and success signal |
-| --- | --- | --- | --- | --- | --- | --- |
-{{PROBLEM_OPPORTUNITY_ROWS}}
+<!-- Problem and affected workflow → evidenced consequence → bounded intervention
+and success signal. Include recurrence or measured cost only when sourced;
+keep material measurement gaps explicit. -->
+{{PROBLEMS_AND_INEFFICIENCIES}}
 
 ## Decisions
 
-{{DECISIONS_VIEW_OR_LIST}}
+<!-- Consequential choice → real tradeoff and rationale → consequence or review
+trigger → source. Preserve proposed versus approved state. Routine choices do
+not become durable Decision records. -->
+{{DECISIONS}}
 
 ## SOPs
 
-<!-- Include only cross-Area or materially important workflow opportunities.
-Distinguish the approved baseline, latest comparable evidence, and a proposed
-test; never present the fastest sample as the new standard automatically. -->
-
-{{SOPS_VIEW_OR_LIST}}
+<!-- Recurrent comparable accepted work: skill(input files) => output files;
+receiver/controls and proof → approved baseline → proposed improvement test.
+Preserve baseline approval; no forced timing comparison. -->
+{{SOPS}}
 
 ## Next-week priorities
 
-{{NEXT_WEEK_HANDOFF}}
+<!-- Unresolved priority → smallest next action → supplied owner, if known →
+observable completion signal. This is a handoff, not a duplicate live plan. -->
+{{NEXT_WEEK_PRIORITIES}}
 
-## Automation receipt
+## System usefulness and gaps
 
-- `evidence_window:` {{START_TIMESTAMP}}..{{END_TIMESTAMP}}
-- `area_reports:` {{Area rollup locators}}
-- `source_gaps:` {{Missing Area reports or source evidence, or none}}
-- `previous_company_report:` {{Report locator or none}}
+<!-- Optional final footer: omit the entire section without a material snapshot
+collection or evidence limitation. At most one concise bullet per affected Project:
+issue → consequence → fix. Unknown coverage is explicit when material.
+Sparse activity alone is not a system failure. -->
+{{SYSTEM_USEFULNESS_AND_GAPS}}

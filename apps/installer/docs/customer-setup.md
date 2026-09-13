@@ -139,12 +139,17 @@ failed prerequisite:
 | `Docker Compose is unavailable. Update Docker Desktop, then try again.` | Update Docker Desktop, then rerun setup. |
 
 On a new profile, the interactive wizard asks for company details, data sources,
-and communication choices. Projects, Tasks, People, SOPs, Reports, and Operator
-Email are independent source roles: every selected role receives its own
-provider and source URL or identifier. Choosing Notion for several roles does
-not merge them into one database. The wizard also asks about optional owner
+and communication choices. Project and Work questions are multi-select: every
+selected option receives its own configuration field. Their rendered automation
+instructions own cross-provider matching and precedence; do not add integration
+configuration fields to a business system merely to make two providers join.
+Selecting ChatGPT or Codex conversations continues into a guided private-intake
+step. It creates a policy outside source repositories, asks for exact Project and
+member mappings, and runs a redacted collection check before setup continues.
+People, SOPs, Reports, and Operator Email remain independent roles. Choosing
+Notion for several roles does not merge them into one database. The wizard also asks about optional owner
 messages. Messaging asks ordinary questions only: completed
-reports and/or owner alerts, the owner's name, Telegram/Slack/WhatsApp, and
+reports and/or owner alerts, the owner's name, Discord/Telegram/Slack/WhatsApp, and
 **Prepare drafts in the private workspace** or **Send automatically**. Leaving
 these choices empty is the lean default. Task-specific documentation and
 progress questions use comments on the exact linked Work item; they need no
@@ -306,13 +311,21 @@ workspace.
 
 ## 5. Restart and update
 
-If setup stops before installation completes, rerunning it offers **Resume**,
-**Start over**, or **Exit**. **Start over** moves the incomplete profile to a
-timestamped sibling backup, creates a clean profile, and asks the workspace
-questions again. It does not delete the saved credentials or draft in the
-backup.
+Pressing **Ctrl+C** or sending terminal EOF during the workspace questions
+stops before active configuration is changed and asks whether to save completed
+answers. A saved `config/setup-answers.draft.json` resumes automatically on the
+next run and is removed only after the completed configuration is saved. Closing
+the terminal window itself cannot display a confirmation after the terminal is
+gone; use Ctrl+C when an interactive save choice is needed.
 
-The host Hermes profile under `%USERPROFILE%\.hermes\profiles\company-os`
+If setup stops before installation completes, rerunning it offers **Resume**,
+**Start over**, or **Exit**. Existing installations also expose **Start over**
+from their action menu so an older onboarding-answer contract cannot trap the
+operator. **Start over** moves the current profile to a timestamped sibling
+backup, creates a clean profile, and asks the workspace questions again. It
+does not delete the saved credentials or draft in the backup.
+
+The host Hermes profile under `%USERPROFILE%\.hermes\profiles\<profile-name>`
 preserves credentials, OAuth state, schedules, receipts, and generated
 workspace state. The assigned ngrok hostname remains stable when its container
 or the computer restarts.
@@ -329,18 +342,19 @@ Rerunning `setup.cmd` on an existing installation shows:
 7. Repair setup
 8. Open latest eval dossier
 9. Open dashboard
-10. Exit
-11. Manage work conversations
+10. Start over from a preserved backup
+11. Exit
+12. Manage work conversations
 ```
 
 Choose **Update Company OS features** to revisit the explained Memory, Daily,
 and Weekly questions. Setup preserves the saved answers, previews the rendered
 automation diff, reconciles any newly required provider connections, and runs a
-static check. When work conversations are enabled, setup continues into a
-guided private-source step that creates the intake policy, detects local Codex
-history, saves project/member mappings, and offers a redacted current-week test.
-Choose **Manage work conversations** later to change or retest those mappings
-without repeating the full feature wizard. After downloading repository updates, choose **Update Company OS
+static check. When ChatGPT or Codex context is selected, setup then opens the
+private intake step to create or retain exact Project/member mappings, detect
+local Codex history, and offer a redacted current-week check. Choose **Manage
+work conversations** later to update or retest those mappings without repeating
+the whole questionnaire. After downloading repository updates, choose **Update Company OS
 software**; setup updates the distribution allowlist, preserves unknown runtime
 files, reconciles schedules, and runs static verification. Use **Test
 integrations** to retry the same provider certification without reinstalling

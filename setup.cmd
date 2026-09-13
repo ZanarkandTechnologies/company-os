@@ -124,7 +124,7 @@ goto verification_result
 call :start_runtime
 if errorlevel 1 goto failed
 set "HERMES_HOME=%COMPANY_OS_PROFILE_HOME%"
-start "Company OS Dashboard" /min "%HERMES_PYTHON%" "%COMPANY_OS_PROFILE_HOME%\apps\installer\dashboard.py"
+start "Company OS Dashboard" /min cmd /c "hermes dashboard --isolated --host 127.0.0.1 --port 9119 --no-open"
 start "" "http://localhost:9119"
 exit /b 0
 
