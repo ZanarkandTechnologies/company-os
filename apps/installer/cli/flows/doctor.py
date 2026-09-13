@@ -76,7 +76,7 @@ def preflight_command(args: argparse.Namespace) -> int:
 def evaluation_command(args: argparse.Namespace) -> int:
     profile = resolve_profile_home(args.profile_home)
     try:
-        receipt = evaluation.run_evaluation(profile, timeout=args.timeout)
+        receipt = evaluation.run_evaluation(profile, timeout=args.timeout, eval_ids=getattr(args, "eval_ids", None))
         if args.open:
             evaluation.open_latest_dossier(profile)
         status = str(receipt["status"])
@@ -84,7 +84,7 @@ def evaluation_command(args: argparse.Namespace) -> int:
         run = profile / evaluation.STATE_DIRECTORY / str(receipt["run_id"])
         CONSOLE.print(
             Panel.fit(
-                f"[bold {color}]FULL EVAL {status.upper()}[/bold {color}]\n"
+                f"[bold {color}]SKILL EVAL {status.upper()}[/bold {color}]\n"
                 f"Run: {run}\n"
                 f"Dossier: {run / 'dossier' / 'index.html'}",
                 border_style=color,
@@ -151,6 +151,13 @@ def activate_command(args: argparse.Namespace) -> int:
             profile, profile / "workspace.hermes.md"
         )
         index = evaluation.latest_valid_index(profile)
+        eval_receipt = json.loads((index.parents[1] / "eval-receipt.json").read_text(encoding="utf-8"))
+        known = {case["id"] for rows in evaluation.load_catalog(evaluation.package_root()).values() for case in rows}
+        automation_cases = json.loads((evaluation.package_root() / "automations/evals/evals.json").read_text(encoding="utf-8"))["evals"]
+        known.update(case["id"] for case in automation_cases)
+        passed = {row["eval_id"] for row in eval_receipt.get("eval_results", []) if row.get("status") == "passed"}
+        if eval_receipt.get("status") != "passed" or passed != known:
+            raise evaluation.EvaluationError("activation_requires_complete_passing_skill_and_automation_evals")
         receipt = profile_setup.activate_managed_schedules(
             profile,
             {

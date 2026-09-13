@@ -1,0 +1,23 @@
+{
+  "messages": [
+    {
+      "type": "documentation_request",
+      "work_id": "TASK-102",
+      "source_provider": "notion",
+      "provider_record_id": "22222222-2222-4222-8222-222222222222",
+      "source_reference": "https://example.invalid/TASK-102",
+      "source_url": "https://example.invalid/TASK-102",
+      "recipient": "Darren Lim",
+      "body": "Darren, please attach the affected guest order and its payment-return trace so the reported checkout-confirmation fix can be verified against the failed path. Update the [checkout confirmation fix](https://example.invalid/TASK-102)."
+    },
+    {
+      "type": "progress_followup",
+      "work_id": "TASK-101",
+      "source_provider": "multica",
+      "provider_record_id": "issue-task-101",
+      "source_reference": "multica:issue:TASK-101",
+      "recipient": "Aisha Rahman",
+      "body": "Aisha, what is blocking approval of the corrected collar measurement, and when will it be signed so bulk cutting can proceed? The [collar approval](multica:issue:TASK-101) was due 2026-08-24."
+    }
+  ]
+}

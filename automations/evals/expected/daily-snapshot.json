@@ -1,0 +1,46 @@
+{
+  "run_started_at": "2026-08-31T09:00:00+08:00",
+  "context_files": {
+    "PRJ-ALPHA.json": {
+      "id": "PRJ-ALPHA",
+      "name": "Alpha rollout",
+      "context": [
+        "./PRJ-ALPHA.sources.md#notion-project-alpha",
+        "./PRJ-ALPHA.sources.md#notion-task-1",
+        "./PRJ-ALPHA.sources.md#discord-message-current"
+      ]
+    },
+    "PRJ-BETA.json": {
+      "id": "PRJ-BETA",
+      "name": "Beta migration",
+      "context": [
+        "./PRJ-BETA.sources.md#notion-project-beta"
+      ]
+    }
+  },
+  "source_cache_expectations": {
+    "PRJ-ALPHA.sources.md": {
+      "records": [
+        "notion-project-alpha",
+        "notion-task-1",
+        "discord-message-current"
+      ],
+      "gaps": [
+        "Unmapped notion-task-2 is not accepted as Alpha Work"
+      ],
+      "excluded": [
+        "discord-message-old"
+      ],
+      "preserve": "Original links and fetched fields/content; interval and coverage facts. No status normalization or PM judgments."
+    },
+    "PRJ-BETA.sources.md": {
+      "records": [
+        "notion-project-beta"
+      ],
+      "gaps": [
+        "No configured Work source",
+        "No mapped Discord source"
+      ]
+    }
+  }
+}

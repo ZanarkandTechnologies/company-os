@@ -8,9 +8,9 @@ inputs here, review them, then install them into the runtime explicitly.
 
 | Location | Owner | Purpose |
 | --- | --- | --- |
-| `/Users/kenjipcx/Zanarkand Technologies/projects/HermesCorp` | HermesCorp | Authoritative reusable Company OS contracts, installer, skills, plugins, templates, and tests. |
-| `/Users/kenjipcx/.hermes/profiles/company-os/workspace` | Hermes runtime | Live reports, memory, proposals, receipts, and other agent-created company artifacts. |
-| `/Users/kenjipcx/.hermes/profiles/company-os` | Hermes profile | Private credentials, installed skill copies, sessions, logs, caches, gateway state, and local databases. |
+| Repository checkout | HermesCorp | Authoritative reusable Company OS contracts, installer, skills, plugins, templates, and evals. |
+| Selected Hermes profile's `workspace/` | Hermes runtime | Live reports, memory, proposals, receipts, and other agent-created company artifacts. |
+| Selected Hermes profile | Hermes profile | Private credentials, installed skill copies, sessions, logs, caches, gateway state, and local databases. |
 
 ## Repository layout
 
@@ -20,17 +20,48 @@ inputs here, review them, then install them into the runtime explicitly.
   contracts without copying development evidence.
 - `automations/`: readable automation contracts; scheduling and generated runs
   remain runtime concerns.
-- `docs/`: the PRD, operator guide, and autonomous-testing runbook. Daily and
+- `docs/`: the PRD, operator guide, and evaluation runbook. Daily and
   Weekly behavior is documented only by its owning skill.
 - `templates/`: shared provider-backed entity contracts. Cadence-owned memory,
   message, and report templates live inside the owning PM skill.
 - `plugins/`: Hermes platform connector source. Installed profile
   copies are derived artifacts and update only through the setup route.
-- `skills/pm-daily/` and `skills/pm-weekly/`: extraction instructions, owned
-  eval cases, and frozen evidence. The skills write files directly.
-- `apps/*/tests/`: tests
-  owned by those packages. Root `tests/` contains only repository-wide
-  contracts and the discovery bridge.
+- `automations/evals/`: synthetic source records, expected snapshots, and
+  boundary case definitions for Daily and Weekly collection. They are not proof
+  until an operated runner consumes them.
+- `skills/pm-daily/` and `skills/pm-weekly/`: PM instructions, owned semantic
+  eval cases, and frozen evidence. Each skill writes JSON; its automation renders
+  the intended memory/reports and applies authorized provider effects.
+
+## Skill writing
+
+- Use short bullets for skill rules: one action and its related conditions.
+- Keep JSON contracts and examples in compact tables or code blocks.
+- Avoid paragraph-sized checklist items; put qualifications beside their rule.
+
+## Code test suites are temporarily banned
+
+- Do not add repository unit, integration, snapshot, contract, end-to-end, or
+  live test suites.
+- Do not add `tests/` directories, `test_*.py` files, test frameworks, test-only
+  wrappers, or CI steps that invoke a test runner.
+- Verification belongs in evals. Automation evals must cover source collection,
+  normalization, completeness facts, and the snapshot boundary using synthetic
+  seed data. Skill evals cover analysis, decisions, memory updates, reports,
+  messages, no-ops, and blocked behavior.
+- Put most semantic cases in skill evals, which end at JSON. Keep a small
+  end-to-end automation set for source-to-file transitions and authorized
+  effects; use collection and Step 4 cases to diagnose failed boundaries.
+- Judge created, modified, deleted and unchanged files against a before-run
+  inventory. File changes prove execution, not factual correctness; retain
+  source-grounded semantic assertions in the owning skill cases.
+- Keep deterministic validators only when they are production safeguards for a
+  named non-semantic invariant. Do not disguise tests as validators or scripts.
+- Provider connection certification and explicitly authorized acceptance probes
+  are product operations, not repository test suites; keep their existing
+  authority, isolation, read-back, cleanup, and receipt gates.
+- This ban remains until the product contracts stabilize and this project-level
+  policy is deliberately revised.
 
 There is intentionally no tracked `profile/`, `context/`, `deploy/`, or nested
 distribution tree. Do not add a profile overlay or mirror the live workspace
@@ -39,7 +70,8 @@ here.
 ## Development flow
 
 1. Edit the workspace context, automations, templates, plugins, and eval cases here first.
-2. Run the narrow deterministic tests and filesystem eval tests locally.
+2. Inspect the automation case and expected snapshot; run the owning skill eval.
+   Do not claim an automation verdict until its runner exists and is operated.
 3. Preview source-to-runtime changes with
    `apps/installer/workspace.py`.
 4. Apply only after `workspace.hermes.md` has owner-approved status.
@@ -51,9 +83,12 @@ here.
 
 ## Native automation boundary
 
+- Automations own integrations; skills own operating logic. Before changing
+  that boundary, read `automations/AGENTS.md`.
 - Hermes owns the Daily and Weekly runtime. Each automation fetches a bounded
-  snapshot, runs its PM skill against local memory and templates, then uses
-  configured skills or MCP tools for authorized provider effects.
+  snapshot and runs its PM skill against local memory and templates. Prompt
+  shape is the authority: a propagation stage is active whenever present and
+  is omitted when disabled. Do not add a second runtime enablement flag.
 - Do not build another runtime around it. This includes Python preparation,
   delivery plans, hashed handoffs, action graphs, semantic reducers, provider
   executors, and wrappers that duplicate a skill or MCP.
@@ -87,13 +122,7 @@ copies and treat them as co-equal sources.
 - Preserve unknown live-workspace files. Archive or delete them only through a
   separately approved cleanup.
 
-## Verification
+## Evaluation
 
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 apps/installer/validate_context.py --context workspace.hermes.md
-hermes config get terminal.cwd
-```
-
-Follow `docs/autonomous-testing.md`. Network and provider writes remain explicit
-human gates; autonomous verification is offline by default.
+Follow `docs/evaluation.md`. Network and provider writes remain explicit human
+gates; autonomous evaluation is offline and synthetic by default.

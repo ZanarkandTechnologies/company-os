@@ -1,0 +1,112 @@
+{
+  "as_of": "2026-08-31T09:00:00+08:00",
+  "projects": [
+    {
+      "provider_id": "notion-project-alpha",
+      "project_id": "PRJ-ALPHA",
+      "name": "Alpha rollout",
+      "status": "Active",
+      "department_id": "DEPT-OPS",
+      "url": "https://example.invalid/projects/alpha",
+      "revision": "rev-project-alpha-3",
+      "work_source_ids": ["work-alpha"]
+    },
+    {
+      "provider_id": "notion-project-beta",
+      "project_id": "PRJ-BETA",
+      "name": "Beta migration",
+      "status": "Active",
+      "department_id": "DEPT-TECH",
+      "url": "https://example.invalid/projects/beta",
+      "revision": "rev-project-beta-2",
+      "work_source_ids": []
+    },
+    {
+      "provider_id": "notion-project-archive",
+      "project_id": "PRJ-ARCHIVE",
+      "name": "Archived project",
+      "status": "Inactive",
+      "department_id": "DEPT-OPS",
+      "url": "https://example.invalid/projects/archive",
+      "revision": "rev-project-archive-1",
+      "work_source_ids": ["work-archive"]
+    }
+  ],
+  "work_sources": [
+    {
+      "source_id": "work-alpha",
+      "provider": "notion",
+      "schema": {
+        "title": "Name",
+        "status": "Status",
+        "owner": "Owner",
+        "due_date": "Due",
+        "update": "Update",
+        "priority": "Priority",
+        "progress": "Progress"
+      },
+      "records": [
+        {
+          "provider_record_id": "notion-task-1",
+          "business_id": "TASK-001",
+          "title": "Approve launch list",
+          "status": "In progress",
+          "owner_id": "PERSON-001",
+          "project_id": "PRJ-ALPHA",
+          "due_date": "2026-08-30",
+          "update": "Waiting for final review",
+          "priority": "High",
+          "progress": 80,
+          "description": "Approval evidence is attached to the task.",
+          "url": "https://example.invalid/tasks/1",
+          "revision": "rev-task-1-4"
+        },
+        {
+          "provider_record_id": "notion-task-2",
+          "business_id": "TASK-002",
+          "title": "Unmapped request",
+          "status": "Needs triage",
+          "owner_id": null,
+          "project_id": null,
+          "due_date": null,
+          "update": null,
+          "priority": null,
+          "progress": null,
+          "description": "No explicit Project relation.",
+          "url": "https://example.invalid/tasks/2",
+          "revision": "rev-task-2-1"
+        }
+      ]
+    }
+  ],
+  "people": [
+    {
+      "person_id": "PERSON-001",
+      "name": "Synthetic Owner",
+      "preferred_channel": "none",
+      "endpoint": null
+    }
+  ],
+  "discord": {
+    "run_started_at": "2026-08-31T09:00:00+08:00",
+    "channels": [
+      {
+        "channel_id": "discord-alpha",
+        "name": "project-alpha-rollout",
+        "messages": [
+          {
+            "message_id": "discord-message-current",
+            "timestamp": "2026-08-31T08:15:00+08:00",
+            "content": "Launch approval is waiting for final review."
+          },
+          {
+            "message_id": "discord-message-old",
+            "timestamp": "2026-08-30T08:59:59+08:00",
+            "content": "Outside the Daily evidence interval."
+          }
+        ]
+      }
+    ]
+  },
+  "meetings": []
+}

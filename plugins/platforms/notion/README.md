@@ -8,7 +8,7 @@ updated_at: 2026-08-31
 # Notion platform plugin
 
 This directory owns the Notion API adapter, webhook protocol, interactive
-webhook onboarding, plugin manifest, and their focused tests. General Company
+webhook onboarding, and plugin manifest. General Company
 OS installation and lifecycle orchestration remain in `apps/installer/`.
 
 ## Runtime contract
@@ -55,17 +55,6 @@ Do not place ngrok authentication or an interactive traffic policy in front of
 the endpoint because Notion must reach it directly. If verification does not
 arrive, check the ngrok container and public health endpoint before creating
 another subscription.
-
-## Verify locally
-
-```bash
-python3 -m unittest \
-  plugins.platforms.notion.tests.test_comment_adapter \
-  plugins.platforms.notion.tests.test_webhook_protocol -v
-```
-
-The repository-wide `tests/test_owned_packages.py` bridge keeps
-these plugin-owned cases in the canonical root discovery run.
 
 Notion references: [webhooks](https://developers.notion.com/reference/webhooks)
 and [connection capabilities](https://developers.notion.com/reference/capabilities).

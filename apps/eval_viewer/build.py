@@ -69,7 +69,8 @@ def render_evidence_html(model: dict) -> str:
     view_model = json.loads(json.dumps(model))
     for evaluation in view_model["evaluations"]:
         for output in evaluation["outputs"]:
-            output["renderedHtml"] = render_markdown(str(output.get("markdown") or ""))
+            content = str(output.get("markdown") or "")
+            output["renderedHtml"] = render_markdown(content) if output["kind"] == "Markdown" else "<pre><code>" + html.escape(content) + "</code></pre>"
     safe_model = json.dumps(view_model).replace("<", "\\u003c")
     page = r'''<!doctype html>
 <html lang="en">
@@ -104,13 +105,13 @@ const esc=value=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;'
 const tones=['peach','lavender','mint','pink','yellow'];
 function statusLabel(value){return value==='pass'?'PASSED':value==='fail'?'FAILED':value==='needs_information'?'NEEDS INFO':value==='not_run'?'NOT RUN':'UNJUDGED'}
 function stateClass(value){return 'state-'+String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'-')}
-function cadenceLabel(value){return value==='daily'?'PM Daily':value==='weekly'?'PM Weekly':'Unknown automation'}
-const metricData=[['mint',model.metrics.evaluations.passed+'/'+model.metrics.evaluations.total+' evals'],['peach',model.metrics.checks.passed+'/'+model.metrics.checks.total+' checks'],['yellow',model.metrics.outputs.total+'/'+model.metrics.outputs.total+' outputs']];
+function cadenceLabel(value){return value==='daily'?'PM Daily skill':value==='weekly'?'PM Weekly skill':'Automation boundaries'}
+const metricData=[['mint',model.metrics.evaluations.passed+'/'+model.metrics.evaluations.total+' evals'],['peach',model.metrics.checks.passed+'/'+model.metrics.checks.total+' checks'],['yellow',model.metrics.outputs.total+' artifacts']];
 metrics.innerHTML=metricData.map(([tone,label])=>'<span class="metric-pill"><i class="square metric-square tone-'+tone+'"></i>'+esc(label)+'</span>').join('')+'<span class="metric-pill"><i class="square metric-square tone-yellow"></i>'+esc(String(model.runStatus).replaceAll('_',' '))+'</span>'+(model.activityLogAvailable?'<a class="run-link" href="activity.jsonl">log ↗</a>':'')+'<a class="run-link" href="eval-receipt.json">receipt ↗</a>';
 function render(index,openMobile=true){
   const f=model.evaluations[index];document.querySelectorAll('.feature-button').forEach((button,i)=>button.setAttribute('aria-current',String(i===index)));const tone=tones[index%tones.length];
   const outputs=f.outputs.length?'<div class="output-list">'+f.outputs.map(row=>'<a class="output" href="'+esc(row.url)+'"><i class="square tone-lavender"></i><span class="output-copy"><b>'+esc(row.label)+' ↗</b><small>'+esc(row.kind)+' · '+esc(String(row.state).replaceAll('_',' '))+'</small></span></a><div class="markdown-preview">'+row.renderedHtml+'</div>').join('')+'</div>':'<p class="empty">No human-facing output was recorded for this eval.</p>';
-  const checks=f.assertions.length?'<ul class="check-list">'+f.assertions.map(row=>'<li class="check '+row.status+'"><i class="square tone-'+(row.status==='pass'?'mint':row.status==='fail'?'pink':'yellow')+'"></i><span>'+esc(row.assertion)+'</span><strong>'+esc(row.status==='pass'?'MET':row.status==='fail'?'MISS':'PENDING')+'</strong></li>').join('')+'</ul>':'<p class="empty">No assertion result was available.</p>';
+  const checks=f.assertions.length?'<ul class="check-list">'+f.assertions.map(row=>'<li class="check '+row.status+'"><i class="square tone-'+(row.status==='pass'?'mint':row.status==='fail'?'pink':'yellow')+'"></i><span>'+esc(row.assertion)+row.evidence.map(item=>'<p class="status-note">'+esc(item)+'</p>').join('')+'</span><strong>'+esc(row.status==='pass'?'MET':row.status==='fail'?'MISS':'PENDING')+'</strong></li>').join('')+'</ul>':'<p class="empty">No assertion result was available.</p>';
   detail.innerHTML='<header class="inspector-head"><div><p class="kicker">'+esc(cadenceLabel(f.cadence))+' · '+esc(f.id)+(f.showcase?' · showcase':'')+'</p><div class="title-row"><i class="square tone-'+tone+'"></i><h2>'+esc(f.name)+'</h2></div></div><button class="close" type="button" aria-label="Close inspector">×</button></header><div class="status-strip"><span class="status-pill '+f.status+'">'+statusLabel(f.status)+'</span><span class="status-note">'+esc(f.statusNote)+'</span></div><section><h3>Description</h3><p class="task-copy">'+esc(f.description)+'</p></section><section><h3>Expected behavior</h3><p class="task-copy">'+esc(f.claim)+'</p></section><section><h3>Resultant artifacts</h3>'+outputs+'</section><section><h3>Assertion review</h3><div class="evaluation-workbench"><article class="evaluation-criteria"><header><b>Expected criteria</b><span>'+f.assertions.filter(row=>row.status==='pass').length+'/'+f.assertions.length+' met after the shared run</span></header>'+checks+'</article></div></section>';
   detail.querySelector('.close').addEventListener('click',()=>{detail.classList.remove('open');document.body.classList.remove('inspector-open')});detail.scrollTop=0;if(openMobile){detail.classList.add('open');document.body.classList.add('inspector-open')}
 }
@@ -120,17 +121,17 @@ function group(cadence,label,tone){
   const rows=section.querySelector('.feature-rows');indexes.forEach(({feature,index})=>{const button=document.createElement('button');button.className='feature-button';button.type='button';button.innerHTML='<span class="rail"></span><i class="square tone-'+tone+'"></i><span class="feature-copy"><b>'+esc(feature.name)+'</b><small>'+esc(feature.description)+'</small></span><span class="status-pill '+feature.status+'">'+statusLabel(feature.status)+'</span>';button.addEventListener('click',()=>render(index,true));rows.appendChild(button)});
   section.querySelector('.feature-toggle').addEventListener('click',event=>{const open=event.currentTarget.getAttribute('aria-expanded')==='true';event.currentTarget.setAttribute('aria-expanded',String(!open));event.currentTarget.querySelector('.toggle-glyph').textContent=open?'▶':'▼';rows.classList.toggle('hidden',open)});featureList.appendChild(section)
 }
-group('daily','PM Daily','peach');group('weekly','PM Weekly','lavender');render(0,false);
+group('daily','PM Daily skill','peach');group('weekly','PM Weekly skill','lavender');group('automation','Automation boundaries','mint');render(Math.max(0,model.evaluations.findIndex(row=>row.status!=='not_run')),false);
 </script>
 </body>
 </html>'''
     return page.replace("__MODEL_JSON__", safe_model)
 
 
-def build_static_evidence_viewer(*, out_dir: Path, eval_run_root: Path) -> dict:
+def build_static_evidence_viewer(*, out_dir: Path, eval_run_root: Path, project_root: Path | None = None) -> dict:
     run = eval_run_root.resolve()
     destination = out_dir.resolve()
-    model = build_evidence_model(project_root=ROOT, eval_run_root=run)
+    model = build_evidence_model(project_root=project_root or ROOT, eval_run_root=run)
     destination.mkdir(parents=True, exist_ok=True)
     copied = {"eval-receipt.json"}
     if model["activityLogAvailable"]:

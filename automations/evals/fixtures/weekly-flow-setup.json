@@ -1,0 +1,21 @@
+{
+  "evidence_kind": "synthetic",
+  "environment": "Isolated workspace and fixture-backed inventory/status reads; no live providers. All propagation destinations remain local.",
+  "fixture_root": "skills/pm-weekly/evals/fixtures",
+  "inventory": "coverage/closed-inventory.json",
+  "stage_before_capture": [
+    {"source":"unblocking/project--toy-launch.md","destination":"weeks/2026-W37/project-memory/project--PROJ-TOY-LAUNCH.md"},
+    {"source":"unblocking/project--toy-retail.md","destination":"weeks/2026-W37/project-memory/project--PROJ-TOY-RETAIL.md"},
+    {"source":"unblocking/project--toy-archive.md","destination":"weeks/2026-W37/project-memory/project--PROJ-TOY-ARCHIVE.md"},
+    {"source":"coverage/project--toy-studio.md","destination":"weeks/2026-W37/project-memory/project--PROJ-TOY-STUDIO.md"},
+    {"source":"unblocking/person--nur-before.md","destination":"memory/employees/person--PERSON-TOY-NUR-001.md"},
+    {"source":"unblocking/sop--catalog-handoff-before.md","destination":"memory/sops/sop--SOP-TOY-CATALOG-HANDOFF.md"}
+  ],
+  "reference_rules": [
+    "Copy the listed fixture bundle into the isolated workspace retaining coverage/ and unblocking/ relative paths.",
+    "Before the baseline capture, copy the six files to canonical destinations above; rebase relative Markdown links and extraction_refs to the corresponding frozen fixture files without changing facts.",
+    "Map inventory memory_file and existing_memory references to the canonical copies; keep coverage and status references pointing to the frozen fixture bundle.",
+    "Capture the baseline only after staging and reference resolution succeed; do not give expected_output or assertions to the candidate."
+  ],
+  "unrelated_file": {"path":"operator-notes.md","content":"Keep this operator note unchanged.\n"}
+}

@@ -22,9 +22,11 @@ distribution_owned:
   - apps/__init__.py
   - apps/doctor/__init__.py
   - apps/installer/__init__.py
-  - apps/installer/schemas
   - apps/installer/runtime.py
   - apps/installer/feature_setup.py
+  - apps/installer/prompt_generation.py
+  - apps/installer/questions.json
+  - apps/installer/templates
   - apps/installer/cli
   - apps/installer/workspace.py
   - apps/installer/profile.py
@@ -36,8 +38,6 @@ distribution_owned:
   - apps/installer/prompts
   - apps/doctor/run.py
   - apps/doctor/evaluation.py
-  - apps/installer/dashboard.py
-  - apps/installer/schemas/workspace.py
   - apps/installer/providers
   - skills/pm-daily/SKILL.md
   - skills/pm-daily/templates
@@ -50,7 +50,6 @@ distribution_owned:
   - apps/eval_viewer/model.py
   - workspace.hermes.template.md
   - automations
-  - apps/installer/design.md
   - templates
   - plugins/platforms/notion/__init__.py
   - plugins/platforms/notion/adapter.py
@@ -61,3 +60,5 @@ distribution_owned:
   - plugins/platforms/notion/protocol.py
   - plugins/multica/__init__.py
   - plugins/multica/plugin.yaml
+  - plugins/discord_context/__init__.py
+  - plugins/discord_context/plugin.yaml

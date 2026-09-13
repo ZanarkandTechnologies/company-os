@@ -2,7 +2,7 @@
 
 This repository is the current proving ground for a self-service Company OS on
 Hermes. It contains reusable configuration, automations, templates, setup, and
-tests. A setup run supplies the company identity and integrations; the product
+evals. A setup run supplies the company identity and integrations; the product
 docs do not assume a specific client.
 
 The live Hermes profile is stored separately and is never committed.
@@ -84,12 +84,12 @@ Compose owns only the optional ngrok ingress used by Notion webhooks.
 | `skills/pm-daily/` | Daily extraction instructions, eval cases, and frozen evidence |
 | `skills/pm-weekly/` | Weekly reporting and memory instructions, eval cases, and frozen evidence |
 | `apps/doctor/` | Data-readiness, isolated full-eval, dossier, and analysis commands |
-| `apps/installer/` | Guided setup, maintenance, certification, verification, documentation, and installer tests |
+| `apps/installer/` | Guided setup, maintenance, certification, verification, and documentation |
 | `workspace.hermes.md` | Generic rendered example used by offline checks |
 | `automations/` | Daily and Weekly automation contracts |
 | `templates/` | Flat shared entity shapes; cadence-owned templates live with each PM skill |
 | `plugins/` | Hermes connectors installed into the profile |
-| `tests/` | Repository-wide architecture and distribution checks only |
+| `automations/evals/` | Synthetic collection and snapshot-boundary eval cases |
 
 The repository owns reviewed configuration. The Hermes profile owns secrets,
 OAuth sessions, logs, generated reports, and other runtime state. Do not copy
@@ -97,14 +97,9 @@ private runtime data into Git.
 
 ## Develop and verify
 
-Edit the owning skill and Markdown templates directly, then run:
-
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py' -v
-python3 apps/installer/validate_context.py --context workspace.hermes.md
-```
-
-Local evals use packaged fixtures and make no provider calls. Private Notion
+Edit the owning automation, skill, and Markdown templates directly. Automation
+evals stop at the normalized snapshot boundary; PM behavior is evaluated by the
+owning skill suite. Local evals use packaged fixtures and make no provider calls. Private Notion
 captures and generated private seeds must remain outside the repository.
 
 `setup.py doctor analysis` asks native Hermes to execute the selected cadence contract
@@ -115,10 +110,9 @@ effects. There is no separate handoff or delivery runtime. A missing artifact
 or message binding means local-only, and provider edits never flow back into
 memory. Notion and Drive permissions remain the operator's privacy boundary; a
 configured URL alone does not prove that a destination is private.
-The [autonomous testing runbook](docs/autonomous-testing.md) defines the safe
-default loop, targeted setup checks, live-test gates, and required evidence.
-The global Python discovery includes the real Telegram test as a skipped-by-
-default case; use the runbook's explicit profile and side-effect gate to run it.
+The [evaluation runbook](docs/evaluation.md) defines the synthetic boundary,
+skill-level proof, live-eval gates, and required evidence. Tests are temporarily
+banned by the project-level `AGENTS.md` while product contracts stabilize.
 
 For setup steps and recovery paths, see
 [`apps/installer/docs/customer-setup.md`](apps/installer/docs/customer-setup.md).

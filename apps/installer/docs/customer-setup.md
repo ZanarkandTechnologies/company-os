@@ -139,10 +139,12 @@ failed prerequisite:
 | `Docker Compose is unavailable. Update Docker Desktop, then try again.` | Update Docker Desktop, then rerun setup. |
 
 On a new profile, the interactive wizard asks for company details, data sources,
-and communication choices. Projects, Tasks, People, SOPs, Reports, and Operator
-Email are independent source roles: every selected role receives its own
-provider and source URL or identifier. Choosing Notion for several roles does
-not merge them into one database. The wizard also asks about optional owner
+and communication choices. Project and Work questions are multi-select: every
+selected option receives its own configuration field. Their rendered automation
+instructions own cross-provider matching and precedence; do not add integration
+configuration fields to a business system merely to make two providers join.
+People, SOPs, Reports, and Operator Email remain independent roles. Choosing
+Notion for several roles does not merge them into one database. The wizard also asks about optional owner
 messages. Messaging asks ordinary questions only: completed
 reports and/or owner alerts, the owner's name, Telegram/Slack/WhatsApp, and
 **Prepare drafts in the private workspace** or **Send automatically**. Leaving
@@ -306,13 +308,21 @@ workspace.
 
 ## 5. Restart and update
 
-If setup stops before installation completes, rerunning it offers **Resume**,
-**Start over**, or **Exit**. **Start over** moves the incomplete profile to a
-timestamped sibling backup, creates a clean profile, and asks the workspace
-questions again. It does not delete the saved credentials or draft in the
-backup.
+Pressing **Ctrl+C** or sending terminal EOF during the workspace questions
+stops before active configuration is changed and asks whether to save completed
+answers. A saved `config/setup-answers.draft.json` resumes automatically on the
+next run and is removed only after the completed configuration is saved. Closing
+the terminal window itself cannot display a confirmation after the terminal is
+gone; use Ctrl+C when an interactive save choice is needed.
 
-The host Hermes profile under `%USERPROFILE%\.hermes\profiles\company-os`
+If setup stops before installation completes, rerunning it offers **Resume**,
+**Start over**, or **Exit**. Existing installations also expose **Start over**
+from their action menu so an older onboarding-answer contract cannot trap the
+operator. **Start over** moves the current profile to a timestamped sibling
+backup, creates a clean profile, and asks the workspace questions again. It
+does not delete the saved credentials or draft in the backup.
+
+The host Hermes profile under `%USERPROFILE%\.hermes\profiles\<profile-name>`
 preserves credentials, OAuth state, schedules, receipts, and generated
 workspace state. The assigned ngrok hostname remains stable when its container
 or the computer restarts.
@@ -329,7 +339,8 @@ Rerunning `setup.cmd` on an existing installation shows:
 7. Repair setup
 8. Open latest eval dossier
 9. Open dashboard
-10. Exit
+10. Start over from a preserved backup
+11. Exit
 ```
 
 Choose **Update Company OS features** to revisit the explained Memory, Daily,

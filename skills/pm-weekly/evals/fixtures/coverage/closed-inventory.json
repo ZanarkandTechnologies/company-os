@@ -1,0 +1,18 @@
+{
+  "company":"AGI Toy Shop","week":"2026-W37","next_week":"2026-W38","run_id":"20260910T190000Z","evidence_kind":"synthetic",
+  "reporting_projects":[
+    {"id":"PROJ-TOY-LAUNCH","department":"Operations","department_id":"DEPT-TOY-OPS","status":"Active","memory_file":"../unblocking/project--toy-launch.md"},
+    {"id":"PROJ-TOY-RETAIL","department":"Operations","department_id":"DEPT-TOY-OPS","status":"Active","memory_file":"../unblocking/project--toy-retail.md"},
+    {"id":"PROJ-TOY-ARCHIVE","department":"Operations","department_id":"DEPT-TOY-OPS","status":"Active","memory_file":"../unblocking/project--toy-archive.md"},
+    {"id":"PROJ-TOY-STUDIO","department":"Product Design","department_id":"DEPT-TOY-DESIGN","status":"Archived","memory_file":"project--toy-studio.md","status_reference":"closed-status.md#closure"}
+  ],
+  "people":[
+    {"person_id":"PERSON-TOY-NUR-001","name":"Nur","project_ids":["PROJ-TOY-LAUNCH"]},
+    {"person_id":"PERSON-TOY-MEI-002","name":"Mei","project_ids":["PROJ-TOY-LAUNCH"]},
+    {"person_id":"PERSON-TOY-AISHA-003","name":"Aisha","project_ids":["PROJ-TOY-LAUNCH"]},
+    {"person_id":"PERSON-TOY-JON-004","name":"Jon","project_ids":["PROJ-TOY-RETAIL"]},
+    {"person_id":"PERSON-TOY-CASEY-005","name":"Casey","project_ids":["PROJ-TOY-STUDIO"]}
+  ],
+  "coverage_reference":"closed-status.md#coverage",
+  "existing_memory":["../unblocking/person--nur-before.md","../unblocking/sop--catalog-handoff-before.md"]
+}

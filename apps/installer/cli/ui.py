@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import getpass
-import json
 import sys
 
 try:
@@ -11,6 +10,7 @@ try:
     from prompt_toolkit.key_binding import KeyBindings
     from prompt_toolkit.keys import Keys
     from prompt_toolkit.layout import HSplit, Layout, Window
+    from prompt_toolkit.layout.dimension import Dimension
     from prompt_toolkit.layout.controls import FormattedTextControl
     from prompt_toolkit.styles import Style
     from prompt_toolkit.widgets import CheckboxList, RadioList
@@ -24,7 +24,6 @@ from rich.prompt import Confirm, Prompt
 
 
 CONSOLE = Console()
-UNSET_VALUES = {"", "REPLACE_ME", "—"}
 
 
 def _friendly_runtime_error(error: Exception) -> str:
@@ -50,6 +49,14 @@ def _friendly_runtime_error(error: Exception) -> str:
         (
             ("workspace_configuration_cancelled",),
             "Workspace setup was cancelled. Your saved draft is still available when you rerun setup.",
+        ),
+        (
+            ("setup_answers_schema_invalid",),
+            "The saved onboarding answers use an older contract. Rerun setup and choose Start over; the existing profile will be preserved as a timestamped backup before the current questions begin.",
+        ),
+        (
+            ("profile_home_must_be_under_profiles",),
+            "Choose a Hermes profile path directly under the Hermes profiles directory, for example ~/.hermes/profiles/company-os.",
         ),
         (
             ("model_auth_requires_input", "model_auth_incomplete"),
@@ -101,14 +108,6 @@ def _friendly_runtime_error(error: Exception) -> str:
     )
 
 
-def current_value(raw: str) -> str:
-    value = raw.strip()
-    if value.startswith('"') and value.endswith('"'):
-        try:
-            return str(json.loads(value))
-        except json.JSONDecodeError:
-            pass
-    return "" if value in UNSET_VALUES else value
 
 
 def _prompt_text(*args, **kwargs) -> str:
@@ -132,6 +131,8 @@ def choose(label: str, *, choices: list[str], default: str) -> str:
     )
 
 
+
+
 def choose_many(
     label: str,
     *,
@@ -149,10 +150,253 @@ def choose_many(
     return [choices[index] for index in indices]
 
 
+
+
+def configure_options(
+    label: str, options: list[dict], current: dict, multiple: bool,
+) -> dict | None:
+    """Edit prefills inline: arrows move rows, Tab fields, Ctrl+Space toggles.
+
+    Mutate ``current`` on every edit so interruption can save a resumable draft.
+    Enter accepts; Back/Escape returns None; Ctrl+C/EOF propagates to the caller.
+    Field validation belongs to the caller, not this presentation boundary.
+    """
+    selected = current.setdefault("selected", [])
+    inputs = current.setdefault("inputs", {})
+    for option in options:
+        values = inputs.setdefault(option["id"], {})
+        for field in option.get("fields", []):
+            values.setdefault(field["id"], str(field.get("default") or ""))
+    entries = current.setdefault("entries", {}) if multiple else {}
+    options = [dict(option) for option in options]
+    for option in list(options):
+        for values in entries.get(option["id"], []):
+            options.append(dict(option, _values=values, label=option["label"] + " (additional)"))
+
+    def row_values(option):
+        return option["_values"] if "_values" in option else inputs[option["id"]]
+
+    def add_entry(option):
+        values = {field["id"]: str(field.get("default") or "")
+                  for field in option.get("fields", [])}
+        entries.setdefault(option["id"], []).append(values)
+        options.append(dict(option, _values=values,
+                            label=option["label"].removesuffix(" (additional)") + " (additional)"))
+        select(option["id"])
+
+    def select(option_id: str, *, toggle: bool = False) -> None:
+        if not multiple:
+            selected[:] = [option_id]
+        elif toggle and option_id in selected:
+            selected.remove(option_id)
+        elif option_id not in selected:
+            selected.append(option_id)
+
+    if not (PROMPT_TOOLKIT_AVAILABLE and sys.stdin.isatty() and sys.stdout.isatty()):
+        # The old numbered checklist cannot represent a default. Offer an explicit
+        # keep/edit choice rather than silently clearing saved multiple selections.
+        labels = [f"{index + 1}. {option['label']}" for index, option in enumerate(options)]
+        if multiple:
+            action = choose(label, choices=["Keep selections", "Edit selections", "Back"],
+                            default="Keep selections" if selected else "Edit selections")
+            if action == "Back":
+                return None
+            if action == "Edit selections":
+                picked = choose_many(label, choices=labels + ["Back"],
+                                     selected=[labels[i] for i, option in enumerate(options)
+                                               if option["id"] in selected])
+                if "Back" in picked:
+                    return None
+                picked_rows = [option for i, option in enumerate(options) if labels[i] in picked]
+                selected[:] = list(dict.fromkeys(option["id"] for option in picked_rows))
+                base_options = [option for option in options if "_values" not in option]
+                for option in base_options:
+                    option_id = option["id"]
+                    retained = [row_values(row) for row in picked_rows if row["id"] == option_id]
+                    if retained:
+                        # The first retained row becomes the primary instance. This
+                        # also makes selecting only an additional row mean exactly that.
+                        inputs[option_id] = retained[0]
+                    entries[option_id] = retained[1:]
+                options = list(base_options)
+                for option in base_options:
+                    for values in entries[option["id"]]:
+                        options.append(dict(option, _values=values,
+                                            label=option["label"] + " (additional)"))
+        else:
+            default = next((labels[i] for i, option in enumerate(options)
+                            if option["id"] in selected), labels[0] if labels else "Back")
+            picked = choose(label, choices=labels + ["Back"], default=default)
+            if picked == "Back":
+                return None
+            select(options[labels.index(picked)]["id"])
+        for option in options:
+            if option["id"] not in selected:
+                continue
+            for field in option.get("fields", []):
+                values = row_values(option)
+                values[field["id"]] = _prompt_text(
+                    f"{option['label']} — {field['label']}",
+                    default=values[field["id"]], console=CONSOLE,
+                )
+            if multiple and option.get("fields") and confirm(
+                f"Add another {option['label'].removesuffix(' (additional)')} entry?", default=False
+            ):
+                add_entry(option)
+        return current
+
+    state = {"row": next((i for i, option in enumerate(options)
+                           if option["id"] in selected), 0), "field": 0}
+
+    def active_field():
+        if state["row"] >= len(options):
+            return None
+        option = options[state["row"]]
+        fields = option.get("fields", [])
+        if not fields:
+            return None
+        return option, fields[state["field"] % len(fields)]
+
+    def content():
+        rows = []
+        for index, option in enumerate(options):
+            active = state["row"] == index
+            style = "class:active" if active else ""
+            marker = "[✓] " if option["id"] in selected else "[ ] "
+            if active:
+                rows.append(("[SetCursorPosition]", ""))
+            rows.append((style, marker + option["label"]))
+            for field_index, field in enumerate(option.get("fields", [])):
+                focused = active and state["field"] == field_index
+                value = row_values(option).get(field["id"], "")
+                rows.append(("class:field" if focused else "", (
+                    f"  {field['label']}{'*' if field.get('required') else ''}: "
+                    f"[{value}{'▏' if focused else ''}]"
+                )))
+            rows.append(("", "\n"))
+        if state["row"] == len(options):
+            rows.append(("[SetCursorPosition]", ""))
+        rows.append(("class:active" if state["row"] == len(options) else "", "← Back"))
+        return rows
+
+    bindings = KeyBindings()
+
+    @bindings.add("up", eager=True)
+    def up(event):
+        state.update(row=(state["row"] - 1) % (len(options) + 1), field=0)
+
+    @bindings.add("down", eager=True)
+    def down(event):
+        state.update(row=(state["row"] + 1) % (len(options) + 1), field=0)
+
+    @bindings.add("tab", eager=True)
+    @bindings.add("s-tab", eager=True)
+    def next_field(event):
+        pair = active_field()
+        if pair:
+            step = -1 if event.key_sequence[-1].key == Keys.BackTab else 1
+            state["field"] = (state["field"] + step) % len(pair[0]["fields"])
+
+    @bindings.add("c-space", eager=True)
+    def toggle(event):
+        if state["row"] < len(options):
+            select(options[state["row"]]["id"], toggle=True)
+
+    @bindings.add("c-n", eager=True)
+    def another(event):
+        if multiple and state["row"] < len(options):
+            option = options[state["row"]]
+            if option.get("fields"):
+                add_entry(option)
+                state.update(row=len(options) - 1, field=0)
+
+    @bindings.add("c-x", eager=True)
+    def remove_entry(event):
+        if state["row"] < len(options):
+            option = options[state["row"]]
+            if "_values" in option:
+                additional = entries[option["id"]]
+                additional[:] = [value for value in additional if value is not option["_values"]]
+                options.pop(state["row"])
+                state.update(row=min(state["row"], len(options) - 1), field=0)
+
+    def edit(value: str | None = None, *, clear: bool = False):
+        pair = active_field()
+        if pair:
+            option, field = pair
+            values = row_values(option)
+            old = values[field["id"]]
+            values[field["id"]] = "" if clear else old[:-1] if value is None else old + value
+            select(option["id"])
+
+    @bindings.add(" ", eager=True)
+    def space(event):
+        if active_field():
+            edit(" ")
+        else:
+            toggle(event)
+
+    @bindings.add("backspace", eager=True)
+    def erase(event):
+        edit()
+
+    @bindings.add("c-u", eager=True)
+    def clear(event):
+        edit(clear=True)
+
+    @bindings.add(Keys.BracketedPaste)
+    @bindings.add(Keys.Any)
+    def type_text(event):
+        if event.data:
+            edit("".join(character if character.isprintable() else " "
+                         for character in event.data))
+
+    @bindings.add("enter", eager=True)
+    def submit(event):
+        if state["row"] == len(options):
+            event.app.exit(result=None)
+            return
+        if not multiple:
+            select(options[state["row"]]["id"])
+        event.app.exit(result=current)
+
+    @bindings.add("escape", eager=True)
+    def back(event):
+        event.app.exit(result=None)
+
+    @bindings.add("c-c", eager=True)
+    def interrupt(event):
+        event.app.exit(exception=KeyboardInterrupt())
+
+    @bindings.add("c-d", eager=True)
+    def eof(event):
+        event.app.exit(exception=EOFError())
+
+    control = FormattedTextControl(content, focusable=True)
+    layout = Layout(HSplit([
+        Window(FormattedTextControl([("class:title", f"◆ {label}")]), height=1),
+        Window(FormattedTextControl([("class:hint", (
+            "↑↓ rows  TAB fields  TYPE edit  CTRL+SPACE toggle  CTRL+U clear  "
+            "ENTER confirm  ESC back  CTRL+C save/exit" +
+            ("  CTRL+N add entry  CTRL+X remove additional entry" if multiple else "")
+        ))]), wrap_lines=True, dont_extend_height=True),
+        Window(control, wrap_lines=True, dont_extend_height=True),
+    ]), focused_element=control)
+    app = Application(layout=layout, key_bindings=bindings,
+                      style=Style.from_dict({"title": "bold ansicyan", "hint": "ansibrightblack",
+                                             "active": "bold ansigreen", "field": "underline"}),
+                      full_screen=False, erase_when_done=True, mouse_support=False)
+    app.ttimeoutlen = 0.1
+    return app.run()
+
+
 def _interactive_choice(label: str, choices: list[str], default: str) -> str:
     """Select one option with arrows in an ordinary interactive terminal."""
     selector = RadioList(values=[(choice, choice) for choice in choices])
     selector.current_value = default
+    selector._selected_index = choices.index(default) if default in choices else 0
+    selector.window.height = Dimension(max=10)
+    selector.window.dont_extend_height = lambda: True
     bindings = KeyBindings()
 
     @bindings.add("enter", eager=True)

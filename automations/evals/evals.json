@@ -1,0 +1,148 @@
+{
+  "suite_name": "company-os-automation-boundaries",
+  "evals": [
+    {
+      "id": "daily_end_to_end_file_flow",
+      "prompt": "Run today's Daily operating update for AGI Toy Shop.",
+      "expected_output": "The isolated automation collects both Projects, calls PM Daily per Project, and renders two initial weekly memories from the resulting JSON without touching unrelated files or live providers.",
+      "files": ["fixtures/daily-flow-seed.json"],
+      "assertions": [
+        "Both toy-launch and toy-reference have exactly one context JSON and adjacent raw cache under daily/context/20260910T090000Z, including the successful empty Reference reads",
+        "Each eligible Project has one daily/extractions/20260910T090000Z/<id>.json; stage-level before/after inventories show PM Daily changed only its extraction",
+        "Step 4 creates weeks/2026-W37/project-memory/project--toy-launch.md and project--toy-reference.md, retaining every template heading and agreeing with their JSON memory sections",
+        "Launch retains Nur's 24-row validation and Mei's scoped acceptance without claiming publication; Reference gains no invented work or follow-up",
+        "All context references resolve to cached evidence, with original source links retained; the generation trace shows collection before skill invocation and no skill provider access",
+        "operator-notes.md and all staged source, skill and template files remain byte-identical; no separate gaps, message Markdown, report or undeclared file is created and no file is deleted",
+        "Replaying the same Step 4 extraction against the rendered memory leaves both memory files byte-identical and causes no duplicate effect",
+        "Only fixture adapters are invoked; absence of configured or needed effects is not represented as a successful live delivery"
+      ],
+      "metadata": {"title":"Daily source-to-memory file algebra","tags":["automation","end-to-end","synthetic"],"notes":"Not run: requires fixture-backed provider reads, stage file inventories and an isolated effect sink. Seed declares complete single-page reads; this case does not certify pagination or live connectivity."}
+    },
+    {
+      "id": "weekly_end_to_end_file_flow",
+      "prompt": "Close the reporting week for AGI Toy Shop and prepare next week's memory.",
+      "expected_output": "The isolated Weekly automation freezes all reporting Projects, runs PM Weekly once, then renders only validated declared artifacts with complete Company coverage and no revival of the archived Project.",
+      "files": [
+        "fixtures/weekly-flow-setup.json",
+        "../../skills/pm-weekly/evals/fixtures/coverage/closed-inventory.json",
+        "../../skills/pm-weekly/evals/fixtures/coverage/closed-status.md",
+        "../../skills/pm-weekly/evals/fixtures/coverage/project--toy-studio.md",
+        "../../skills/pm-weekly/evals/fixtures/coverage/extraction--toy-studio.json",
+        "../../skills/pm-weekly/evals/fixtures/coverage/sources--toy-studio.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/project--toy-launch.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/project--toy-retail.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/project--toy-archive.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/extraction--toy-launch.json",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/extraction--toy-retail.json",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/extraction--toy-archive.json",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/sources--toy-launch.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/sources--toy-retail.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/sources--toy-archive.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/person--nur-before.md",
+        "../../skills/pm-weekly/evals/fixtures/unblocking/sop--catalog-handoff-before.md"
+      ],
+      "assertions": [
+        "weekly/context/20260910T190000Z.json freezes all four reporting Projects and their coverage references before PM Weekly runs once",
+        "PM Weekly writes only weekly/extractions/20260910T190000Z.json; all input memories, provenance caches and baselines remain byte-identical during that stage",
+        "Step 4 renders weeks/2026-W37/reports/company.md plus declared Project and Department reports, preserving required template headings and exact JSON facts with resolving links",
+        "Company coverage includes Operations, Product Design and all five supplied people; the archived Studio's observed work remains visible and the missing interval is not called complete",
+        "Next-week memory is rendered for all three still-active Projects but not Studio; approved baseline content is preserved where a validated memory artifact updates its interval evidence",
+        "Only the context, extraction, weekly/receipts/20260910T190000Z.json and validated skill-declared destinations are created or modified; reporting-week input memories and unrelated files remain unchanged, and nothing is deleted",
+        "A repeat application leaves already-rendered artifact bytes unchanged; receipt attempt history may append but previous attempts and earlier runs are preserved",
+        "No live provider is called; local destinations and unattempted effects never receive fabricated send confirmations"
+      ],
+      "metadata": {"title":"Weekly memory-to-company file algebra","tags":["automation","end-to-end","synthetic"],"notes":"Not run: use weekly-flow-setup.json to stage canonical memories and rebase references before the initial file inventory. Bind provider inventory/status reads to the staged closed inventory. No live effects or grading truth in generation."}
+    },
+    {
+      "id":"stale_message_freshness_gate",
+      "prompt":"Review whether the prepared follow-up can be applied using the supplied current read-back results. Return a local effect decision; do not send anything.",
+      "expected_output":"The old question is blocked after approval arrived; failed freshness reads also block instead of permitting a message.",
+      "files":["fixtures/stale-message.json"],
+      "assertions":[
+        "The answered v1 question is blocked as stale after v2; it is not sent or rewritten into a different action",
+        "The permission-denied variant blocks because freshness and duplicate checks could not complete",
+        "The render-conflict variant blocks messages despite unchanged Work and a still-needed question; local canonical memory must render successfully first",
+        "No provider write is attempted and no local decision is represented as a delivery receipt"
+      ],
+      "metadata":{"title":"Freshness gate decision replay","tags":["automation","boundary","synthetic"]}
+    },
+    {
+      "id": "daily_local_render_from_extraction",
+      "prompt": "Render the supplied Daily extraction into this project's weekly memory in the isolated evaluation workspace. Stop before any provider operation.",
+      "expected_output": "Step 4 renders all required memory sections from the frozen JSON, preserving facts and readable evidence links without rerunning extraction or writing message Markdown.",
+      "files": ["fixtures/daily-extraction.json", "../../skills/pm-daily/templates/project-memory.md"],
+      "assertions": [
+        "All eight Project Memory headings from the template remain present, including sections whose JSON status is none or insufficient",
+        "Every populated item retains its supported facts, readable evidence links, and required template fields; unavailable field values are explicitly unavailable rather than invented",
+        "The prior signed-sample comparison decision survives alongside the collar blocker and checkout documentation question",
+        "Sections with status none and reason null render only None.; insufficient sections render Not enough information followed by their supplied concise reason",
+        "Initialization uses template version 2.1.0 and all nine required frontmatter fields without adding source_note_keys; updates preserve unknown existing metadata, including source_note_keys when already present",
+        "The renderer keeps compact machine metadata in extraction_refs, preserves original evidence destinations, and does not print metadata, duplicate section explanations, or link facts back to the memory being rewritten",
+        "The renderer performs no fresh extraction, source fetch, provider write, or message Markdown creation",
+        "The extraction JSON remains unchanged; no message is marked sent or applied in this local-only evaluation",
+        "A repeat render of identical extraction and current memory preserves memory bytes when content and required structure already match"
+      ],
+      "metadata": {
+        "title": "Daily Step 4 local rendering boundary",
+        "tags": ["automation", "render", "synthetic"],
+        "extensions": {"expected_artifact": "expected/project-memory-after.md"}
+      }
+    },
+    {
+      "id": "daily_collection_snapshot",
+      "prompt": "Collect the synthetic Daily source environment through Steps 1 and 2 of the Daily automation. Write per-Project context lists and local source caches, then stop before PM Daily.",
+      "expected_output": "One context list and local source cache per active Project, preserving source evidence and collection gaps without PM decisions.",
+      "files": [
+        "fixtures/daily-seed.json"
+      ],
+      "assertions": [
+        "Every active Project has exactly one context-list file and isolated source cache; inactive Projects are excluded",
+        "Context lists contain only id, name, and deduplicated local references that resolve to cached source sections",
+        "Source caches preserve fetched content, provider IDs, raw fields, relations, original source links, timestamps, and revisions when supplied",
+        "Recursive traversal stays within configured Project sources, stops cycles, and fetches each provider record once",
+        "Missing or ambiguous Project relations and incomplete collection remain explicit gaps in the affected source cache",
+        "Discord uses one frozen half-open 24-hour interval and complete pagination; out-of-window messages are excluded",
+        "An empty successful source read is distinguished from unavailable tools, missing permissions, and incomplete pagination",
+        "No PM decisions, normalized status judgments, Project Memory, follow-up, message, provider mutation, or separate gaps file is produced"
+      ],
+      "metadata": {
+        "title": "Daily collection boundary",
+        "tags": [
+          "automation",
+          "boundary",
+          "synthetic"
+        ],
+        "extensions": {
+          "expected_artifact": "expected/daily-snapshot.json"
+        }
+      }
+    },
+    {
+      "id": "weekly_collection_snapshot",
+      "prompt": "Collect the synthetic Weekly source environment and stop after freezing the Project Memory inventory.",
+      "expected_output": "The complete reporting Project set is reconciled to current-week Project Memory, then frozen with stable IDs and hashes without producing reports or memory promotion. This seed's inactive Project has no interval evidence.",
+      "files": [
+        "fixtures/weekly-seed.json",
+        "fixtures/weekly-project-memory-alpha.md",
+        "fixtures/weekly-project-memory-beta.md"
+      ],
+      "assertions": [
+        "Every active Project appears exactly once; this seed's inactive Project is excluded because it has no reporting-interval evidence, not merely because of its current status",
+        "Each active Project resolves by stable Project ID to one current-week Project Memory file",
+        "The frozen inventory preserves Project source URL, source revision, Department relation, memory path, and file hash",
+        "No Project report, Department report, Company report, long-term memory change, message, or provider mutation is produced"
+      ],
+      "metadata": {
+        "title": "Weekly collection boundary",
+        "tags": [
+          "automation",
+          "boundary",
+          "synthetic"
+        ],
+        "extensions": {
+          "expected_artifact": "expected/weekly-snapshot.json"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "project_id":"PROJ-TOY-STUDIO",
+  "project_name":"AGI Toy Shop — Storefront Design",
+  "week":"2026-W37",
+  "evidence_kind":"synthetic",
+  "memory_action":"update",
+  "memory": {
+    "progress": {
+      "status":"populated",
+      "items":[{
+        "text":"Casey progressed from two to four of six planned checkout screens; address and payment remain for the September 14 review. No blocker or receiver acceptance is recorded.",
+        "sources":[{"label":"Casey's design update","reference":"sources--toy-studio.md#design-update"}],
+        "metadata":{"work_id":"WORK-TOY-CHECKOUT-01","person_id":"PERSON-TOY-CASEY-005","department_id":"DEPT-TOY-DESIGN","status":"in progress","artifact":"checkout-draft.fig","review_date":"2026-09-14"}
+      }],
+      "reason":null
+    },
+    "outcomes":{"status":"none","items":[],"reason":null},
+    "documentation_questions":{"status":"none","items":[],"reason":null},
+    "problems":{"status":"none","items":[],"reason":null},
+    "decisions":{"status":"none","items":[],"reason":null},
+    "sop_signals":{"status":"none","items":[],"reason":null},
+    "carry_forward":{"status":"none","items":[],"reason":null},
+    "evidence_limitations":{"status":"none","items":[],"reason":null}
+  },
+  "messages":[],
+  "work_reviews":[]
+}

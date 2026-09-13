@@ -50,6 +50,30 @@
         "required_relations": ["project", "owner"],
         "optional_fields": ["due_date", "type", "body_markdown"]
       }
+    },
+    {
+      "id": "multica",
+      "label": "Multica",
+      "mcp": {"source": "hermes_plugin", "name": "multica"},
+      "test": {
+        "risk": "read_only",
+        "requires_confirmation": false,
+        "prompt": "Use only `multica_list_issues`. Apply the exact workspace, filters, and Project-matching configuration in {{source}}. Fetch one bounded page of at most 10 issues and report the workspace reachability, returned count, available issue fields, and whether source project IDs are present. Do not create or change any issue.",
+        "expected_output": "The configured Multica workspace is read through the installed plugin and returns a bounded, structured issue result without a write.",
+        "assertions": [
+          "The trace contains a successful `multica_list_issues` tool result.",
+          "The response reports a bounded issue count and available structure.",
+          "The configured workspace and filters are used without guessing a Project match.",
+          "No provider mutation is attempted."
+        ]
+      },
+      "readiness": {
+        "importance": "capability",
+        "proof": "connection_receipt",
+        "required_fields": ["id", "title", "status"],
+        "required_relations": ["project"],
+        "optional_fields": ["assignee", "due_date", "description", "metadata"]
+      }
     }
   ]
 }

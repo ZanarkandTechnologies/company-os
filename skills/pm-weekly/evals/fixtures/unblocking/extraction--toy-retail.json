@@ -1,0 +1,68 @@
+{
+  "project_id": "PROJ-TOY-RETAIL",
+  "project_name": "AGI Toy Shop — Retail Pilot",
+  "week": "2026-W37",
+  "evidence_kind": "synthetic",
+  "memory_action": "update",
+  "memory": {
+    "progress": {
+      "status": "insufficient",
+      "items": [],
+      "reason": "Source bodies contain no substantive pilot update."
+    },
+    "outcomes": {
+      "status": "insufficient",
+      "items": [],
+      "reason": "Source bodies contain no substantive pilot update."
+    },
+    "documentation_questions": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "problems": {
+      "status": "insufficient",
+      "items": [],
+      "reason": "Source bodies contain no substantive pilot update."
+    },
+    "decisions": {
+      "status": "insufficient",
+      "items": [],
+      "reason": "Source bodies contain no substantive pilot update."
+    },
+    "sop_signals": {
+      "status": "insufficient",
+      "items": [],
+      "reason": "Source bodies contain no substantive pilot update."
+    },
+    "carry_forward": {
+      "status": "none",
+      "items": [],
+      "reason": null
+    },
+    "evidence_limitations": {
+      "status": "populated",
+      "items": [
+        {
+          "text": "All configured reads succeeded, but the title/status-only pilot record does not establish an output, acceptance, blocker, or next action.",
+          "sources": [
+            {
+              "label": "coverage",
+              "reference": "sources--toy-retail.md#coverage"
+            }
+          ]
+        }
+      ],
+      "reason": null
+    }
+  },
+  "messages": [],
+  "work_reviews": [
+    {
+      "work_id": "WORK-TOY-PILOT-01",
+      "documentation_state": "empty",
+      "action": "skip",
+      "reason": "The frozen record supplies no substantive output or timing evidence."
+    }
+  ]
+}

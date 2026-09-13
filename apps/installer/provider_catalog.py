@@ -10,14 +10,6 @@ from typing import Any
 
 
 DEFAULT_CATALOG = Path(__file__).resolve().parent / "providers"
-MANAGED_DATA_SOURCES = re.compile(
-    r"<!-- hermes:managed data-sources -->(.*?)<!-- /hermes:managed data-sources -->",
-    re.DOTALL,
-)
-ROW = re.compile(
-    r"^\| `(?P<role>[^`]+)` \| (?P<provider>[^|]+?) \| (?P<source>[^|]+?) \|",
-    re.MULTILINE,
-)
 IDENTIFIER = re.compile(r"^[a-z][a-z0-9_-]*$")
 
 
@@ -42,6 +34,7 @@ def _validate_provider(provider: Any, source_id: str) -> dict[str, Any]:
     if not isinstance(mcp, dict) or mcp.get("source") not in {
         "hermes_catalog",
         "composio_session",
+        "hermes_plugin",
     }:
         raise CatalogError(f"catalog_invalid:{source_id}.{provider_id}.mcp")
     name = _required_string(mcp.get("name"), f"{source_id}.{provider_id}.mcp.name")
@@ -179,38 +172,6 @@ def provider_for(
         if provider["id"] == provider_id:
             return provider
     raise CatalogError(f"unsupported_provider:{role}:{provider_id}")
-
-
-def selected_bindings(
-    workspace: Path, catalog: dict[str, dict[str, Any]]
-) -> list[dict[str, Any]]:
-    """Resolve configured managed rows to their catalog provider definitions."""
-    try:
-        content = workspace.read_text(encoding="utf-8")
-    except OSError as error:
-        raise CatalogError(f"workspace_unreadable:{workspace}") from error
-    block = MANAGED_DATA_SOURCES.search(content)
-    if not block:
-        raise CatalogError("workspace_data_sources_missing")
-    bindings: list[dict[str, Any]] = []
-    for row in ROW.finditer(block.group(1)):
-        role = row.group("role").strip()
-        provider_id = row.group("provider").strip().lower()
-        source = row.group("source").strip()
-        if provider_id in {"", "—", "replace_me"}:
-            continue
-        if source.lower() in {"", "—", "replace_me"}:
-            raise CatalogError(f"source_missing:{role}")
-        provider = provider_for(catalog, role, provider_id)
-        bindings.append(
-            {
-                "case_id": f"{role}:{provider_id}",
-                "data_source": role,
-                "source": source,
-                "provider": provider,
-            }
-        )
-    return bindings
 
 
 def connection_key(provider: dict[str, Any]) -> str:

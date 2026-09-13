@@ -21,21 +21,21 @@ def _read(path: Path, label: str) -> dict[str, Any]:
     return value
 
 
-def _catalog(project: Path) -> list[dict[str, Any]]:
+def _catalog(project: Path, run: Path) -> list[dict[str, Any]]:
     evaluations: list[dict[str, Any]] = []
-    for cadence in ("daily", "weekly"):
-        suite = _read(
-            project / f"skills/pm-{cadence}/evals/evals.json",
-            f"PM {cadence} evals",
-        )
-        if suite.get("skill_name") != f"pm-{cadence}":
-            raise ViewerError(f"PM {cadence} evals target another skill")
-        for position, case in enumerate(suite.get("evals", [])):
+    frozen = _read(run / "catalog.json", "frozen catalog") if (run / "catalog.json").exists() else None
+    for layer in ("daily", "weekly", "automation"):
+        if frozen is not None:
+            cases = frozen.get(layer, [])
+        else:
+            relative = "automations/evals/evals.json" if layer == "automation" else f"skills/pm-{layer}/evals/evals.json"
+            cases = _read(project / relative, f"{layer} evals").get("evals", [])
+        for position, case in enumerate(cases):
             metadata = case.get("metadata") or {}
             tags = metadata.get("tags") or []
             evaluations.append({
                 "id": case["id"],
-                "cadence": cadence,
+                "cadence": layer,
                 "name": metadata.get("title") or case["id"].replace("_", " ").title(),
                 "description": metadata.get("notes") or case["expected_output"],
                 "expectedOutput": case["expected_output"],
@@ -45,8 +45,8 @@ def _catalog(project: Path) -> list[dict[str, Any]]:
             })
     ids = [row["id"] for row in evaluations]
     if len(ids) != len(set(ids)):
-        raise ViewerError("eval IDs must be unique across PM Daily and PM Weekly")
-    return sorted(evaluations, key=lambda row: (not row["showcase"], row["cadence"] != "daily", row["position"]))
+        raise ViewerError("eval IDs must be unique across catalogs")
+    return sorted(evaluations, key=lambda row: (("daily", "weekly", "automation").index(row["cadence"]), not row["showcase"], row["position"]))
 
 
 def _result_index(receipt: dict[str, Any], known_ids: set[str]) -> dict[str, dict[str, Any]]:
@@ -94,7 +94,11 @@ def _assertion_results(required: list[str], result: dict[str, Any]) -> list[dict
 
 def _outputs(run: Path, result: dict[str, Any]) -> list[dict[str, Any]]:
     outputs = []
-    for relative in result.get("outputs") or []:
+    paths = list(result.get("outputs") or [])
+    delta = (result.get("execution") or {}).get("file_delta")
+    if delta and delta not in paths:
+        paths.append(delta)
+    for relative in paths:
         if not isinstance(relative, str):
             raise ViewerError(f"{result.get('eval_id')} output paths must be strings")
         candidate = Path(relative)
@@ -105,8 +109,8 @@ def _outputs(run: Path, result: dict[str, Any]) -> list[dict[str, Any]]:
             raise ViewerError(f"eval output does not exist inside the run: {relative}")
         outputs.append({
             "id": relative,
-            "label": path.name,
-            "kind": "Markdown" if path.suffix.lower() == ".md" else "Artifact",
+            "label": "File changes" if relative == delta else path.name,
+            "kind": {".md": "Markdown", ".json": "JSON"}.get(path.suffix.lower(), "Artifact"),
             "state": "observed",
             "url": relative,
             "markdown": path.read_text(encoding="utf-8"),
@@ -129,6 +133,8 @@ def _validate_receipt(receipt: dict[str, Any]) -> str:
     mutations = receipt.get("provider_mutations")
     if mode == "analysis_only" and mutations == 0:
         return mode
+    if mode == "analysis_only" and mutations is None and receipt.get("safety_verified") is False:
+        return "unverified_trace"
     if (
         mode == "isolated_eval"
         and isinstance(mutations, int)
@@ -146,15 +152,25 @@ def build_evidence_model(*, project_root: Path, eval_run_root: Path) -> dict[str
     run = Path(eval_run_root).resolve()
     receipt = _read(run / "eval-receipt.json", "eval receipt")
     run_mode = _validate_receipt(receipt)
-    catalog = _catalog(project)
+    catalog = _catalog(project, run)
     results = _result_index(receipt, {row["id"] for row in catalog})
+    selected = receipt.get("selected_eval_ids")
+    if selected is not None and (not isinstance(selected, list) or not all(isinstance(item, str) for item in selected)):
+        raise ViewerError("selected_eval_ids must be a list of strings")
 
     evaluations = []
     for case in catalog:
         run_state = (receipt.get("automation_runs") or {}).get(case["cadence"], {})
         run_status = run_state.get("status")
         result = results.get(case["id"])
-        if run_status in {"failed", "not_run", "blocked_by_setup"}:
+        if (selected is not None and case["id"] not in selected) or (case["cadence"] == "automation" and result is None):
+            status, status_note, assertions, outputs = "not_run", "Not executed in this run.", [], []
+        elif result is not None:
+            assertions = _assertion_results(case["requiredAssertions"], result)
+            outputs = _outputs(run, result)
+            status = "pass" if result.get("status") == "passed" and assertions and all(row["status"] == "pass" for row in assertions) else "fail"
+            status_note = result.get("reason") or ("Every required assertion passed." if status == "pass" else "One or more checks failed.")
+        elif run_status in {"failed", "not_run", "blocked_by_setup"}:
             failed = run_status == "failed"
             status = "fail" if failed else "not_run"
             status_note = "No output was accepted." if failed else "No operated output exists."
@@ -162,15 +178,8 @@ def build_evidence_model(*, project_root: Path, eval_run_root: Path) -> dict[str
             outputs: list[dict[str, Any]] = []
         elif run_status != "passed":
             raise ViewerError(f"unexpected {case['cadence']} automation status: {run_status}")
-        elif result is None:
-            status, status_note, assertions, outputs = "unjudged", "No result was supplied by the shared run.", [], []
         else:
-            assertions = _assertion_results(case["requiredAssertions"], result)
-            outputs = _outputs(run, result)
-            status = "pass" if assertions and all(row["status"] == "pass" for row in assertions) else (
-                "fail" if any(row["status"] == "fail" for row in assertions) else "needs_information"
-            )
-            status_note = "Every required assertion passed." if status == "pass" else "One or more required assertions did not pass."
+            status, status_note, assertions, outputs = "unjudged", "No result was supplied by the run.", [], []
         evaluations.append({
             "id": case["id"],
             "cadence": case["cadence"],

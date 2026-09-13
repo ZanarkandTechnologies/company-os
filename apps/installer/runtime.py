@@ -7,7 +7,6 @@ the operations deterministic and independently testable.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import importlib.util
 import ipaddress
@@ -35,7 +34,6 @@ WEBHOOK_STATE_RELATIVE = Path("state/notion-webhook.json")
 WEBHOOK_ROLLBACK_RELATIVE = Path("state/notion-webhook.rollback.json")
 NGROK_UPDATE_RELATIVE = Path("state/ngrok-update.json")
 RECEIPT_DIRECTORY = Path("receipts")
-MESSAGING_TEST_RECEIPT = Path("state/messaging-setup/latest.json")
 MESSAGING_MCP_NAME = "company_os_messaging"
 CORE_CRON_NAMES = {
     "Company OS Daily Operating Update",
@@ -103,9 +101,9 @@ def mcp_connection_ready(result: subprocess.CompletedProcess[str]) -> bool:
 
 def root_home_for_profile(profile_home: Path) -> Path:
     resolved = profile_home.expanduser().resolve()
-    if resolved.parent.name == "profiles":
-        return resolved.parent.parent
-    return resolved
+    if resolved.parent.name != "profiles":
+        raise RuntimeSetupError("profile_home_must_be_under_profiles")
+    return resolved.parent.parent
 
 
 def default_profile_home() -> Path:
@@ -118,16 +116,52 @@ def default_profile_home() -> Path:
     return (root / "profiles" / PROFILE_NAME).resolve()
 
 
-def install_or_update_distribution(source: Path, profile_home: Path) -> str:
+def profile_name(profile_home: Path) -> str:
+    """Derive the exact Hermes instance name from its requested profile path."""
+    name = profile_home.expanduser().resolve().name
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", name):
+        raise RuntimeSetupError("profile_name_invalid")
+    return name
+
+
+def generated_install_conflicts(source: Path, profile_home: Path) -> list[str]:
+    """Protect installed generated files before Hermes' force-copy boundary."""
+    from apps.installer.prompt_generation import contained, digest, load_document
+    incoming = load_document(source / "config" / "setup-answers.json")
+    previous = load_document(profile_home / "config" / "setup-answers.json")
+    old_hashes = previous.get("generation", {}).get("outputs", {})
+    conflicts = []
+    for relative in incoming.get("generation", {}).get("outputs", {}):
+        new_path = contained(source, relative)
+        new_text = new_path.read_text(encoding="utf-8")
+        locations = (relative, "workspace/.hermes.md") if relative == "workspace.hermes.md" else (relative, "workspace/" + relative)
+        for location in locations:
+            path = contained(profile_home, location)
+            if path.is_file():
+                text = path.read_text(encoding="utf-8")
+                if relative == "workspace.hermes.md":
+                    text = re.sub(r'^status:\s*approved\s*$', 'status: draft', text, flags=re.MULTILINE)
+                if text != new_text and digest(text) != old_hashes.get(relative):
+                    conflicts.append(location)
+    return conflicts
+
+
+def install_or_update_distribution(source: Path, profile_home: Path, *, allow_generated_overwrite: bool = False) -> str:
     """Install from the explicit checkout and preserve profile-owned user data."""
     source = source.resolve()
     profile_home = profile_home.resolve()
+    if (source / "config" / "generation-incomplete").exists():
+        raise RuntimeSetupError("generation_incomplete:regenerate the source bundle before installation")
+    conflicts = generated_install_conflicts(source, profile_home)
+    if conflicts and not allow_generated_overwrite:
+        raise RuntimeSetupError("installed_generated_edits_require_review:" + ",".join(conflicts))
     root_home = root_home_for_profile(profile_home)
+    instance_name = profile_name(profile_home)
     if (profile_home / "distribution.yaml").is_file():
         run_command(
             [
                 "hermes", "profile", "install", str(source),
-                "--name", PROFILE_NAME, "--force", "--yes",
+                "--name", instance_name, "--force", "--yes",
             ],
             root_home,
         )
@@ -135,7 +169,7 @@ def install_or_update_distribution(source: Path, profile_home: Path) -> str:
     run_command(
         [
             "hermes", "profile", "install", str(source),
-            "--name", PROFILE_NAME, "--yes",
+            "--name", instance_name, "--yes",
         ],
         root_home,
     )
@@ -688,45 +722,6 @@ def write_private_json(profile_home: Path, relative: Path, payload: dict[str, An
     return destination
 
 
-def write_messaging_test_receipt(profile_home: Path, payload: dict[str, Any]) -> Path:
-    from apps.installer.schemas.workspace import MessagingTestReceipt
-
-    receipt = MessagingTestReceipt.model_validate(payload)
-    return write_private_json(
-        profile_home, MESSAGING_TEST_RECEIPT, receipt.model_dump(mode="json")
-    )
-
-
-def current_messaging_target(profile_home: Path, bindings: list[Any]) -> str | None:
-    """Return the exact confirmed target only while its typed binding is current."""
-    from pydantic import ValidationError
-    from apps.installer.schemas.workspace import MessagingTestReceipt, configuration_hash
-
-    try:
-        receipt = MessagingTestReceipt.model_validate(
-            _read_json(profile_home / MESSAGING_TEST_RECEIPT)
-        )
-    except ValidationError:
-        return None
-    recipient_hashes = {
-        hashlib.sha256(binding.send_to.casefold().encode()).hexdigest()
-        for binding in bindings
-    }
-    if (
-        receipt.status != "passed"
-        or not receipt.recipient_confirmed
-        or receipt.configuration_sha256 != configuration_hash(bindings)
-        or receipt.recipient_sha256 not in recipient_hashes
-        or not receipt.exact_target
-    ):
-        return None
-    return receipt.exact_target
-
-
-def messaging_test_current(profile_home: Path, bindings: list[Any]) -> bool:
-    return current_messaging_target(profile_home, bindings) is not None
-
-
 def _http_json(url: str, timeout: float = 3.0) -> tuple[bool, dict[str, Any]]:
     try:
         with urllib.request.urlopen(url, timeout=timeout) as response:
@@ -964,85 +959,6 @@ def _gateway_lane(
     )
 
 
-def _messaging_lanes(profile_home: Path) -> list[dict[str, Any]]:
-    """Separate a running gateway from an exact, user-confirmed owner route."""
-    from apps.installer.schemas.workspace import DeliveryBehavior, parse_workspace_communications
-
-    workspace = profile_home / "workspace.hermes.md"
-    try:
-        config = parse_workspace_communications(workspace.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return [
-            _lane(
-                "messaging_configured",
-                "skip",
-                "no managed messaging choices are installed",
-                required=False,
-            ),
-            _lane(
-                "messaging_delivery",
-                "skip",
-                "no owner message route is enabled",
-                required=False,
-            ),
-        ]
-    bindings = config.communications
-    if not bindings:
-        return [
-            _lane("messaging_configured", "skip", "owner messages not configured", required=False),
-            _lane("messaging_delivery", "skip", "owner messages not enabled", required=False),
-        ]
-    automatic = any(
-        binding.behavior is DeliveryBehavior.SEND_AUTOMATICALLY
-        for binding in bindings
-    )
-    confirmed = messaging_test_current(profile_home, bindings)
-    if confirmed:
-        return [
-            _lane(
-                "messaging_configured",
-                "pass",
-                "exact owner route confirmed by a current setup test",
-                required=False,
-            ),
-            _lane(
-                "messaging_delivery",
-                "pass",
-                "confirmed setup test matches the current messaging choices",
-                required=False,
-            ),
-        ]
-    if automatic:
-        return [
-            _lane(
-                "messaging_configured",
-                "fail",
-                "automatic sending is blocked until the exact owner route is confirmed",
-                required=False,
-            ),
-            _lane(
-                "messaging_delivery",
-                "fail",
-                "no current confirmed connection test",
-                required=False,
-            ),
-        ]
-    return [
-        _lane(
-            "messaging_configured",
-            "skip",
-            "draft preparation does not require a connected messaging route",
-            required=False,
-        ),
-        _lane(
-            "messaging_delivery",
-            "skip",
-            "drafts require approval and are not sent automatically",
-            required=False,
-        ),
-    ]
-
-
 def _webhook_lanes(profile_home: Path, *, live: bool) -> list[dict[str, Any]]:
     """Return optional webhook and ingress lanes without promoting skips."""
     if not webhook_enabled(profile_home):
@@ -1241,7 +1157,6 @@ def verify_profile(
     )
     lanes.append(_connection_eval_lane(profile_home, live=live))
     lanes.append(_gateway_lane(profile_home, command_runner))
-    lanes.extend(_messaging_lanes(profile_home))
     lanes.extend(_webhook_lanes(profile_home, live=live))
     lanes.append(
         _comment_eval_lane(
@@ -1261,7 +1176,7 @@ def verify_profile(
     return {
         "schema_version": 1,
         "status": status,
-        "profile": PROFILE_NAME,
+        "profile": profile_name(profile_home),
         "profile_home": str(profile_home),
         "live": live,
         "lanes": lanes,

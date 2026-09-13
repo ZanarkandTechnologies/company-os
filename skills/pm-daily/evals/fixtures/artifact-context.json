@@ -1,0 +1,5 @@
+{
+  "id": "PROJ-TOY-STOCK",
+  "name": "AGI Toy Shop — Stock Operations",
+  "context": ["artifact-context.sources.md#project", "artifact-context.sources.md#meeting", "artifact-context.sources.md#validation", "artifact-context.sources.md#approval", "artifact-context.sources.md#empty"]
+}
