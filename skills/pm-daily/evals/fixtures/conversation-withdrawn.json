@@ -1,0 +1,18 @@
+{
+  "mode": "conversation_only",
+  "project_id": "PROJ-CMT",
+  "week": "2026-W35",
+  "timezone": "Asia/Kuala_Lumpur",
+  "coverage": [
+    {
+      "source": "chatgpt_manual",
+      "member_id": "PERSON-AISHA",
+      "status": "withdrawn",
+      "note": "Member withdrew selected conversation.",
+      "collected_at": "2026-08-30T22:00:00+08:00",
+      "source_digest": "withdrawal-r2"
+    }
+  ],
+  "conversations": [],
+  "status": "partial"
+}

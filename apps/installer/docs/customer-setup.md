@@ -143,10 +143,13 @@ and communication choices. Project and Work questions are multi-select: every
 selected option receives its own configuration field. Their rendered automation
 instructions own cross-provider matching and precedence; do not add integration
 configuration fields to a business system merely to make two providers join.
+Selecting ChatGPT or Codex conversations continues into a guided private-intake
+step. It creates a policy outside source repositories, asks for exact Project and
+member mappings, and runs a redacted collection check before setup continues.
 People, SOPs, Reports, and Operator Email remain independent roles. Choosing
 Notion for several roles does not merge them into one database. The wizard also asks about optional owner
 messages. Messaging asks ordinary questions only: completed
-reports and/or owner alerts, the owner's name, Telegram/Slack/WhatsApp, and
+reports and/or owner alerts, the owner's name, Discord/Telegram/Slack/WhatsApp, and
 **Prepare drafts in the private workspace** or **Send automatically**. Leaving
 these choices empty is the lean default. Task-specific documentation and
 progress questions use comments on the exact linked Work item; they need no
@@ -341,12 +344,17 @@ Rerunning `setup.cmd` on an existing installation shows:
 9. Open dashboard
 10. Start over from a preserved backup
 11. Exit
+12. Manage work conversations
 ```
 
 Choose **Update Company OS features** to revisit the explained Memory, Daily,
 and Weekly questions. Setup preserves the saved answers, previews the rendered
 automation diff, reconciles any newly required provider connections, and runs a
-static check. After downloading repository updates, choose **Update Company OS
+static check. When ChatGPT or Codex context is selected, setup then opens the
+private intake step to create or retain exact Project/member mappings, detect
+local Codex history, and offer a redacted current-week check. Choose **Manage
+work conversations** later to update or retest those mappings without repeating
+the whole questionnaire. After downloading repository updates, choose **Update Company OS
 software**; setup updates the distribution allowlist, preserves unknown runtime
 files, reconciles schedules, and runs static verification. Use **Test
 integrations** to retry the same provider certification without reinstalling

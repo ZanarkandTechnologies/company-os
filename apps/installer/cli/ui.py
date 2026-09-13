@@ -98,6 +98,24 @@ def _friendly_runtime_error(error: Exception) -> str:
             ("mcp_connection_test_failed",),
             "Provider authorization completed, but Hermes could not discover its tools. Rerun Repair setup.",
         ),
+        (
+            (
+                "conversation_setup_requires_input",
+                "conversation_policy_invalid",
+                "conversation_policy_missing",
+                "codex_project_folder_must_exist",
+            ),
+            "Work conversation setup is incomplete. Choose Manage work conversations and review the Project and member mappings.",
+        ),
+        (
+            (
+                "conversation_intake_path_must_be_absolute",
+                "intake_root_requires_existing_absolute_directory",
+                "intake_must_be_outside_source_repository",
+                "intake_links_forbidden",
+            ),
+            "Choose a private local folder outside every source repository for conversation storage.",
+        ),
     )
     for prefixes, message in messages:
         if code.startswith(prefixes):

@@ -2,15 +2,18 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 title Company OS Setup
-set "COMPANY_OS_PROFILE_HOME=%USERPROFILE%\.hermes\profiles\company-os"
-set "HERMES_PYTHON=%USERPROFILE%\.hermes\hermes-agent\venv\Scripts\python.exe"
+set "HERMES_ROOT=%LOCALAPPDATA%\hermes"
+if not exist "%HERMES_ROOT%\hermes-agent\venv\Scripts\python.exe" set "HERMES_ROOT=%USERPROFILE%\.hermes"
+set "COMPANY_OS_PROFILE_HOME=%HERMES_ROOT%\profiles\company-os"
+set "HERMES_PYTHON=%HERMES_ROOT%\hermes-agent\venv\Scripts\python.exe"
+set "HERMES_CLI=%HERMES_ROOT%\hermes-agent\venv\Scripts\hermes.exe"
+set "PATH=%HERMES_ROOT%\hermes-agent\venv\Scripts;%PATH%"
 
 :preflight
 cls
 echo Company OS Setup
 echo Checking host Hermes and Docker Desktop...
-where hermes >nul 2>nul
-if errorlevel 1 goto hermes_missing
+if not exist "%HERMES_CLI%" goto hermes_missing
 if not exist "%HERMES_PYTHON%" goto hermes_python_missing
 where docker >nul 2>nul
 if errorlevel 1 goto docker_missing
@@ -31,6 +34,7 @@ if "%COMPANY_OS_ACTION%"=="14" goto certify
 if "%COMPANY_OS_ACTION%"=="15" goto preflight_check
 if "%COMPANY_OS_ACTION%"=="16" goto eval_check
 if "%COMPANY_OS_ACTION%"=="17" goto dossier
+if "%COMPANY_OS_ACTION%"=="18" goto conversations
 if "%COMPANY_OS_ACTION%"=="130" goto cancelled
 goto failed
 
@@ -139,6 +143,11 @@ exit /b %ERRORLEVEL%
 :dossier
 call :run_setup doctor open
 exit /b %ERRORLEVEL%
+
+:conversations
+call :run_setup conversations configure
+if errorlevel 1 goto failed
+goto static_verify
 
 :verification_result
 if "%VERIFY_EXIT%"=="0" (

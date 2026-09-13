@@ -18,6 +18,14 @@
 - Daily metadata is at `memory.<section>.items[].metadata`; envelope provenance applies unless overridden.
 - Sources clarify existing evidence; messages and section states are not extra Work or completed outcomes.
 - Missing attribution blocks only affected grouping; retain unattributed evidence in the ${unit} summary.
+- Preserve conversation coverage gaps and qualified member-reported context from
+  operating memory; assistant-reported completion is not accepted delivery.
+- Summarize only necessary Project facts with immediate memory citations. Never
+  publish raw chat excerpts or expose private intake/cache paths.
+- Keep conversation-only observations out of employee performance claims,
+  accepted-output counts and approved SOP baselines.
+- Apply current sourced corrections for withdrawn chat evidence without silently
+  rewriting historical final reports or unrelated corroborated memory.
 
 ## JSON contract
 

@@ -56,6 +56,8 @@ Opening the menu alone makes no changes.
 - Notion through its hosted MCP, when selected
 - Daily and Weekly schedules
 - Optional real-time Notion comments through an assigned stable ngrok HTTPS domain
+- Optional private Discord owner-channel report delivery and mention-only assistant
+- Optional selected ChatGPT and repository-scoped local Codex context
 - Installation receipts, health checks, and PM skill-package checks
 
 Secrets are stored in the persistent Hermes profile. You do not need to edit an

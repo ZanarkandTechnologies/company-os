@@ -40,6 +40,7 @@ LAUNCH_CERTIFY = 14
 LAUNCH_PREFLIGHT = 15
 LAUNCH_EVAL = 16
 LAUNCH_DOSSIER = 17
+LAUNCH_CONVERSATIONS = 18
 FRESH_START_MARKER = ".company-os-fresh-start"
 DISTRIBUTION_SOURCE_ENV = "COMPANY_OS_DISTRIBUTION_SOURCE"
 
@@ -225,6 +226,9 @@ def _workspace_update(profile_home: Path) -> int:
         generate(source, apply=True)
         _sync_configured_source(source, profile_home)
         state = load_state(source / "config" / "setup-answers.json")
+        from apps.installer.cli.flows.conversations import configure_conversations
+
+        configure_conversations(profile_home, state)
         bindings = selected_bindings(
             state.answers,
             catalog_api.load_catalog(),
@@ -244,6 +248,11 @@ def _workspace_update(profile_home: Path) -> int:
         )
         _configure_messaging_tools_if_needed(
             profile_home, state.provider_requirements
+        )
+        _configure_discord_delivery_if_needed(
+            profile_home,
+            state.provider_requirements,
+            non_interactive=False,
         )
         _require_discord_context(profile_home, state.provider_requirements)
         runtime.approve_workspace_context(workspace)
@@ -337,9 +346,10 @@ def launch_command(args: argparse.Namespace) -> int:
     CONSOLE.print("  [cyan]9.[/cyan] Open dashboard")
     CONSOLE.print("  [cyan]10.[/cyan] Start over from a preserved backup")
     CONSOLE.print("  [cyan]11.[/cyan] Exit")
+    CONSOLE.print("  [cyan]12.[/cyan] Manage work conversations")
     choice = choose(
         "Select",
-        choices=[str(index) for index in range(1, 12)],
+        choices=[str(index) for index in range(1, 13)],
         default="1",
     )
     if choice == "1":
@@ -378,6 +388,8 @@ def launch_command(args: argparse.Namespace) -> int:
             CONSOLE.print("[yellow]No setup changes were made.[/yellow]")
             return 0
         return _fresh_start(profile_home)
+    if choice == "12":
+        return LAUNCH_CONVERSATIONS
     CONSOLE.print("[dim]No changes made.[/dim]")
     return 0
 
@@ -541,9 +553,37 @@ def _configure_messaging_tools_if_needed(
         runtime.configure_messaging_mcp(profile_home)
 
 
+def _configure_discord_delivery_if_needed(
+    profile_home: Path,
+    requirements: dict[str, tuple[str, ...]],
+    *,
+    non_interactive: bool,
+) -> None:
+    """Configure the bounded owner channel only for Discord report delivery."""
+    if "discord" not in requirements.get("weekly.report_recipients", ()):
+        return
+    configured = {
+        "DISCORD_BOT_TOKEN",
+        "DISCORD_OWNER_GUILD_ID",
+        "DISCORD_OWNER_CHANNEL_ID",
+    } <= runtime.configured_secret_names(profile_home)
+    if configured:
+        return
+    if non_interactive:
+        raise runtime.RuntimeSetupError("discord_gateway_requires_input")
+    from plugins.platforms.discord import onboarding
+
+    CONSOLE.print(Panel.fit(
+        "[bold]Connect Discord owner delivery[/bold]\n"
+        "Choose the single private channel allowed to receive Company OS reports.",
+        border_style="cyan",
+    ))
+    onboarding.configure_owner_route(profile_home)
+
+
 def _require_discord_context(profile_home: Path, requirements: dict[str, tuple[str, ...]]) -> None:
     """Discord reads use the existing profile credential, not gateway send setup."""
-    if "discord" not in {provider for values in requirements.values() for provider in values}:
+    if "discord" not in requirements.get("daily.context_sources", ()):
         return
     if not runtime.read_profile_secret(profile_home, "DISCORD_BOT_TOKEN"):
         raise FeatureSetupError("Discord context requires DISCORD_BOT_TOKEN in this Hermes profile. Configure it with Hermes, then rerun setup; do not put it in template answers.")
@@ -617,6 +657,11 @@ def install_command(args: argparse.Namespace) -> int:
 
         _sync_configured_source(source, profile_home, non_interactive=args.non_interactive)
         workspace_config = profile_home / "workspace.hermes.md"
+        from apps.installer.cli.flows.conversations import configure_conversations
+
+        configure_conversations(
+            profile_home, state, non_interactive=args.non_interactive
+        )
         _configure_model(profile_home, non_interactive=args.non_interactive)
         _configure_connections(
             profile_home,
@@ -635,6 +680,11 @@ def install_command(args: argparse.Namespace) -> int:
         )
         _configure_messaging_tools_if_needed(
             profile_home, state.provider_requirements
+        )
+        _configure_discord_delivery_if_needed(
+            profile_home,
+            state.provider_requirements,
+            non_interactive=args.non_interactive,
         )
         _require_discord_context(profile_home, state.provider_requirements)
         if webhook and not runtime.webhook_enabled(profile_home):

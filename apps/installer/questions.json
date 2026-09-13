@@ -75,7 +75,13 @@
         "id": "custom",
         "label": "Custom matching instructions",
         "render": "{input}",
-        "fields": [{"id": "input", "label": "Instructions", "required": true}],
+        "fields": [
+          {
+            "id": "input",
+            "label": "Instructions",
+            "required": true
+          }
+        ],
         "providers": []
       }
     ],
@@ -514,6 +520,20 @@
         ]
       },
       {
+        "id": "chatgpt_conversations",
+        "label": "Selected ChatGPT conversations",
+        "render": "| Selected ChatGPT conversations | conversation_read_project_week | Operator-configured private intake policy | Read only authorized chatgpt_manual bindings for the current ISO week; preserve member attribution, timestamps, coverage and source digests. |",
+        "fields": [],
+        "providers": []
+      },
+      {
+        "id": "codex_conversations",
+        "label": "Local Codex conversations",
+        "render": "| Local Codex conversations | conversation_read_project_week | Operator-configured private intake policy | Read only authorized codex_local or codex_manual bindings for the current ISO week; preserve member attribution, timestamps, coverage and source digests. |",
+        "fields": [],
+        "providers": []
+      },
+      {
         "id": "crm",
         "label": "CRM",
         "render": "| CRM | {access} | {target} | {instructions} |",
@@ -638,7 +658,7 @@
       }
     ],
     "default": [],
-    "help": "What other evidence should Daily read: discussions, CRM, calendars or saved chats?\nFor each entry name the existing read tool, exact scope and fetch instructions.\nExample: A Discord Projects forum, including active/archived threads and in-window messages. Never enter tokens here."
+    "help": "What other evidence should Daily read: discussions, CRM, calendars or saved chats?\nFor each entry name the existing read tool, exact scope and fetch instructions.\nExample: A Discord Projects forum, including active/archived threads and in-window messages. Never enter tokens here.\nFor work conversations, setup continues with private Project/member mappings and a redacted collection test."
   },
   {
     "id": "daily.existing_memory",
@@ -1586,6 +1606,15 @@
     "order": 46,
     "required": false,
     "options": [
+      {
+        "id": "discord",
+        "label": "Discord owner channel",
+        "render": "| Discord owner channel | discord_send_message and discord_get_channel | Setup-configured private owner channel | Send the completed executive report only to the exact approved channel; require current-channel read-back and preserve the provider message receipt. |",
+        "fields": [],
+        "providers": [
+          "discord"
+        ]
+      },
       {
         "id": "gmail",
         "label": "Gmail",

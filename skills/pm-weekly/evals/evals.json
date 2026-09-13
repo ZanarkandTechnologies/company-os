@@ -2,20 +2,43 @@
   "skill_name": "pm-weekly",
   "evals": [
     {
-      "id":"closed_project_and_missing_interval",
-      "prompt":"Close the reporting interval using the supplied Project inventory and frozen Daily evidence.",
-      "expected_output":"The archived Project's observed work and people remain in the weekly report, its open obligation is qualified as closure attention rather than reopened work, and missing interval coverage remains visible.",
-      "files":["evals/fixtures/coverage/closed-inventory.json","evals/fixtures/coverage/closed-status.md","evals/fixtures/coverage/project--toy-studio.md","evals/fixtures/coverage/extraction--toy-studio.json","evals/fixtures/coverage/sources--toy-studio.md","evals/fixtures/unblocking/project--toy-launch.md","evals/fixtures/unblocking/project--toy-retail.md","evals/fixtures/unblocking/project--toy-archive.md","evals/fixtures/unblocking/extraction--toy-launch.json","evals/fixtures/unblocking/extraction--toy-retail.json","evals/fixtures/unblocking/extraction--toy-archive.json","evals/fixtures/unblocking/sources--toy-launch.md","evals/fixtures/unblocking/sources--toy-retail.md","evals/fixtures/unblocking/sources--toy-archive.md","evals/fixtures/unblocking/person--nur-before.md","evals/fixtures/unblocking/sop--catalog-handoff-before.md"],
-      "assertions":[
+      "id": "closed_project_and_missing_interval",
+      "prompt": "Close the reporting interval using the supplied Project inventory and frozen Daily evidence.",
+      "expected_output": "The archived Project's observed work and people remain in the weekly report, its open obligation is qualified as closure attention rather than reopened work, and missing interval coverage remains visible.",
+      "files": [
+        "evals/fixtures/coverage/closed-inventory.json",
+        "evals/fixtures/coverage/closed-status.md",
+        "evals/fixtures/coverage/project--toy-studio.md",
+        "evals/fixtures/coverage/extraction--toy-studio.json",
+        "evals/fixtures/coverage/sources--toy-studio.md",
+        "evals/fixtures/unblocking/project--toy-launch.md",
+        "evals/fixtures/unblocking/project--toy-retail.md",
+        "evals/fixtures/unblocking/project--toy-archive.md",
+        "evals/fixtures/unblocking/extraction--toy-launch.json",
+        "evals/fixtures/unblocking/extraction--toy-retail.json",
+        "evals/fixtures/unblocking/extraction--toy-archive.json",
+        "evals/fixtures/unblocking/sources--toy-launch.md",
+        "evals/fixtures/unblocking/sources--toy-retail.md",
+        "evals/fixtures/unblocking/sources--toy-archive.md",
+        "evals/fixtures/unblocking/person--nur-before.md",
+        "evals/fixtures/unblocking/sop--catalog-handoff-before.md"
+      ],
+      "assertions": [
         "Storefront Design and Casey remain visible in Project, Product Design and Company reports despite Archived status",
         "The September 14 review is a closure contradiction requiring clarification, not an instruction to resume work or evidence of completed screens",
         "No next_week_project_memory is created for the archived Storefront Design Project",
-        "The missing September 8–9 coverage interval is visible and never described as a complete successful week",
+        "The missing September 8\u00e2\u20ac\u201c9 coverage interval is visible and never described as a complete successful week",
         "Historical gaps are repaired only from retained evidence or a proposed bounded backfill, never by fabricating a successful receipt from present snapshots",
         "Readable health/SOP/priority text contains no raw machine IDs or file-management instructions, and next-week dependencies occur only once",
         "Quiet activity and incomplete interval coverage remain distinct; snapshot facts do not disappear into unsupported performance judgments"
       ],
-      "metadata":{"title":"Closed Project retained without revival","tags":["skill","boundary"]}
+      "metadata": {
+        "title": "Closed Project retained without revival",
+        "tags": [
+          "skill",
+          "boundary"
+        ]
+      }
     },
     {
       "id": "visible_people_and_department_coverage",
@@ -47,7 +70,14 @@
         "Accepted artifacts and scopes remain intact without repeated detailed artifact lists in People progress; no worker ratings or invented dates",
         "Executive data references the complete Company report, which contains both Department summaries and People progress"
       ],
-      "metadata": {"title":"Visible people and Department coverage","tags":["skill","boundary"],"notes":"Regression: matching weakened template headings hid missing user-visible reporting coverage. Four Projects, two Departments and five named people."}
+      "metadata": {
+        "title": "Visible people and Department coverage",
+        "tags": [
+          "skill",
+          "boundary"
+        ],
+        "notes": "Regression: matching weakened template headings hid missing user-visible reporting coverage. Four Projects, two Departments and five named people."
+      }
     },
     {
       "id": "weekly_operating_reports",
@@ -188,6 +218,31 @@
         "notes": "Derived inventory variant; all available evidence is identical to the complete case.",
         "tags": [
           "skill",
+          "boundary"
+        ]
+      }
+    },
+    {
+      "id": "weekly_conversation_context_rollup",
+      "prompt": "Close 2026-W35 from the supplied Project memories and frozen inventory.",
+      "expected_output": "Weekly reporting uses qualified conversation evidence with visible partial coverage while preserving independent Project facts and excluding private raw paths.",
+      "files": [
+        "evals/fixtures/conversation-week/weekly-inventory.json",
+        "evals/fixtures/conversation-week/project--cmt.md",
+        "evals/fixtures/conversation-week/project--ecom.md"
+      ],
+      "assertions": [
+        "Both inventory Projects appear in the Operations and Company coverage",
+        "CMT reports the credential blocker as a member-reported, unresolved contradiction rather than accepted completion",
+        "Partial selected-chat coverage remains visible and is not generalized to the member or company account",
+        "The assistant claim does not become delivery proof, employee performance judgment, accepted decision, or authorized action",
+        "Reports use immediate memory citations and contain no raw conversation body dump, private intake path, or source repository path"
+      ],
+      "metadata": {
+        "title": "Qualified conversation context in Weekly",
+        "tags": [
+          "skill",
+          "conversation",
           "boundary"
         ]
       }

@@ -45,6 +45,15 @@ read-only provider sources.
 
 ## Optional artifact sync
 
+Conversation context is an optional weekly source, disabled by default in
+feature setup. Personal ChatGPT uses selected member submissions; local Codex
+uses explicit repository/member mappings. The host tool reads the private root
+configured by `COMPANY_OS_CONVERSATION_INTAKE`, outside source repositories.
+Its `policy.json` authorizes each Project, member and source. See
+`plugins/conversation_context/README.md` for setup and coverage limitations.
+Conversation-enabled pilot runs keep weekly outputs local. Conversation text
+never grants tool, delivery or task-edit authority.
+
 Hermes always writes canonical Project Memory, long-term entity memory, and
 Final reports inside its private runtime workspace. Add a row only when an
 operator wants a one-way secondary copy after local read-back. An empty table

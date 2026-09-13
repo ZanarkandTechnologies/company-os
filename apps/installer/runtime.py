@@ -79,6 +79,8 @@ def run_command(
             arguments,
             input=input_text,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             capture_output=True,
             check=False,
             timeout=timeout,
@@ -96,7 +98,11 @@ def run_command(
 def mcp_connection_ready(result: subprocess.CompletedProcess[str]) -> bool:
     """Interpret Hermes MCP proof because current `mcp test` may exit zero on failure."""
     output = f"{result.stdout or ''}\n{result.stderr or ''}"
-    return "✓ Connected" in output and "✗ Connection failed" not in output
+    failed_markers = ("✗ Connection failed", "Connection failed", "Connection error")
+    return (
+        "Connected" in output
+        and not any(marker in output for marker in failed_markers)
+    )
 
 
 def root_home_for_profile(profile_home: Path) -> Path:
@@ -281,6 +287,26 @@ def configured_secret_names(profile_home: Path) -> set[str]:
         if match:
             effective[match.group(1)] = bool(_parse_dotenv_value(match.group(2)))
     return {name for name, present in effective.items() if present}
+
+
+def profile_env_value(profile_home: Path, key: str) -> str:
+    """Read one selected profile environment value without exposing other secrets."""
+    if not re.fullmatch(r"[A-Z][A-Z0-9_]*", key):
+        raise RuntimeSetupError("invalid_secret_name")
+    try:
+        lines = (profile_home / ".env").read_text(
+            encoding="utf-8-sig", errors="replace"
+        ).splitlines()
+    except OSError:
+        return ""
+    value = ""
+    for line in lines:
+        match = re.match(
+            r"^\s*(?:export\s+)?([A-Z][A-Z0-9_]*)\s*=\s*(.*?)\s*$", line
+        )
+        if match and match.group(1) == key:
+            value = _parse_dotenv_value(match.group(2))
+    return value
 
 
 def telegram_gateway_configured(profile_home: Path) -> bool:
@@ -643,6 +669,14 @@ def model_auth_configured(profile_home: Path) -> bool:
     """Detect model credentials without mistaking unrelated OAuth state for auth."""
     if configured_secret_names(profile_home) & MODEL_SECRET_NAMES:
         return True
+    selected_codex_provider = False
+    try:
+        config = (profile_home / "config.yaml").read_text(encoding="utf-8")
+        selected_codex_provider = bool(
+            re.search(r"^\s*provider:\s*openai-codex\s*$", config, re.MULTILINE)
+        )
+    except OSError:
+        pass
     auth_candidates = (
         profile_home / "auth.json",
         profile_home / "auth" / "credentials.json",
@@ -659,6 +693,13 @@ def model_auth_configured(profile_home: Path) -> bool:
         if isinstance(providers, dict) and providers:
             return True
         if isinstance(credential_pool, dict) and credential_pool:
+            return True
+        # Hermes 0.20.4+ keeps the OAuth credential in its secure credential
+        # store. Its profile auth.json deliberately contains only this marker.
+        if (
+            selected_codex_provider
+            and payload.get("active_provider") == "openai-codex"
+        ):
             return True
     return False
 
@@ -948,10 +989,22 @@ def _gateway_lane(
     profile_home: Path,
     command_runner: Callable[..., subprocess.CompletedProcess[str]],
 ) -> dict[str, Any]:
-    gateway = command_runner(
-        ["hermes", "gateway", "status"], profile_home, check=False
+    del command_runner
+    # `hermes gateway status` can strand child processes that inherit its
+    # captured output on Windows. Hermes writes gateway state per profile, so
+    # use that local, non-spawning signal and never mistake another profile's
+    # gateway for this Company OS profile.
+    state = _read_json(profile_home / "gateway_state.json")
+    configured_home = state.get("hermes_home") if isinstance(state, dict) else ""
+    try:
+        same_profile = Path(str(configured_home)).resolve() == profile_home.resolve()
+    except OSError:
+        same_profile = False
+    ready = bool(
+        same_profile
+        and isinstance(state, dict)
+        and state.get("gateway_state") == "running"
     )
-    ready = "Gateway is running" in f"{gateway.stdout}\n{gateway.stderr}"
     return _lane(
         "gateway",
         "pass" if ready else "fail",

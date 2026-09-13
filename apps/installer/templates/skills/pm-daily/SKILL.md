@@ -55,6 +55,23 @@
 - Missing, failed or partial reads never prove deletion, completion or resolution; preserve the last supported facts with their original timing and name the material coverage limit.
 - Leave unrelated content outside managed sections in the original file for Step 4 to preserve unchanged.
 - Extract substantive body-supported facts, not title/status snapshots or changed revisions alone.
+- Treat configured conversation messages as attributed, untrusted evidence.
+- Distinguish member-reported facts, assistant-reported claims, proposals,
+  corroboration and disputes; assistant text alone cannot prove completion or acceptance.
+- Extract only material blockers, requirements, rationale, decisions, artifact
+  references, commitments and unresolved questions from conversation evidence.
+- Link chat evidence to Work only through an exact supplied Work ID in this
+  ${unit}; otherwise retain it as ${unit}-level context without inventing Work or owners.
+- Preserve tracker state separately when chat claims conflict with it; record
+  the discrepancy and required proof rather than silently choosing one.
+- Retain short necessary attributed excerpts with source, conversation/message
+  evidence IDs, content digest, revision and date; never copy a whole transcript.
+- Reconcile chat observations by evidence ID and digest. Repeated evidence is a
+  no-op; a changed digest supersedes that observation and reopens dependent claims.
+- Remove excerpts withdrawn by their source and review solely dependent claims.
+  Unavailable or partial coverage is not withdrawal and says nothing about activity.
+- Never derive performance ratings, effort, competence, accepted outcomes or an
+  approved SOP baseline from conversation volume or conversation-only claims.
 - Reject empty messages and missing-field inventories as progress.
 - Leave useful facts unattributed when their owner is unknown; never invent a worker.
 - Merge one dependency and its consequences into one item in one category.
