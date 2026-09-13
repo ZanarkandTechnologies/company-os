@@ -6,7 +6,7 @@ import stat
 import subprocess
 import tempfile
 import unittest
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from apps.doctor import evaluation
 
@@ -110,6 +110,42 @@ class FakeHermes:
 
 
 class EvaluationRunnerTests(unittest.TestCase):
+    def test_resume_reuses_only_complete_safe_cadences(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            profile = Path(temporary)
+            first = FakeHermes()
+            evaluation.run_evaluation(
+                profile, root=ROOT, command_runner=first, run_id="first-run", timeout=30,
+            )
+            (profile / evaluation.STATE_DIRECTORY / "first-run/traces/weekly.json").unlink()
+            resumed = FakeHermes()
+            receipt = evaluation.run_evaluation(
+                profile, root=ROOT, command_runner=resumed, run_id="resumed-run",
+                resume_from="first-run", timeout=30,
+            )
+            self.assertEqual(len(resumed.generation_calls), 1)
+            self.assertEqual(receipt["automation_runs"]["daily"]["session_id"], "daily-session")
+            self.assertEqual(receipt["automation_runs"]["weekly"]["session_id"], "weekly-session")
+            self.assertEqual(receipt["status"], "passed")
+
+    def test_windows_host_paths_are_rendered_as_posix_container_paths(self) -> None:
+        profile = PureWindowsPath("D:/private/profile")
+
+        def capture(arguments, profile_home, **kwargs):
+            prompt = kwargs["input_text"]
+            self.assertIn("/workspace/.company-os/eval-runs/run/daily", prompt)
+            self.assertIn('"output_directory":".company-os/eval-runs/run/daily/', prompt)
+            self.assertIn("do not use write_file", prompt)
+            self.assertNotIn("\\", prompt)
+            return subprocess.CompletedProcess(arguments, 1, "", "stopped before generation")
+
+        with self.assertRaisesRegex(evaluation.EvaluationError, "generation_failed"):
+            evaluation._run_cadence(
+                profile, profile / "workspace/.company-os/eval-runs/run", "daily",
+                [{"id": "example", "prompt": "test", "expected_output": "result", "assertions": ["result"]}],
+                command_runner=capture, timeout=30,
+            )
+
     def test_shared_run_invokes_each_cadence_once_and_one_no_tools_judge(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             profile = Path(temporary)
@@ -137,7 +173,7 @@ class EvaluationRunnerTests(unittest.TestCase):
                 for case in cases
             }
             self.assertEqual({row["eval_id"] for row in receipt["eval_results"]}, expected_ids)
-            self.assertEqual(len(receipt["eval_results"]), 8)
+            self.assertEqual(len(receipt["eval_results"]), len(expected_ids))
             run = profile / "workspace/.company-os/eval-runs/test-run"
             self.assertTrue((run / "dossier/index.html").is_file())
             self.assertTrue((run / "traces/daily.json").is_file())

@@ -13,4 +13,4 @@ The sample baseline is approved; cutting remains blocked by one unsigned correct
 
 ## This week's attention
 
-- [ ] Sign the collar correction. [TASK-101]
+- [ ] Aisha: sign the collar correction before cutting resumes. [TASK-101]

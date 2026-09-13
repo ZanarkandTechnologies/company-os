@@ -19,7 +19,10 @@
       "metadata": {
         "title": "Weekly operating reports",
         "notes": "Shows the complete Project-to-Department-to-Company reporting chain produced from one frozen week.",
-        "tags": ["skill", "showcase"]
+        "tags": [
+          "skill",
+          "showcase"
+        ]
       }
     },
     {
@@ -43,7 +46,10 @@
       "metadata": {
         "title": "Long-term memory consolidation",
         "notes": "Shows conservative Employee, SOP, Issue, and Decision memory updates without promoting every weekly observation.",
-        "tags": ["skill", "showcase"]
+        "tags": [
+          "skill",
+          "showcase"
+        ]
       }
     },
     {
@@ -64,7 +70,10 @@
       "metadata": {
         "title": "Next-week carry-forward",
         "notes": "Shows weekly closure becoming a clean starting point for the following Daily cycle.",
-        "tags": ["skill", "showcase"]
+        "tags": [
+          "skill",
+          "showcase"
+        ]
       }
     },
     {
@@ -84,7 +93,36 @@
       "metadata": {
         "title": "Incomplete Project set blocks rollup",
         "notes": "Protects the completeness boundary so partial weekly evidence cannot appear as a final Company result.",
-        "tags": ["skill", "boundary"]
+        "tags": [
+          "skill",
+          "boundary"
+        ]
+      }
+    },
+    {
+      "id": "conversation_weekly_promotion",
+      "prompt": "Produce the weekly report set from the complete conversation-week inventory. Review conversation evidence conservatively.",
+      "expected_output": "Reports preserve the disputed completion and partial collection; conversation-only claims do not become accepted delivery or employee ratings.",
+      "files": [
+        "evals/fixtures/conversation-week/weekly-inventory.json",
+        "evals/fixtures/conversation-week/project--cmt.md",
+        "evals/fixtures/conversation-week/project--ecom.md"
+      ],
+      "assertions": [
+        "Every active Project remains represented in the report set despite optional partial conversation coverage",
+        "The company report preserves the qualification that the credential blocker is member-reported and conflicts with tracker Done status",
+        "No conversation-only accepted output is added to Employee Memory",
+        "No employee rating or approved SOP baseline is inferred from the assistant reply",
+        "Reports cite Project Memory without copying raw private conversation excerpts",
+        "No provider action is attempted"
+      ],
+      "metadata": {
+        "title": "Conversation evidence in weekly reports",
+        "notes": "Checks that weekly rollups preserve chat uncertainty and private-source boundaries.",
+        "tags": [
+          "skill",
+          "boundary"
+        ]
       }
     }
   ]

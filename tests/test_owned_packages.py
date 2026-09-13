@@ -1,5 +1,8 @@
 """Root discovery bridge for tests owned by first-class packages."""
 
+from plugins.conversation_context.tests.test_intake import ConversationIntakeTests  # noqa: F401
+from plugins.conversation_context.tests.test_codex import CodexConversationTests  # noqa: F401
+
 from plugins.platforms.notion.tests.test_comment_adapter import (  # noqa: F401
     NotionCommentAdapterTests,
 )

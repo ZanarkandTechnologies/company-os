@@ -74,6 +74,17 @@ Golden shape:
 
 ## Documentation questions
 
+<!-- Optional Conversation coverage block belongs under Work and employee updates
+when conversation evidence is configured. Record each source/member, selected
+week, collected_at, complete/partial/unavailable/withdrawn state, source digest,
+and scope note. Do not add it or rewrite this file when the source is disabled.
+Conversation findings belong in the existing relevant sections, with a short
+attributed excerpt, source reference, conversation/message/evidence IDs, content
+digest, source revision, timestamp and evidence state. No transcript dumping.
+Source withdrawal removes its excerpts and invalidates solely dependent claims;
+minimal evidence IDs may remain to identify the required downstream correction.
+-->
+
 <!--
 One precise open question for Done Work whose page or artifact does not yet
 prove an important fact. Do not repeat information already present.

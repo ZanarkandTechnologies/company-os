@@ -13,4 +13,4 @@ Two listing batches were accepted using the same handoff. [TASK-203]
 
 ## This week's attention
 
-- [ ] Nur: measure preparation and wait time on the next batch. [TASK-203]
+- [ ] Measure preparation and wait time on the next batch. [TASK-203]

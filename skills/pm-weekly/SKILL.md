@@ -16,6 +16,8 @@ data, send the executive report, or sync files.
 - Every `weeks/<week>/project-memory/project--<project-id>.md`
 - Existing Project, Department, and Company reports for comparison
 - Existing `memory/{employees,sops,issues,decisions}/` entries
+- Frozen weekly inventory, including optional source coverage failures recorded
+  by the automation when a conversation tool or source was unavailable
 - `templates/{weekly-report,area-operating-rollup,company-operating-rollup}.md`
 - `templates/executive-distribution.md`
 - `../pm-daily/templates/project-memory.md` for next-week initialization
@@ -37,6 +39,14 @@ data, send the executive report, or sync files.
   Assert: every material claim cites Project Memory evidence and each Final
   report has the complete template structure.
 
+  Preserve conversation evidence states and collection gaps from Project Memory.
+  Include unavailable optional-source coverage from the frozen inventory even
+  when it produced no Project Memory update; cite that inventory for coverage.
+  Member-reported blockers and proposals may inform attention; assistant-reported
+  completion is not accepted delivery. Do not turn a private excerpt into public
+  report text: summarize only necessary project facts with their qualification
+  and immediate Project Memory citation. Never publish raw chat excerpts.
+
 - [ ] **3 — Roll reports upward.**
   Rule: Department reports read only Final Project reports; the Company report
   reads only Final Department reports. Use their matching templates.
@@ -57,6 +67,15 @@ data, send the executive report, or sync files.
   do not double-count one Work item, and label unmeasured Before/After values as
   gaps. Every accepted artifact-producing outcome appears in its Person's latest
   weekly evidence and its Department's accepted-output rollup.
+
+  Conversation-only observations never establish Employee accepted outputs,
+  performance ratings, or an approved SOP baseline. Promote a decision only with
+  established authority; retain reported/proposed decisions at Project level.
+  Review prior memory flagged by a source withdrawal or correction. Remove a
+  withdrawn excerpt, qualify or retract a solely dependent claim, and preserve
+  unrelated corroborated evidence. Do not interpret an unavailable source as a
+  withdrawal. Do not silently rewrite historical Final reports; record a sourced
+  correction in the current report and affected durable memory.
 
 - [ ] **5 — Carry attention forward and draft distribution.**
   Rule: initialize next week from unresolved work only. Render the executive

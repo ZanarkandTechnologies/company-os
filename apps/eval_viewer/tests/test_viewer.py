@@ -59,9 +59,9 @@ class EvidenceViewerTests(unittest.TestCase):
                 "automation_runs": {"daily": {"status": "failed"}, "weekly": {"status": "not_run"}},
             })
             model = build_static_evidence_viewer(out_dir=root, eval_run_root=root)
-            self.assertEqual(len(model["evaluations"]), 8)
-            self.assertEqual([row["status"] for row in model["evaluations"]].count("fail"), 4)
-            self.assertEqual([row["status"] for row in model["evaluations"]].count("not_run"), 4)
+            self.assertEqual(len(model["evaluations"]), len(catalog()))
+            self.assertEqual([row["status"] for row in model["evaluations"]].count("fail"), sum(cadence == "daily" for cadence, _ in catalog()))
+            self.assertEqual([row["status"] for row in model["evaluations"]].count("not_run"), sum(cadence == "weekly" for cadence, _ in catalog()))
 
     def test_setup_block_renders_without_loading_results(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -82,7 +82,7 @@ class EvidenceViewerTests(unittest.TestCase):
             fixture(root)
             model = build_evidence_model(project_root=ROOT, eval_run_root=root)
             self.assertEqual(model["runKind"], "shared-automation-eval")
-            self.assertEqual(model["metrics"]["evaluations"], {"total": 8, "passed": 8})
+            self.assertEqual(model["metrics"]["evaluations"], {"total": len(catalog()), "passed": len(catalog())})
             self.assertTrue(all(row["showcase"] for row in model["evaluations"][:6]))
             self.assertTrue(all(not row["showcase"] for row in model["evaluations"][6:]))
             self.assertEqual(model["evaluations"][0]["name"], "Documentation-quality follow-up")

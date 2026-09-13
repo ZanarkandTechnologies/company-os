@@ -34,6 +34,7 @@ if "%COMPANY_OS_ACTION%"=="14" goto certify
 if "%COMPANY_OS_ACTION%"=="15" goto preflight_check
 if "%COMPANY_OS_ACTION%"=="16" goto eval_check
 if "%COMPANY_OS_ACTION%"=="17" goto dossier
+if "%COMPANY_OS_ACTION%"=="18" goto conversations
 if "%COMPANY_OS_ACTION%"=="130" goto cancelled
 goto failed
 
@@ -142,6 +143,11 @@ exit /b %ERRORLEVEL%
 :dossier
 call :run_setup doctor open
 exit /b %ERRORLEVEL%
+
+:conversations
+call :run_setup conversations configure
+if errorlevel 1 goto failed
+goto static_verify
 
 :verification_result
 if "%VERIFY_EXIT%"=="0" (

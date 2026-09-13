@@ -12,7 +12,7 @@ import tempfile
 import time
 import uuid
 import webbrowser
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Callable
 
 from apps.eval_viewer.build import build_static_evidence_viewer
@@ -160,7 +160,7 @@ def prepare_run(
     return run, suites
 
 
-def generation_prompt(container_cadence_root: Path, cases: list[dict[str, Any]], cadence: str) -> str:
+def generation_prompt(container_cadence_root: PurePosixPath, cases: list[dict[str, Any]], cadence: str) -> str:
     manifest = [
         {
             "eval_id": case["id"],
@@ -168,6 +168,10 @@ def generation_prompt(container_cadence_root: Path, cases: list[dict[str, Any]],
             "expected_output": case["expected_output"],
             "assertions": case["assertions"],
             "scenario": str(container_cadence_root / "scenarios" / case["id"]),
+            "output_directory": str(
+                PurePosixPath(*container_cadence_root.relative_to("/workspace").parts)
+                / "scenarios" / case["id"] / "outputs"
+            ),
         }
         for case in cases
     ]
@@ -175,8 +179,11 @@ def generation_prompt(container_cadence_root: Path, cases: list[dict[str, Any]],
         f"Read SKILL.md completely, then operate this isolated PM {cadence} "
         "evaluation batch. The host working directory is bind-mounted at /workspace in "
         f"the Docker backend. The exact batch root is {container_cadence_root}. Resolve every "
-        "scenario from the absolute container path in MANIFEST and write artifacts only under "
-        "that scenario's outputs directory; never use a host absolute path. "
+        "scenario from the absolute container path in MANIFEST. For every file write or patch, "
+        "use the relative output_directory from MANIFEST; the path must start `.company-os/` "
+        "and must never start `/workspace` or contain a Windows drive. Create and edit every "
+        "output with the patch tool in patch mode; do not use write_file. This keeps paths "
+        "portable across Windows-hosted Docker. "
         "The scenarios are mutually exclusive: treat each scenario as a fresh "
         "world and never carry facts or generated state between them. Read only that scenario's "
         "inputs plus the copied templates in this working directory. Write only inside that "
@@ -268,7 +275,8 @@ def _run_cadence(
     cadence_root = run / cadence
     workspace_root = profile_home / "workspace"
     try:
-        container_cadence_root = Path("/workspace") / cadence_root.relative_to(workspace_root)
+        # Container paths must remain POSIX even when Hermes runs on Windows.
+        container_cadence_root = PurePosixPath("/workspace", *cadence_root.relative_to(workspace_root).parts)
     except ValueError as error:
         raise EvaluationError("eval_run_outside_workspace") from error
     result = command_runner(
@@ -336,6 +344,65 @@ def _artifact_payload(run: Path, outputs: dict[str, list[str]]) -> dict[str, lis
             rows.append({"path": relative, "content": content[:24000]})
         payload[eval_id] = rows
     return payload
+
+
+def _completed_cadence(run: Path, cadence: str, cases: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Return a previously verified cadence result, or None when it is incomplete.
+
+    Reuse is allowed only when the exported trace exists, contains only the
+    permitted file tools, and every current catalog case has a nonempty result.
+    This prevents a rate-limit retry from treating partial output as complete.
+    """
+    trace_path = run / "traces" / f"{cadence}.json"
+    if not trace_path.is_file() or trace_path.is_symlink():
+        return None
+    trace_record = _read_json(trace_path, f"eval_{cadence}_trace")
+    trace = trace_record.get("messages")
+    session_id = trace_record.get("session_id")
+    if not isinstance(trace, list) or not isinstance(session_id, str) or not session_id:
+        return None
+    tools = _tool_names(trace)
+    if not tools or not tools.issubset(ALLOWED_GENERATION_TOOLS):
+        raise EvaluationError(f"eval_{cadence}_unsafe_tool_trace")
+    outputs: dict[str, list[str]] = {}
+    for case in cases:
+        output_root = run / cadence / "scenarios" / case["id"] / "outputs"
+        result_path = output_root / "result.md"
+        if not result_path.is_file() or result_path.is_symlink() or not result_path.read_text(encoding="utf-8").strip():
+            return None
+        rows = []
+        for path in sorted(output_root.rglob("*")):
+            if path.is_symlink():
+                raise EvaluationError(f"eval_output_unsafe:{case['id']}")
+            if path.is_file():
+                rows.append(path.relative_to(run).as_posix())
+        outputs[case["id"]] = rows
+    return {"status": "passed", "session_id": session_id, "outputs": outputs}
+
+
+def _seed_completed_cadences(
+    profile_home: Path, run: Path, suites: dict[str, list[dict[str, Any]]], resume_from: str,
+) -> dict[str, dict[str, Any]]:
+    if not re.fullmatch(r"[A-Za-z0-9._-]+", resume_from):
+        raise EvaluationError("eval_resume_id_invalid")
+    state = (profile_home / STATE_DIRECTORY).resolve()
+    source = (state / resume_from).resolve()
+    if state not in source.parents or not source.is_dir() or source.is_symlink():
+        raise EvaluationError("eval_resume_run_invalid")
+    seeded: dict[str, dict[str, Any]] = {}
+    for cadence in CADENCES:
+        prior = _completed_cadence(source, cadence, suites[cadence])
+        if prior is None:
+            continue
+        for case in suites[cadence]:
+            source_root = source / cadence / "scenarios" / case["id"] / "outputs"
+            target_root = run / cadence / "scenarios" / case["id"] / "outputs"
+            for path in sorted(source_root.rglob("*")):
+                if path.is_file():
+                    _copy_private(path, target_root / path.relative_to(source_root))
+        _copy_private(source / "traces" / f"{cadence}.json", run / "traces" / f"{cadence}.json")
+        seeded[cadence] = _completed_cadence(run, cadence, suites[cadence]) or prior
+    return seeded
 
 
 def judge_prompt(
@@ -491,6 +558,7 @@ def run_evaluation(
     command_runner: CommandRunner = runtime.run_command,
     timeout: int = 900,
     run_id: str | None = None,
+    resume_from: str | None = None,
 ) -> dict[str, Any]:
     """Run each cadence once, judge all cases once, and build its dossier."""
     if timeout < 1:
@@ -502,11 +570,14 @@ def run_evaluation(
     started = time.time()
     automation_runs: dict[str, dict[str, Any]] = {}
     outputs: dict[str, list[str]] = {}
+    seeded = _seed_completed_cadences(profile_home, run, suites, resume_from) if resume_from else {}
     for cadence in CADENCES:
-        cadence_result = _run_cadence(
-            profile_home, run, cadence, suites[cadence],
-            command_runner=command_runner, timeout=timeout,
-        )
+        cadence_result = seeded.get(cadence)
+        if cadence_result is None:
+            cadence_result = _run_cadence(
+                profile_home, run, cadence, suites[cadence],
+                command_runner=command_runner, timeout=timeout,
+            )
         automation_runs[cadence] = {
             "status": cadence_result["status"],
             "session_id": cadence_result["session_id"],

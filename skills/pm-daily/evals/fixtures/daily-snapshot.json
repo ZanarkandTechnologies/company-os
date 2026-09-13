@@ -33,6 +33,19 @@
       "summary": "Guest checkout confirmation was fixed, but no affected order or trace was attached.",
       "source_url": "https://example.invalid/TASK-102",
       "source_revision": "task-102-r5"
+    },
+    {
+      "id": "TASK-103",
+      "source_provider": "notion",
+      "provider_record_id": "33333333-3333-4333-8333-333333333333",
+      "source_reference": "https://example.invalid/TASK-103",
+      "project_id": "PROJ-CMT",
+      "owner_id": "PERSON-AISHA",
+      "status": "Done",
+      "updated_at": "2026-08-25T11:00:00+08:00",
+      "summary": "Registered checkout was verified for order ORD-103; payment return trace TRACE-103 is attached.",
+      "source_url": "https://example.invalid/TASK-103",
+      "source_revision": "task-103-r3"
     }
   ]
 }

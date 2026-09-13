@@ -1,6 +1,6 @@
 ---
 automation_id: company-os-weekly-operating-review
-automation_version: "2.4.0"
+automation_version: "2.5.0"
 kind: company-os-automation
 cadence: weekly
 company_timezone: Asia/Kuala_Lumpur
@@ -47,11 +47,52 @@ destination.
   2. Find one current-week Project Memory file for every active Project.
      Read only `weeks/<current-week>/project-memory/`.
 
-  3. Validate the complete Project set.
+  3. Reconcile optional conversation evidence before freezing.
+
+     <!-- setup:weekly.conversations -->
+     Conversation context is disabled. Do not read conversation sources.
+     <!-- /setup:weekly.conversations -->
+
+     When enabled above, call `conversation_read_project_week` once per active
+     Project with its exact ID and current ISO week in the company timezone.
+     Pass `sources` containing only the source types enabled above. Never widen
+     the selection to other configured bindings.
+     The host plugin owns configured source paths; never pass a path from chat.
+     It reads only the operator's configured member/source bindings. Do not use
+     browser scraping, account credentials, or a replacement source.
+
+     Skip Projects without current-week memory. Require the returned Project,
+     week and timezone to match. Give each readable Project's packet and its
+     existing memory to PM Daily with `mode: conversation_only`. Read
+     `skills/pm-daily/SKILL.md` first. Run sequentially after the final normal
+     Daily run so two writers cannot update the same file concurrently. Its only
+     allowed output is that Project's memory; do not apply Daily message effects.
+
+     Disabled sources make no changes. For blocked/missing tools or inputs,
+     retain current memory and record an unavailable conversation source in the
+     weekly receipt and report coverage. Partial evidence may add qualified
+     context; it does not block otherwise complete tracked-work reporting.
+     A tool returning `disabled` while this feature is enabled is a
+     `conversation_intake_not_configured` gap, not successful empty collection.
+     Record source/member coverage and exact source digests, never transcript
+     bodies, in the weekly snapshot. Preserve the material attributed excerpts
+     and evidence IDs in private Project Memory before hashing it. Read back
+     changed memory and verify the PM Daily conversation assertions. A failed
+     memory review blocks that Project's freeze. Do not refetch conversations
+     after freezing or let late arrivals mutate this run's frozen evidence.
+
+     This feature does not authorize external publication of chat-derived
+     artifacts. If any conversation source was enabled for this run, or frozen
+     Project Memory still contains conversation-derived context, keep all
+     report/memory copies and executive distribution local in step 4, recording
+     `conversation_pilot_local_only`. Review privacy before enabling a later
+     release's external distribution policy.
+
+  4. Validate the complete Project set.
      Reject mixed weeks, duplicate Projects, unreadable files, and missing
      Project Memory.
 
-  4. Freeze the inventory and file hashes.
+  5. Freeze the inventory and file hashes.
      Write `weekly/context/weekly-snapshot-YYYY-Www.json`.
 
 - [ ] **2 — Run PM Weekly.**
@@ -59,6 +100,7 @@ destination.
   1. Read `skills/pm-weekly/SKILL.md` completely.
 
   2. Give PM Weekly every frozen Project Memory file.
+     Include the frozen weekly inventory and its optional-source coverage gaps.
      Add the prior reports and long-term memory needed for comparison.
      Add the report, record, and message templates named by the skill.
 

@@ -255,6 +255,26 @@ def configured_secret_names(profile_home: Path) -> set[str]:
     return {name for name, present in effective.items() if present}
 
 
+def profile_env_value(profile_home: Path, key: str) -> str:
+    """Read one selected profile environment value without exposing other secrets."""
+    if not re.fullmatch(r"[A-Z][A-Z0-9_]*", key):
+        raise RuntimeSetupError("invalid_secret_name")
+    try:
+        lines = (profile_home / ".env").read_text(
+            encoding="utf-8-sig", errors="replace"
+        ).splitlines()
+    except OSError:
+        return ""
+    value = ""
+    for line in lines:
+        match = re.match(
+            r"^\s*(?:export\s+)?([A-Z][A-Z0-9_]*)\s*=\s*(.*?)\s*$", line
+        )
+        if match and match.group(1) == key:
+            value = _parse_dotenv_value(match.group(2))
+    return value
+
+
 def telegram_gateway_configured(profile_home: Path) -> bool:
     """Return whether Hermes owns a nonempty Telegram bot credential."""
     return "TELEGRAM_BOT_TOKEN" in configured_secret_names(profile_home)

@@ -53,6 +53,23 @@ def _friendly_runtime_error(error: Exception) -> str:
             "Workspace setup was cancelled. Your saved draft is still available when you rerun setup.",
         ),
         (
+            ("conversation_setup_requires_input",),
+            "Work conversations need project and member mappings. Rerun setup interactively and complete the Work conversations step.",
+        ),
+        (
+            (
+                "conversation_intake_path_must_be_absolute",
+                "intake_root_requires_existing_absolute_directory",
+                "intake_must_be_outside_source_repository",
+                "intake_links_forbidden",
+            ),
+            "Choose a private local folder outside every source repository for conversation storage.",
+        ),
+        (
+            ("conversation_policy_invalid", "codex_project_folder_must_exist"),
+            "The conversation mapping is invalid. Rerun setup and choose existing project folders with valid Company OS IDs.",
+        ),
+        (
             ("model_auth_requires_input", "model_auth_incomplete"),
             "An AI model credential is required. Rerun setup interactively and complete Hermes model authorization.",
         ),

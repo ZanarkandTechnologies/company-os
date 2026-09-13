@@ -84,6 +84,13 @@ class SetupLaunchTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(after, before)
 
+    def test_existing_profile_can_open_conversation_manager(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            profile = self.existing_profile(Path(temporary))
+            result = self.run_launch(profile, "11\n")
+            self.assertEqual(result.returncode, 18, result.stderr)
+            self.assertIn("Manage work conversations", result.stdout)
+
     def test_incomplete_profile_can_exit_without_resuming(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             profile = Path(temporary) / "profiles" / "company-os"

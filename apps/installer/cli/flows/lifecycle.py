@@ -38,6 +38,7 @@ LAUNCH_CERTIFY = 14
 LAUNCH_PREFLIGHT = 15
 LAUNCH_EVAL = 16
 LAUNCH_DOSSIER = 17
+LAUNCH_CONVERSATIONS = 18
 FRESH_START_MARKER = ".company-os-fresh-start"
 DISTRIBUTION_SOURCE_ENV = "COMPANY_OS_DISTRIBUTION_SOURCE"
 
@@ -173,6 +174,9 @@ def _workspace_update(profile_home: Path) -> int:
             CONSOLE.print("[yellow]Feature configuration was not changed.[/yellow]")
             return 1
         state = load_state(profile_home / "config" / "setup-answers.json")
+        from apps.installer.cli.flows.conversations import configure_conversations
+
+        configure_conversations(profile_home, state)
         bindings = selected_bindings(
             state.answers,
             catalog_api.load_catalog(),
@@ -218,7 +222,11 @@ def _workspace_update(profile_home: Path) -> int:
             )
         )
         return 0
-    except (runtime.RuntimeSetupError, FeatureSetupError, CatalogError) as error:
+    except (
+        runtime.RuntimeSetupError,
+        FeatureSetupError,
+        CatalogError,
+    ) as error:
         CONSOLE.print(
             Panel.fit(
                 "[bold red]Workspace update stopped safely[/bold red]\n"
@@ -291,9 +299,10 @@ def launch_command(args: argparse.Namespace) -> int:
     CONSOLE.print("  [cyan]8.[/cyan] Open latest eval dossier")
     CONSOLE.print("  [cyan]9.[/cyan] Open dashboard")
     CONSOLE.print("  [cyan]10.[/cyan] Exit")
+    CONSOLE.print("  [cyan]11.[/cyan] Manage work conversations")
     choice = choose(
         "Select",
-        choices=[str(index) for index in range(1, 11)],
+        choices=[str(index) for index in range(1, 12)],
         default="1",
     )
     if choice == "1":
@@ -324,6 +333,8 @@ def launch_command(args: argparse.Namespace) -> int:
         return LAUNCH_DOSSIER
     if choice == "9":
         return LAUNCH_DASHBOARD
+    if choice == "11":
+        return LAUNCH_CONVERSATIONS
     CONSOLE.print("[dim]No changes made.[/dim]")
     return 0
 
@@ -622,6 +633,12 @@ def install_command(args: argparse.Namespace) -> int:
             )
             return 1
 
+        from apps.installer.cli.flows.conversations import configure_conversations
+
+        configure_conversations(
+            profile_home, state, non_interactive=args.non_interactive
+        )
+
         _configure_model(profile_home, non_interactive=args.non_interactive)
         _configure_connections(
             profile_home,
@@ -695,7 +712,11 @@ def install_command(args: argparse.Namespace) -> int:
             )
         )
         return 0 if connection_status in {"not_run", "passed"} else 2
-    except (runtime.RuntimeSetupError, FeatureSetupError, CatalogError) as error:
+    except (
+        runtime.RuntimeSetupError,
+        FeatureSetupError,
+        CatalogError,
+    ) as error:
         CONSOLE.print(
             Panel.fit(
                 "[bold red]Setup stopped safely[/bold red]\n"

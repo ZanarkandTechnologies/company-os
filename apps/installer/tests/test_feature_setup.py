@@ -20,6 +20,14 @@ from apps.installer.provider_catalog import load_catalog
 
 
 class FeatureSetupTests(unittest.TestCase):
+    def test_existing_answers_keep_conversation_reads_disabled(self) -> None:
+        from apps.installer.feature_setup import with_optional_defaults
+
+        answers = with_optional_defaults({"daily.projects": "Existing project source."})
+        self.assertEqual(answers["weekly.conversations"], "Conversation context is disabled. Do not read conversation sources.")
+        enabled = "Read optional conversation evidence with the configured policy."
+        self.assertEqual(with_optional_defaults({"weekly.conversations": enabled})["weekly.conversations"], enabled)
+
     def test_answers_round_trip_without_runtime_indirection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "config" / "setup-answers.json"

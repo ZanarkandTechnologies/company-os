@@ -119,12 +119,16 @@ class CompanyOSTests(unittest.TestCase):
                 "progress_chaser",
                 "project_memory_update",
                 "healthy_work_noop",
+                "conversation_grounding",
+                "conversation_replay_noop",
+                "conversation_withdrawal",
             },
             "pm-weekly": {
                 "weekly_operating_reports",
                 "knowledge_promotion",
                 "next_week_carry_forward",
                 "incomplete_project_set_blocks_rollup",
+                "conversation_weekly_promotion",
             },
         }
         for skill_name, expected_ids in expected.items():

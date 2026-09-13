@@ -330,12 +330,17 @@ Rerunning `setup.cmd` on an existing installation shows:
 8. Open latest eval dossier
 9. Open dashboard
 10. Exit
+11. Manage work conversations
 ```
 
 Choose **Update Company OS features** to revisit the explained Memory, Daily,
 and Weekly questions. Setup preserves the saved answers, previews the rendered
 automation diff, reconciles any newly required provider connections, and runs a
-static check. After downloading repository updates, choose **Update Company OS
+static check. When work conversations are enabled, setup continues into a
+guided private-source step that creates the intake policy, detects local Codex
+history, saves project/member mappings, and offers a redacted current-week test.
+Choose **Manage work conversations** later to change or retest those mappings
+without repeating the full feature wizard. After downloading repository updates, choose **Update Company OS
 software**; setup updates the distribution allowlist, preserves unknown runtime
 files, reconciles schedules, and runs static verification. Use **Test
 integrations** to retry the same provider certification without reinstalling

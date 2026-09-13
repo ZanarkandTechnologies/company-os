@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 SCHEMA_VERSION = 3
 OPTIONAL_DEFAULT_ANSWERS = {
+    "weekly.conversations": "Conversation context is disabled. Do not read conversation sources.",
     "weekly_meeting.destination": (
         "Do not create a weekly meeting ticket. Record `skipped_disabled` and call no task integration."
     ),

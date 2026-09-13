@@ -97,6 +97,12 @@ private runtime data into Git.
 
 ## Develop and verify
 
+Optional [work conversation context](plugins/conversation_context/README.md)
+adds selected ChatGPT submissions and scoped local Codex messages before the
+weekly freeze. Choose the sources during feature setup; the feature starts
+disabled and its pilot keeps weekly outputs private. Local collection requires
+explicit Project/member/repository mappings and reports incomplete coverage.
+
 Edit the owning skill and Markdown templates directly, then run:
 
 ```bash

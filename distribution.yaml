@@ -1,5 +1,5 @@
 name: company-os
-version: 1.8.0
+version: 1.9.0
 description: "Company OS workspace, installer providers, automations, onboarding, and connectors"
 hermes_requires: ">=0.20.4"
 author: "Zanarkand Technologies"
@@ -27,6 +27,7 @@ distribution_owned:
   - apps/installer/schemas
   - apps/installer/runtime.py
   - apps/installer/feature_setup.py
+  - apps/installer/conversation_setup.py
   - apps/installer/cli
   - apps/installer/workspace.py
   - apps/installer/profile.py
@@ -68,3 +69,11 @@ distribution_owned:
   - plugins/platforms/discord/plugin.yaml
   - plugins/multica/__init__.py
   - plugins/multica/plugin.yaml
+  - plugins/conversation_context/__init__.py
+  - plugins/__init__.py
+  - plugins/conversation_context/__main__.py
+  - plugins/conversation_context/models.py
+  - plugins/conversation_context/intake.py
+  - plugins/conversation_context/codex.py
+  - plugins/conversation_context/plugin.yaml
+  - plugins/conversation_context/README.md

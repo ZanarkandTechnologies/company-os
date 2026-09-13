@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[3]
 
 class FeatureFlowTests(unittest.TestCase):
     def test_every_screen_has_explainer_presets_custom_and_back(self) -> None:
-        self.assertEqual(len(QUESTIONS), 21)
+        self.assertEqual(len(QUESTIONS), 22)
         self.assertTrue(all(question.explainer.strip() for question in QUESTIONS))
         self.assertTrue(all(len(question.presets) >= 2 for question in QUESTIONS))
         self.assertTrue(all(question.custom_hint.strip() for question in QUESTIONS))

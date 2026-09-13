@@ -1,0 +1,13 @@
+name: conversation_context
+label: Work conversation context
+kind: backend
+version: 1.0.0
+description: Read-only weekly evidence from private member submissions and local Codex exports.
+author: Zanarkand Technologies
+provides_tools:
+  - conversation_read_project_week
+optional_env:
+  - name: COMPANY_OS_CONVERSATION_INTAKE
+    description: Existing private intake directory outside any source repository; empty disables reads
+    prompt: Private conversation intake directory
+    password: false
